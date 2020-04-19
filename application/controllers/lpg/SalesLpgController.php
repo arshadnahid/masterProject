@@ -148,6 +148,8 @@ class SalesLpgController extends CI_Controller
                 $sales_inv['dist_id'] = $this->dist_id;
                 $sales_inv['branch_id'] = $branch_id;
                 if ($this->input->post('creditDueDate') != '') {
+
+
                     $sales_inv['due_date'] = $this->input->post('creditDueDate') != '' ? date('Y-m-d', strtotime($this->input->post('creditDueDate'))) : 'NULL';
                 }
                 $sales_inv['invoice_date'] = $saleDate;

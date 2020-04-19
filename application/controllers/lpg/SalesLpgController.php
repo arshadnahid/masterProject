@@ -757,7 +757,15 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableCustomerReceivable['Created_Date'] = $this->timestamp;
                     $accountingDetailsTableCustomerReceivable['BranchAutoId'] = $branch_id;
                     $accountingDetailsTableCustomerReceivable['date'] = $saleDate;
-                    $finalDetailsArray[] = $accountingDetailsTableCustomerReceivable;
+                    $accountingDetailsTableCustomerReceivable['cus_due_collection_details_id'] = 0;
+                    $accountingDetailsTableCustomerReceivable['for'] = 5;
+                    $accountingDetailsTableCustomerReceivable['invoice_id'] = $this->invoice_id;
+                    $accountingDetailsTableCustomerReceivable['invoice_no'] = $invoice_no;
+
+                    $cus_due_collection_details_id = $this->Common_model->insert_data('ac_tb_accounts_voucherdtl', $accountingDetailsTableCustomerReceivable);
+
+
+                    //$finalDetailsArray[] = $accountingDetailsTableCustomerReceivable;
                     $totalGR_DEBIT=$totalGR_DEBIT+0;
                     $totalGR_CREDIT=$totalGR_CREDIT+$this->input->post('partialPayment');
                     $accountingDetailsTableCustomerReceivable = array();
@@ -2484,6 +2492,11 @@ class SalesLpgController extends CI_Controller
     public function customerPaymentAdd()
     {
         if (isPostBack()) {
+
+
+
+
+
             $this->form_validation->set_rules('customerid', 'Customer ID', 'required');
             $this->form_validation->set_rules('paymentDate', 'Payment Date', 'required');
             $this->form_validation->set_rules('receiptId', 'Money Receit ID', 'required');
@@ -2521,6 +2534,7 @@ class SalesLpgController extends CI_Controller
                     $due_collection_info['insert_by'] = $this->admin_id;
                     $due_collection_info['is_active'] = 'Y';
                     $due_collection_info['is_delete'] = 'N';
+                    $due_collection_info['narration'] = $this->input->post('narration');
                     $cus_due_collection_info_id = $this->Common_model->insert_data('cus_due_collection_info', $due_collection_info);
 
 
@@ -2542,7 +2556,6 @@ class SalesLpgController extends CI_Controller
                                 $reciveVoucherNo = create_receive_voucher_no();
                                 $dataMaster['Accounts_Voucher_Date'] = date('Y-m-d', strtotime($this->input->post('date')));
                                 $dataMaster['Accounts_Voucher_No'] = $reciveVoucherNo;
-                                $dataMaster['Narration'] = $this->input->post('narration');
                                 $dataMaster['CompanyId'] = $this->dist_id;
                                 $dataMaster['BranchAutoId'] = $branch_id;
                                 $dataMaster['Reference'] = 0;
@@ -2558,12 +2571,32 @@ class SalesLpgController extends CI_Controller
                                 $accounting_vouchaer_id = $this->Common_model->insert_data('ac_accounts_vouchermst', $dataMaster);
                                 /*Customer Receivable  /account Receiveable  =>>25*/
                                 //account Receiveable
+
+                                $due_collection['sales_invoice_id'] = $this->input->post('invoiceID[' . $a . ']');
+                                $due_collection['due_collection_info_id'] = $cus_due_collection_info_id;
+                                $due_collection['customer_id'] = $this->input->post('customerid');
+                                $due_collection['payment_type'] = $paymentType;
+                                $due_collection['paid_amount'] = $this->input->post('amount[' . $a . ']');
+                                $due_collection['insert_date'] = $this->timestamp;
+                                $due_collection['date'] = date('Y-m-d', strtotime($this->input->post('paymentDate')));
+                                $due_collection['insert_by'] = $this->admin_id;
+                                $due_collection['is_active'] = 'Y';
+                                $due_collection['is_delete'] = 'N';
+                                $cus_due_collection_details_id = $this->Common_model->insert_data('cus_due_collection_details', $due_collection);
+                                $due_collection=array();
+
+
+
                                 $accountingDetailsTableCustomerReceivable['Accounts_VoucherMst_AutoID'] = $accounting_vouchaer_id;
                                 $accountingDetailsTableCustomerReceivable['TypeID'] = '2';//Cr
                                 $accountingDetailsTableCustomerReceivable['CHILD_ID'] = $ledger_id->id;//;$this->config->item("Customer_Receivable");//'25';
                                 $accountingDetailsTableCustomerReceivable['GR_DEBIT'] = '0.00';
                                 $accountingDetailsTableCustomerReceivable['GR_CREDIT'] = $this->input->post('amount[' . $a . ']');
                                 $accountingDetailsTableCustomerReceivable['Reference'] = 'Customer paid amount';
+                                $accountingDetailsTableCustomerReceivable['cus_due_collection_details_id'] = $cus_due_collection_details_id;
+                                $accountingDetailsTableCustomerReceivable['for'] = 5;
+                                $accountingDetailsTableCustomerReceivable['invoice_id'] = $this->input->post('invoiceID[' . $a . ']');
+                                $accountingDetailsTableCustomerReceivable['invoice_no'] = $this->input->post('voucher[' . $a . ']');
                                 $accountingDetailsTableCustomerReceivable['IsActive'] = 1;
                                 $accountingDetailsTableCustomerReceivable['Created_By'] = $this->admin_id;
                                 $accountingDetailsTableCustomerReceivable['Created_Date'] = $this->timestamp;
@@ -2579,6 +2612,10 @@ class SalesLpgController extends CI_Controller
                                 $accountingDetailsTableCashinhand['GR_DEBIT'] = $this->input->post('amount[' . $a . ']');
                                 $accountingDetailsTableCashinhand['GR_CREDIT'] = '0.00';
                                 $accountingDetailsTableCashinhand['Reference'] = '';
+                                $accountingDetailsTableCashinhand['cus_due_collection_details_id'] = $cus_due_collection_details_id;
+                                $accountingDetailsTableCashinhand['for'] = 5;
+                                $accountingDetailsTableCashinhand['invoice_id'] = $this->input->post('invoiceID[' . $a . ']');
+                                $accountingDetailsTableCashinhand['invoice_no'] = $this->input->post('voucher[' . $a . ']');
                                 $accountingDetailsTableCashinhand['IsActive'] = 1;
                                 $accountingDetailsTableCashinhand['Created_By'] = $this->admin_id;
                                 $accountingDetailsTableCashinhand['Created_Date'] = $this->timestamp;
@@ -2590,33 +2627,9 @@ class SalesLpgController extends CI_Controller
                                     $this->Common_model->insert_batch_save('ac_tb_accounts_voucherdtl', $finalDetailsArray);
                                 }
                                 $finalDetailsArray=array();
-                                $supp = array(
-                                    'ledger_type' => 1,
-                                    'dist_id' => $this->dist_id,
-                                    'trans_type' => $this->input->post('invoiceID[' . $a . ']'),
-                                    'client_vendor_id' => $this->input->post('customerid'),
-                                    'amount' => $this->input->post('amount[' . $a . ']'),
-                                    'cr' => $this->input->post('amount[' . $a . ']'),
-                                    'date' => date('Y-m-d', strtotime($this->input->post('date'))),
-                                    'updated_by' => $this->admin_id,
-                                    'history_id' => $accounting_vouchaer_id,
-                                    'invoice_id' => $this->input->post('invoiceID[' . $a . ']'),
-                                    'invoice_type' => 2,//purchase
-                                    'BranchAutoId' => $branch_id,//purchase
-                                    'paymentType' => 'Customer Payment'
-                                );
-                                $this->db->insert('client_vendor_ledger', $supp);
-                                $due_collection['sales_invoice_id'] = $this->input->post('invoiceID[' . $a . ']');
-                                $due_collection['due_collection_info_id'] = $cus_due_collection_info_id;
-                                $due_collection['customer_id'] = $this->input->post('customerid');
-                                $due_collection['payment_type'] = $paymentType;
-                                $due_collection['paid_amount'] = $this->input->post('amount[' . $a . ']');
-                                $due_collection['insert_date'] = $this->timestamp;
-                                $due_collection['date'] = date('Y-m-d', strtotime($this->input->post('paymentDate')));
-                                $due_collection['insert_by'] = $this->admin_id;
-                                $due_collection['is_active'] = 'Y';
-                                $due_collection['is_delete'] = 'N';
-                                $allStock[] = $due_collection;
+
+
+
                                 $postedInvoiceNo[] = $this->input->post('invoiceID[' . $a . ']');;
                             }
                         }

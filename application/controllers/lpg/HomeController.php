@@ -44,6 +44,20 @@ class HomeController extends CI_Controller
     public function moduleDashboard()
     {
 
+        $query = $this->db->field_exists('narration', 'cus_due_collection_info');
+        if ($query != TRUE) {
+            $this->load->dbforge();
+            $fields = array(
+                'narration' => array(
+                    'type' => 'TEXT',
+                    //'constraint' => '255',
+                    //'unsigned' => TRUE,
+                    //'after' => 'Reference'
+                )
+            );
+            $this->dbforge->add_column('cus_due_collection_info', $fields);
+        }
+
         $query = $this->db->field_exists('ReferenceForBackEnd', 'ac_tb_accounts_voucherdtl');
         if ($query != TRUE) {
             $this->load->dbforge();
@@ -55,7 +69,9 @@ class HomeController extends CI_Controller
                     'after' => 'Reference')
             );
             $this->dbforge->add_column('ac_tb_accounts_voucherdtl', $fields);
-        } $query = $this->db->field_exists('ReferenceForBackEnd', 'ac_tb_accounts_voucherdtl_history');
+        }
+
+        $query = $this->db->field_exists('ReferenceForBackEnd', 'ac_tb_accounts_voucherdtl_history');
         if ($query != TRUE) {
             $this->load->dbforge();
             $fields = array(

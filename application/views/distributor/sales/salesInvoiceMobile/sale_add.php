@@ -506,7 +506,7 @@
                         <?php echo get_phrase('Save') ?>
                     </button>
                     <span id="errorMsg" style="color:red;display: none;"><i
-                                class="ace-icon fa fa-spinner fa-spin orange bigger-120"></i> &nbsp;&nbsp;Customer already Exits!!</span>
+                                class="ace-icon fa fa-spinner fa-spin orange bigger-120"></i> &nbsp;&nbsp;Customer Credit Limit over!!</span>
 
                 </div>
             </div>

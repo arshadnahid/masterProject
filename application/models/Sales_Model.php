@@ -756,33 +756,73 @@ LEFT JOIN customertype on customertype.type_id=customer.customerType  WHERE 1=1 
     }
     function generals_customer($customer_id, $BranchAutoId)
     {
-        $query = "SELECT
-                    sales_invoice_info.invoice_no,
-                    sales_invoice_info.invoice_date,
-                    sales_invoice_info.sales_invoice_id,
-                    sales_invoice_info.invoice_amount,
-                    sales_invoice_info.paid_amount,
-                    IFNULL(cus_due_collection_details.due_paid_amount,0	)AS due_paid_amount,
-                    (sales_invoice_info.invoice_amount -(sales_invoice_info.paid_amount + IFNULL(cus_due_collection_details.due_paid_amount,0)))AS amount
-                FROM
-                    sales_invoice_info
-                LEFT JOIN(SELECT
-                        sales_invoice_id,
-                        SUM(cus_due_collection_details.paid_amount)AS due_paid_amount
-                    FROM
-                        cus_due_collection_details /*WHERE
-                                        cus_due_collection_details.sales_invoice_id = 1*/
-                    GROUP BY
-                        cus_due_collection_details.sales_invoice_id 
-                )AS cus_due_collection_details ON cus_due_collection_details.sales_invoice_id = sales_invoice_info.sales_invoice_id
-                WHERE
-                    sales_invoice_info.payment_type IN(2, 4)/*payment type chash and full credit*/
-                AND sales_invoice_info.customer_id =" . $customer_id;
+
+
+
+$query="SELECT
+	sales_invoice_info.invoice_no,
+	sales_invoice_info.invoice_date,
+	sales_invoice_info.sales_invoice_id,
+	(sales_product.sales_product_price + sales_invoice_info.transport_charge + sales_invoice_info.loader_charge)AS invoice_amount,
+	(sales_product.sales_product_price + sales_invoice_info.transport_charge + sales_invoice_info.loader_charge)-paid_against_invoice.paid_amount AS amount,
+	paid_against_invoice.paid_amount,
+	sales_invoice_info.due_date,
+	sales_invoice_info.payment_type,
+	sales_invoice_info.narration,
+	customer.customerName,
+	customer.customerType,
+	customer.customerID,
+	customertype.typeTitle,
+	sales_invoice_info.customer_id,
+	branch.branch_name,
+	branch.branch_id
+FROM
+	sales_invoice_info
+LEFT JOIN(
+	SELECT
+		SUM(sd.quantity * sd.unit_price)sales_product_price,
+		sd.sales_invoice_id
+	FROM
+		sales_details sd
+	WHERE
+		sd.show_in_invoice = 1
+	GROUP BY
+		sd.sales_invoice_id
+)sales_product ON sales_product.sales_invoice_id = sales_invoice_info.sales_invoice_id
+LEFT JOIN(
+	SELECT
+		SUM(acd.GR_CREDIT)AS paid_amount,
+		acd.invoice_id
+	FROM
+		ac_tb_accounts_voucherdtl acd
+	WHERE
+		acd.`for` = 5
+	GROUP BY
+		acd.invoice_id
+)paid_against_invoice ON paid_against_invoice.invoice_id = sales_invoice_info.sales_invoice_id
+LEFT JOIN customer ON customer.customer_id = sales_invoice_info.customer_id
+LEFT JOIN customertype ON customertype.type_id = customer.customerType
+LEFT JOIN branch ON branch.branch_id = sales_invoice_info.branch_id
+WHERE
+	sales_invoice_info.is_active = 'Y'
+AND sales_invoice_info.is_delete = 'N'
+AND branch.is_active = '1'
+ AND sales_invoice_info.customer_id =" . $customer_id;
+
         if ($BranchAutoId != 'all' || $BranchAutoId != null) {
-            $query .= " AND branch_id=" . $BranchAutoId;
+            $query .= " AND sales_invoice_info.branch_id=" . $BranchAutoId;
         }
         $query .= "  HAVING
-                    amount > 0";
+                    amount > 0 ";
+$query .=" ORDER BY
+	branch.branch_name ";
+
+
+
+
+
+
+
         $query = $this->db->query($query);
         $result['invoice_list'] = $query->result_array();
         return $result;

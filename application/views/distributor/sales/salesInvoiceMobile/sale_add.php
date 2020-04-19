@@ -159,6 +159,21 @@
                 </div>
             </div>
             <div class="clearfix"></div>
+            <!--creditDate-->
+            <div class="form-group " >
+                <label class="col-sm-3 control-label formfonterp"
+                       style="white-space: nowrap; "><strong><?php echo get_phrase('Due_Date') ?>
+                        :</strong></label>
+                <div class="col-md-7">
+                    <!--id="dueDate"-->
+                    <input class="form-control date-picker" name="creditDueDate"
+                           style=""
+                           type="text" value="<?php echo date('d-m-Y'); ?>" data-date-format="dd-mm-yyyy"
+                           autocomplete="off"/>
+
+                </div>
+            </div>
+            <div class="clearfix"></div>
             <div class="form-group">
                 <label class="col-sm-3 control-label formfonterp" style="white-space: nowrap;" for="form-field-1"><span
                             style="color:red;">*</span><strong><?php echo get_phrase('Payment_Type') ?></strong></label>
@@ -615,18 +630,7 @@
 
                         </div>
                     </div>
-                    <div class="form-group creditDate" style="display:none;">
-                        <label class="col-md-5 control-label"
-                               style="white-space: nowrap; font-size:11px;"><strong><?php echo get_phrase('Due_Date') ?>
-                                :</strong></label>
-                        <div class="col-md-7">
-                            <input class="form-control date-picker" name="creditDueDate" id="dueDate"
-                                   style="text-align: right"
-                                   type="text" value="<?php echo date('d-m-Y'); ?>" data-date-format="dd-mm-yyyy"
-                                   autocomplete="off"/>
 
-                        </div>
-                    </div>
                     <!--<div class="form-group">
                         <label class="col-md-5 control-label" style="white-space: nowrap; font-size:11px;"><strong>Due Amount :</strong></label>
                         <div class="col-md-7">

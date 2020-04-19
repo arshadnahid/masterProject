@@ -147,8 +147,8 @@ class SalesLpgController extends CI_Controller
                 $sales_inv['company_id'] = $this->dist_id;
                 $sales_inv['dist_id'] = $this->dist_id;
                 $sales_inv['branch_id'] = $branch_id;
-                if ($this->input->post('dueDate') != '') {
-                    $sales_inv['due_date'] = $this->input->post('dueDate') != '' ? date('Y-m-d', strtotime($this->input->post('dueDate'))) : 'NULL';
+                if ($this->input->post('creditDueDate') != '') {
+                    $sales_inv['due_date'] = $this->input->post('creditDueDate') != '' ? date('Y-m-d', strtotime($this->input->post('creditDueDate'))) : 'NULL';
                 }
                 $sales_inv['invoice_date'] = $saleDate;
                 $sales_inv['insert_date'] = $this->timestamp;
@@ -277,7 +277,7 @@ class SalesLpgController extends CI_Controller
 
 
 
-                        
+
                         unset($stock);
                         $stock['sales_invoice_id'] = $this->invoice_id;
                         $stock['customer_id'] = $customer_id;

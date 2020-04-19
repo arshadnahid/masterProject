@@ -1,0 +1,12 @@
+#,Category ID(Not Change),Product ID(Not Change),Product Code(Not Change),Product Category(Not Change),Product Name(Not Change),Quantity*,Unit price*,Total Price,Brand
+1,1,4,PID20020004,Empty Cylinder,12 Kg[ BM ],200,600,,BM
+2,1,6,PID20020006,Empty Cylinder,12 Kg[ Fresh ],100,600,,Fresh
+3,1,5,PID20020005,Empty Cylinder,12 Kg[ Navana ],,600,,Navana
+4,1,7,PID20020007,Empty Cylinder,25 Kg[ Omera ],,1400,,Omera
+5,8,8,PID20020008,Regulator,Low Pressure 22 mm[ Safe Gas ],500,170,,Safe Gas
+7,1,4,PACID20020001,Package Empty Cylinder,Empty Cylinder 12 Kg[ BM ],100,600,,BM
+8,2,2,PACID20020001,Package Refill,Refill 12 Kg[ BM ],100,900,,BM
+9,1,5,PACID20020002,Package Empty Cylinder,Empty Cylinder 12 Kg[ Navana ],300,600,,Navana
+10,2,1,PACID20020002,Package Refill,Refill 12 Kg[ Navana ],300,900,,Navana
+11,2,3,PACID20020003,Package Refill,Refill 25 Kg[ Omera ],50,1480,,Omera
+12,1,7,PACID20020003,Package Empty Cylinder,Empty Cylinder 25 Kg[ Omera ],50,1400,,Omera

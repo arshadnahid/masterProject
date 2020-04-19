@@ -1,0 +1,2 @@
+*Customer ID,Invoice ID,Reference,*Sales  Date,*Payment type,Shipping Address,"*Product(type product id separate by (,))","product unit(Type unit id separate by (,))","*Quantity(add qty separate by (,))","*Unit Price(add unit price base on qty separate by (,))","Total Price(add total  price base on qty separate by (,))",Sub-Total,Discount(-),Grand Total,Vat(+),Net Total,Narration
+CID18040001,100001,abc,8/22/2018,cash,,"PID18060001,PID18060002,PID18060003","100,110,021,001","02,03,01","1001,1002, 1001","200, 400, 200",800,100,700,10,630,first sales invoice

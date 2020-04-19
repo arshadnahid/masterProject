@@ -1,0 +1,2 @@
+*Supplier,Voucher ID,Reference,*Purchases Date,*Payment type,*Pay.From(CR),*Product,product unit,*Quantity,*Unit Price,Total Price
+SID18040002,100001,abc,8/22/2018,cash,dbbl,"PID18060001,PID18060002,PID18060003","100,110,021,003","02,03,01","1001,1002, 1001","200, 400, 200"

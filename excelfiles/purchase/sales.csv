@@ -1,0 +1,2 @@
+Customer ID,Invoice ID,Reference,Sales  Date,Payment type,Shipping Address,Product,product unit,Quantity,Unit Price,Total Price,Discount,Grand Total,Vat,Net Total
+C,100001,abc,8/22/2018,cash,dbbl,"PID18060001,PID18060002,PID18060003","1001,1002,1001","2,3,1","1001,1002, 1001","200, 400, 200",,,,

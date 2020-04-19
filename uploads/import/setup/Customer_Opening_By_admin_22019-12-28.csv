@@ -1,0 +1,125 @@
+#,Customer ID(Not Change),Customer Code(Not Change),Customer Name(Not Change),Receivable *
+1,1,CID19120001,Pran RFL (Banga bakers),868320
+2,2,CID19120003,M/S Fatema senatary& Hardware,9205
+3,3,CID19120006,M/S Bondhu traders (Arif-bogura),23250
+4,4,CID19120010,M/S Nessariya Corporation,0
+5,5,CID19120015,M/S Fashion syndicate( Minhaz ),93910
+6,6,CID19120021,M/S Chittagong Hardware,41870
+7,7,CID19120028,M/S Shaon Enterprise,22051
+8,8,CID19120036,M/S Mukul Enterprise,50750
+9,9,CID19120045,M/S Al-Razin Enterprise,0
+10,10,CID19120055,M/S Tasnim Enterprise(Nazrul),0
+11,11,CID19120066,M/S Khuku Enterprise,26430
+12,12,CID19120078,M/S Sumaiya Enterprise( Billal loader),0
+13,13,CID19120091,M/S Chittagong Steel,0
+14,14,CID19120105,M/S Siddik Enterprise,0
+15,15,CID19120120,M/S Shuvo Enterprise,7460
+16,16,CID19120136,M/S Banna Enterprise,0
+17,17,CID19120153,M/S Mirddha Enterprise,
+18,18,CID19120171,M/S Taskiya Enterprise,
+19,19,CID19120190,M/S Miraz Enterprise,
+20,20,CID19120210,M/S Hazi Steel banijjaloy,
+21,21,CID19120231,M/S Fatema Steel and Hardware,
+22,22,CID19120253,M/S Rodhro Enterprise,
+23,23,CID19120276,M/S Ceramic ,8460
+24,24,CID19120300,M/S- S.K Traders,17940
+25,25,CID19120325,M/S Bismilla Genaral store (Momin),0
+26,26,CID19120351,M/S RF traders 2 (Mohon),11402
+27,27,CID19120378,M/S Khan Enterprise,
+28,28,CID19120406,M/S Nihad Motors ,
+29,29,CID19120435,M/S Iqbal Telecom,
+30,30,CID19120465,M/S Rashed Telecom,
+31,31,CID19120496,M/S Farazi Enterprise,
+32,32,CID19120528,M/S Munshi Enterprise,
+33,33,CID19120561,M/S Nurullapur Enterprise,
+34,34,CID19120595,M/S- S.S Enterprise,
+35,35,CID19120630,M/S Shohid Enterprise,
+36,36,CID19120666,M/S Samsul Enterprise,
+37,37,CID19120703,M/S Tamanna Enterprise,
+38,38,CID19120741,M/S Habib Telecome,
+39,39,CID19120780,M/S Taizul Enterprise,
+40,40,CID19120820,M/S Rony Enterprise,
+41,41,CID19120861,M/S M.M.T Enterprise,
+42,42,CID19120903,M/S Lamiya Enterprise,
+43,43,CID19120946,M/S Rafin Enterprise,
+44,44,CID19120990,M/S Harun Enterprise,
+45,45,CID19121035,M/S Imo Zihad Enterprise,
+46,46,CID19121081,M/S Rajdhani Enterprise,
+47,47,CID19121128,M/S Popular Lp Gas,
+48,48,CID19121176,M/S Rana Store,
+49,49,CID19121225,M/S Anondho Enterprise,
+50,50,CID19121275,M/S Nahid Enterprise,
+51,51,CID19121326,M/S Bismilla Enterprise -1,
+52,52,CID19121378,M/S Al- Amin Enterprise (Marzan),
+53,53,CID19121431,M/S Khaza Enterprise,4560
+54,54,CID19121485,M/S Sunka Enterprise,
+55,55,CID19121540,M/S Lazz LPG,
+56,56,CID19121596,M/S A.R Traders,
+57,57,CID19121653,Md. Khokon ,4670
+58,58,CID19121711,Md. Babu mia,
+59,59,CID19121770,Md. Mozibur Rahman,550
+60,60,CID19121830,M/S Vai Vai Sanitery and Hardware,
+61,61,CID19121891,M/S Sumaiya Enterprise-2,
+62,62,CID19121953,M/S Vandary Enterprise,
+63,63,CID19122016,Alom driver,2790
+64,64,CID19122080,Mahmudul,1500
+65,65,CID19122145,M/S Parvez enterprise (Cha kaka),9000
+66,66,CID19122211,Masud Driver,500
+67,67,CID19122278,M/S Dhaka Enterprise,
+68,68,CID19122346,M/S Rustam Enterprise,
+69,69,CID19122415,Bahar vie,
+70,70,CID19122485,M/S Fatema corporation,
+71,71,CID19122556,M/S Lucky senatery,
+72,72,CID19122628,M/S Boshundhara Hardware,
+73,73,CID19122701,M/S Chandpur Hardware,
+74,74,CID19122775,M/S Mohasin Enterprise,
+75,75,CID19122850,M/S Tahmid Enterprise,
+76,76,CID19122926,M/S Anas Enterprise,
+77,77,CID19123003,M/S Islam LP Gas,
+78,78,CID19123081,M/S Mim Enterprise,
+79,79,CID19123160,M/S Riaz Enterprise,
+80,80,CID19123240,M/S Labib Enterprise,
+81,81,CID19123321,M/S Ali Zakir Enterprise,
+82,82,CID19123403,M/S R.S Enterprise,
+83,83,CID19123486,M/S Mim LP Gas 2,
+84,84,CID19123570,M/S Arman Oxizen,
+85,85,CID19123655,M/S Bismilla Enterprise -2( Nuralam),
+86,86,CID19123741,M/S Ripon Enterprise,
+87,87,CID19123828,REGULATOR CUSTOMER DUES,
+88,88,CID19123916,Maliha-(Regulator),375000
+89,89,CID19124005,Arif -Gazipur.JSR (Regulator),340750
+90,90,CID19124095,Hossain Traders(Regulator),77500
+91,91,CID19124186,S. M Trading(Regulator),75000
+92,92,CID19124278,Comilla showroom(Regulator),97650
+93,93,CID19124371,Janani Entp.(Regulator),12500
+94,94,CID19124465,Hasan Enterprise High.p.(Regulator),2100
+95,95,CID19124560,Ruma Cycle(Regulator),37500
+96,96,CID19124656,Pilot store by samiul(Regulator),10000
+97,97,CID19124753,Shordhar entp by samiul(Regulator),77500
+98,98,CID19124851,Uzzal traders by samiul(Regulator),31000
+99,99,CID19124950,Kamruzzaman by samiul(Regulator),77500
+100,100,CID19125050,Shaha & Brothers by motaleb(Regulator),2885
+101,101,CID19125151,Janata Store by Motaleb(Regulator),
+102,102,CID19125253,Ruhul Traders by Motaleb(Regulator),1500
+103,103,CID19125356,Milon Entp. By Motaleb(Regulator),32000
+104,104,CID19125460,Shawdagor store by Motaleb(Regulator),
+105,105,CID19125565,Rafiqul islam by Adom sapiullah(Regulator),
+106,106,CID19125671,Saba Trading agency- sapiulla(Regulator),15500
+107,107,CID19125778,Tohidul haq by sapiulla(Regulator),0
+108,108,CID19125886,Hazi delowar by sapiullah(Regulator),
+109,109,CID19125995,Nayem traders by samiul(Regulator),14500
+110,110,CID19126105,City cosmetic by adom sap(Regulator),23250
+111,111,CID19126216,Bismilla entp.by adom safi(Regulator),
+112,112,CID19126328,Siddik Electronic-adom safi(Regulator),54250
+113,113,CID19126441,Asha Enterprise- adom safi(Regulator),31000
+114,114,CID19126555,Bondon Traders(old regulator due),17500
+115,115,CID19126670,Almadina  Enter (old Regulator due),155000
+116,116,CID19126786,Sumon Enterprise,52500
+117,117,CID19126903,M/S Redwan Trade International,
+118,118,CID19127021,Kamal Patwary,4800
+119,119,CID19127140,M/S Golam Hossain,5425
+120,120,CID19127260,M/S Omith Hasan ,
+121,121,CID19127381,Md. Bahar vai,0
+122,122,CID19127503,M/S Sakib Enterprise,
+123,123,CID19127626,M/S Mamun,32600
+124,124,CID19127750,M/S Mysha Fashion,18000

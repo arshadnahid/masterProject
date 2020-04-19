@@ -1,0 +1,421 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: AEL-DEV
+ * Date: 1/2/2020
+ * Time: 10:04 AM
+ */
+?>
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet box blue">
+            <div class="portlet-title" style="min-height:21px">
+                <div class="caption" style="font-size: 14px;padding:1px 0 1px;">
+                    <?php echo get_phrase($link_page_name) ?></div>
+
+            </div>
+            <div class="portlet-body">
+                <form id="publicForm" action="" method="post" class="form-horizontal">
+                     <div class="clearfix"></div>
+              <div class="row">
+                    <div class="col-sm-12 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-3 control-label text-right"
+                       for="form-field-1"><span style="color:red;"> *</span> <?php echo get_phrase('From Date') ?>
+                </label>
+                <div class="col-sm-7">
+                    <div class="input-group">
+                        <input class="form-control date-picker" name="purchasesDate"
+                               id="purchasesDate" type="text"
+                               value="<?php echo $invoice[0]->from_date; ?>"
+                               data-date-format="dd-mm-yyyy" required/>
+                        <span class="input-group-addon">
+                            <i class="fa fa-calendar bigger-110"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div class="clearfix"></div>
+            <div class="form-group" id="dueDateDiv">
+                <label class="col-sm-3 control-label no-padding-right"
+                       for="form-field-1"><span style="color:red;"> *</span> <?php echo get_phrase('To Date') ?>
+                </label>
+                <div class="col-sm-7">
+                    <div class="input-group">
+                        <input class="form-control date-picker" name="dueDate" id="dueDate"
+                               type="text" value="<?php echo $invoice[0]->to_date; ?>"
+                               data-date-format="dd-mm-yyyy"/>
+                        <span class="input-group-addon">
+                            <i class="fa fa-calendar bigger-110"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="clearfix"></div>
+        </div>
+
+
+     </div>
+                    <fieldset style="">
+
+
+                        <div class="row">
+                            <legend style="margin-left: 20px; margin-top: 10px;">Product Sale :</legend>
+                            <div class="col-md-12">
+                                <table class="table table-bordered" id="show_item_in">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-center">
+                                            <?php echo get_phrase("Brand") ?>
+                                        </th>
+                                        <th class="text-center">
+                                            <?php echo get_phrase("Inventory Item") ?>
+                                        </th>
+
+                                        <th class="text-center">
+                                            <?php echo get_phrase("Qty") ?>
+                                        </th>
+
+                                        <td>
+                                            <?php echo get_phrase("Add") ?>
+                                        </td>
+                                    </tr>
+
+                                    </thead>
+
+
+                                    <tbody>
+                                         <tr>
+                                        <td style="width: 20%">
+                                            <select class="chosen-select form-control" name="brandUpdate"
+                                                    data-placeholder="Select Brand" id="CategorySelect"
+                                                    onchange="getProductList(this.value)">
+                                                <option></option>
+                                                <?php
+                                                $brandArray = array('1', '2');
+                                                foreach ($productBrand as $eachInfo) {
+                                                    if (in_array($eachInfo->brandId, $brandArray)) {
+                                                        ?>
+                                                        <option value="<?php echo $eachInfo->brandId ?>"><?php echo $eachInfo->brandName ?></option>
+                                                    <?php }
+                                                } ?>
+
+                                                <?php
+                                                $brandArray = array('1', '2');
+                                                foreach ($productBrand as $eachInfo) {
+                                                    if (!in_array($eachInfo->brandId, $brandArray)) {
+                                                        ?>
+                                                        <option value="<?php echo $eachInfo->brandId ?>"><?php echo $eachInfo->brandName ?></option>
+                                                    <?php }
+                                                } ?>
+
+                                            </select>
+                                        </td>
+                                        <td style="width: 35%">
+                                            <select id="productID"
+
+                                                    class="chosen-select form-control"
+                                                    data-placeholder="Search by Product">
+                                                <option value=""></option>
+
+
+                                            </select>
+                                        </td>
+
+                                        <td style="width: 10%">
+                                            <input type="text" id=""  value="" class="form-control quantity"
+
+                                                   placeholder="" style="text-align: right;"/>
+                                        </td>
+
+                                        <td style="width: 5%">
+                                            <a id="add_item" class="btn btn-info form-control"
+                                               href="javascript:;" title="Add Item"><i
+                                                        class="fa fa-plus"
+                                                        style="margin-top: 6px;margin-left: 8px;"></i>&nbsp;&nbsp;</a>
+                                        </td>
+                                    </tr>
+                                       <?php
+
+
+
+                                // echo '<pre>';
+                                // print_r($getDebitAccountId);
+
+
+                                foreach ($invoice as $key => $value):
+
+
+
+                                    ?>
+
+
+                                    <tr class="new_item<?php echo $key + 611 ?>">
+
+                                        <td style="padding-left:15px;"><?php echo $value->brandName; ?>
+                                            <input type="hidden" name="productBrandID[]"
+                                                   value="<?php echo $value->product_id; ?>"></td>
+
+                                        <td style="padding-left:15px;"><?php echo $value->productName; ?>
+                                            <input type="hidden" name="productID[]"
+                                                   value="<?php echo $value->brand_id; ?>"></td>
+
+                                        <td style="padding-left:15px;"><?php echo $value->quantity; ?>
+                                            <input type="hidden" name="quantity[]"
+                                                   value="<?php echo $value->quantity; ?>"></td>
+
+                                        <td>
+
+                                            <a del_id="<?php echo $key + 611 ?>"
+                                               class="delete_item btn form-control btn-danger" href="javascript:;"
+                                               title=""><i class="fa fa-times"></i>&nbsp;Remove</a>
+                                        </td>
+
+                                    </tr>
+
+                                    <?php
+
+                                endforeach;
+
+                                ?>
+
+                                    </tbody>
+                                </table>
+
+
+                            </div>
+                        </div>
+
+                          <div class="clearfix"></div>
+        <div class="clearfix form-actions">
+            <div class="col-md-offset-3 col-md-9">
+                <button onclick="return isconfirm2()" id="subBtn" class="btn btn-info pull-right"
+                        type="button">
+                    <i class="ace-icon fa fa-check bigger-110"></i>
+                    <?php echo get_phrase('Save') ?>
+                </button>
+                &nbsp; &nbsp; &nbsp;
+                <!--<button class="btn" onclick="showCylinder()" type="button">
+                    <i class="ace-icon fa fa-shopping-cart bigger-110"></i>
+                    Returned Cylinder
+                </button>-->
+            </div>
+        </div>
+
+                    </fieldset>
+
+
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+
+        $('.date-picker').datepicker({
+            autoclose: true,
+            todayHighlight: true
+        })
+
+    });
+</script>
+
+<script type="text/javascript">
+
+    function getProductList(brandId) {
+
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "lpg/IncentiveController/getBrandList",
+            data: 'brandId=' + brandId,
+            success: function (data) {
+
+
+                $('#productID').chosen();
+                $('#productID option').remove();
+                $("#productID").trigger("chosen:open");
+                $('#productID').append($(data));
+                $("#productID").trigger("chosen:updated");
+            }
+        });
+    }
+
+    //get product purchases price
+
+    function isconfirm2() {
+
+        var purchasesDate = $("#purchasesDate").val();
+        var dueDate = $("#dueDate").val();
+
+        if (purchasesDate == '') {
+            swal("Select Purchases Date!", "Validation Error!", "error");
+        }  else if (dueDate == '') {
+            swal("Select Due Date!", "Validation Error!", "error");
+        }
+         else {
+            swal({
+                    title: "Are you sure ?",
+                    text: "You won't be able to revert this!",
+                    showCancelButton: true,
+                    confirmButtonColor: '#73AE28',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes',
+                    cancelButtonText: "No",
+                    closeOnConfirm: true,
+                    closeOnCancel: true,
+                    type: 'success'
+                },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        $("#publicForm").submit();
+                    } else {
+                        return false;
+                    }
+                });
+        }
+    }
+
+
+
+
+
+    var j = 0;
+
+    $("#add_item").click(function () {
+
+
+        var productID = $('#productID').val();
+        var package_id = $('#package_id').val();
+        var package_id2 = $('#productID2').val();
+
+        var productCatID = $('#productID').find('option:selected').attr('categoryId');
+        var productCatName = $('#productID').find('option:selected').attr('categoryName');
+        var productBrandID = $('#productID').find('option:selected').attr('brandId');
+        var productBrandName = $('#productID').find('option:selected').attr('brandName');
+        var productCatName2 = $('#productID').find('option:selected').attr('categoryName2');
+        var productName = $('#productID').find('option:selected').attr('productName');
+        var productName2 = $('#productID2').find('option:selected').attr('productName2');
+        var ispackage = $('#productID').find('option:selected').attr('ispackage');
+        var quantity = $('.quantity').val();
+
+        if (quantity == '' && quantity !=0 ) {
+            swal("Qty can't be empty.!", "Validation Error!", "error");
+            return false;
+        } else if (productID == '') {
+            swal("Product id can't be empty.!", "Validation Error!", "error");
+            return false;
+        }  else if (productBrandID == '') {
+            swal("Brand can't be empty.!", "Validation Error!", "error");
+            return false;
+        }else {
+            var tab;
+            if(productID == '' || quantity == 0 || productBrandID=='' ){
+                tab ='<tr class="new_item' + productID + j +'">' +
+                 '<td style="text-align: center"><input type="hidden" name="productBrandID[]" value="'+productBrandID+'">' + productBrandName +
+                '</td>' +
+                '<td style="text-align: center"><input type="hidden" name="productID[]" value="'+productID+'">' + productName +
+                '</td>' +
+
+
+                '<td style="text-align: right"><input type="hidden" name="quantity[]" value="'+quantity+'">' + quantity +
+                '</td>' +
+
+                '<td><a del_id="' + productID + j+'" class="delete_item btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times"></i>&nbsp;Remove</a></td>'+
+
+                '</tr>';
+                $("#show_item_in tbody").append(tab);
+            }else{
+                tab ='<tr class="new_item' + productID + j+ '">' +
+                 '<td style="text-align: center"><input type="hidden" name="productBrandID[]" value="'+productBrandID+'">' + productBrandName +
+                '</td>' +
+                '<td style="text-align: center"><input type="hidden" name="productID[]" value="'+productID+'">' + productName +
+                '</td>' +
+
+
+                '<td style="text-align: right"><input type="hidden" name="quantity[]" value="'+quantity+'">' + quantity +
+                '</td>' +
+
+                '<td><a del_id="' + productID +j+ '" class="delete_item btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times"></i>&nbsp;Remove</a></td>'+
+
+                '</tr>';
+                $("#show_item_in tbody").append(tab);
+
+            }
+
+            $('#CategorySelect').val('').trigger('chosen:updated');
+            $('#productID').val('').trigger('chosen:updated');
+            $('#productID2').val('').trigger('chosen:updated');
+            $('.quantity').val('');
+
+        }
+
+
+    });
+     $(document).on('click', '.delete_item', function () {
+
+
+            var id = $(this).attr("del_id");
+
+            swal({
+
+                    title: "Are you sure ?",
+
+                    text: "You won't be able to revert this!",
+
+                    showCancelButton: true,
+
+                    confirmButtonColor: '#73AE28',
+
+                    cancelButtonColor: '#d33',
+
+                    confirmButtonText: 'Yes',
+
+                    cancelButtonText: "No",
+
+                    closeOnCancel: true,
+
+                    closeOnConfirm: true,
+
+                    type: 'success'
+
+                },
+
+                function (isConfirm) {
+
+                    if (isConfirm) {
+
+                        $('.new_item' + id).remove();
+
+                    } else {
+
+                        return false;
+
+                    }
+
+                });
+
+
+        });
+
+
+
+
+
+
+
+</script>
+
+
+

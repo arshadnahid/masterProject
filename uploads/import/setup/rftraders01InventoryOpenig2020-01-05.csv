@@ -1,0 +1,7 @@
+#,Category ID(Not Change),Product ID(Not Change),Product Code(Not Change),Product Category(Not Change),Product Name(Not Change),Quantity*,Unit price*,Total Price,Brand
+1,3,6,PID20010006,Cement,PPC40[ Basundhara ],30,500,30,Basundhara
+2,3,5,PID20010005,Cement,PPC50[ Basundhara ],40,480,,Basundhara
+3,1,1,PID20010001,Empty Cylinder,12[ Laugfs Gas ],10,900,,Laugfs Gas
+4,1,2,PID20010002,Empty Cylinder,25[ Laugfs Gas ],5,500,,Laugfs Gas
+6,2,3,PACID20010001,Package Refill,Refill 12[ Laugfs Gas ],4,1200,,Laugfs Gas
+7,1,1,PACID20010001,Package Empty Cylinder,Empty Cylinder 12[ Laugfs Gas ],4,900,,Laugfs Gas

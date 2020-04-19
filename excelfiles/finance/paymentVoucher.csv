@@ -1,0 +1,2 @@
+*Date,Voucher ID,"*Payee Type(1=Miscellaneous,2=customer,2=supplier)",*Payee To (customer ID or supplier ID or misce.Name),*Pay From( CR).(One credit account head),*Pay purpose(DR)(multiple debit account head),"*Amount (separate by (,))",Memo,Narration
+"12,08,18",DV18080007,2,CID18040001,1 - 02 - 002,1-01-001-0001,1000,first payment,first test

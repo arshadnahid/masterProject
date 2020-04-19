@@ -1,0 +1,197 @@
+#,Category ID(Not Change),Product ID(Not Change),Product Code(Not Change),Product Category(Not Change),Product Name(Not Change),Quantity*,Unit price*,Total Price,Brand
+1,3,125,PID19120125,Burner,Auto double[ SBL ],0,2200,,SBL
+2,3,126,PID19120126,Burner,Auto single[ SBL ],0,800,,SBL
+3,3,127,PID19120127,Burner,Normal(double)[ SBL ],2,800,,SBL
+4,3,128,PID19120128,Burner,Normal(Single)[ SBL ],11,375,,SBL
+5,1,83,PID19120083,Empty Cylinder,12[ BIN Habib ],0,500,,BIN Habib
+6,1,85,PID19120085,Empty Cylinder,35[ BIN Habib ],0,1500,,BIN Habib
+7,1,87,PID19120087,Empty Cylinder,45[ BIN Habib ],0,2300,,BIN Habib
+8,1,17,PID19120017,Empty Cylinder,12[ BM  ],247,500,,BM 
+9,1,19,PID19120019,Empty Cylinder,33[ BM  ],3,1500,,BM 
+10,1,21,PID19120021,Empty Cylinder,45[ BM  ],4,2300,,BM 
+11,1,77,PID19120077,Empty Cylinder,12[ BOSUNDHARA ],4,500,,BOSUNDHARA
+12,1,79,PID19120079,Empty Cylinder,35[ BOSUNDHARA ],0,1500,,BOSUNDHARA
+13,1,81,PID19120081,Empty Cylinder,45[ BOSUNDHARA ],0,230,,BOSUNDHARA
+14,1,113,PID19120113,Empty Cylinder,12[ Delta ],6,500,,Delta
+15,1,115,PID19120115,Empty Cylinder,35[ Delta ],0,1500,,Delta
+16,1,117,PID19120117,Empty Cylinder,45[ Delta ],0,2300,,Delta
+17,1,71,PID19120071,Empty Cylinder,12[ Eurogas ],4,500,,Eurogas
+18,1,73,PID19120073,Empty Cylinder,35[ Eurogas ],0,1500,,Eurogas
+19,1,75,PID19120075,Empty Cylinder,45[ Eurogas ],0,2300,,Eurogas
+20,1,47,PID19120047,Empty Cylinder,12[ G-Gas ],56,500,,G-Gas
+21,1,49,PID19120049,Empty Cylinder,35[ G-Gas ],0,1500,,G-Gas
+22,1,51,PID19120051,Empty Cylinder,45[ G-Gas ],0,2300,,G-Gas
+23,1,1,PID19120001,Empty Cylinder,12[ JAMUNA ],931,500,,JAMUNA
+24,1,5,PID19120005,Empty Cylinder,35[ JAMUNA ],0,1500,,JAMUNA
+25,1,7,PID19120007,Empty Cylinder,45[ JAMUNA ],0,2300,,JAMUNA
+26,1,3,PID19120003,Empty Cylinder,5.5[ JAMUNA ],18,300,,JAMUNA
+27,1,101,PID19120101,Empty Cylinder,12[ JMI ],19,500,,JMI
+28,1,103,PID19120103,Empty Cylinder,35[ JMI ],8,1500,,JMI
+29,1,105,PID19120105,Empty Cylinder,45[ JMI ],0,2300,,JMI
+30,1,95,PID19120095,Empty Cylinder,12[ Laughfs ],0,500,,Laughfs
+31,1,97,PID19120097,Empty Cylinder,35[ Laughfs ],0,1500,,Laughfs
+32,1,99,PID19120099,Empty Cylinder,45[ Laughfs ],0,2300,,Laughfs
+33,1,59,PID19120059,Empty Cylinder,12[ NAVANA ],37,500,,NAVANA
+34,1,61,PID19120061,Empty Cylinder,35[ NAVANA ],0,1500,,NAVANA
+35,1,63,PID19120063,Empty Cylinder,45[ NAVANA ],0,2300,,NAVANA
+36,1,89,PID19120089,Empty Cylinder,12[ Newaz  ],0,500,,Newaz 
+37,1,91,PID19120091,Empty Cylinder,35[ Newaz  ],0,1500,,Newaz 
+38,1,93,PID19120093,Empty Cylinder,45[ Newaz  ],0,2300,,Newaz 
+39,1,9,PID19120009,Empty Cylinder,12[ OMERA ],212,500,,OMERA
+40,1,13,PID19120013,Empty Cylinder,35[ OMERA ],0,1500,,OMERA
+41,1,15,PID19120015,Empty Cylinder,45[ OMERA ],0,2300,,OMERA
+42,1,11,PID19120011,Empty Cylinder,5.5[ OMERA ],7,300,,OMERA
+43,1,53,PID19120053,Empty Cylinder,12[ ORION ],16,500,,ORION
+44,1,55,PID19120055,Empty Cylinder,35[ ORION ],7,1500,,ORION
+45,1,57,PID19120057,Empty Cylinder,45[ ORION ],0,2300,,ORION
+46,1,37,PID19120037,Empty Cylinder,12[ PADMA ],562,500,,PADMA
+47,1,39,PID19120039,Empty Cylinder,35[ PADMA ],0,1500,,PADMA
+48,1,31,PID19120031,Empty Cylinder,12[ PETROMAX ],101,500,,PETROMAX
+49,1,33,PID19120033,Empty Cylinder,35[ PETROMAX ],6,1500,,PETROMAX
+50,1,35,PID19120035,Empty Cylinder,45[ PETROMAX ],0,2300,,PETROMAX
+51,1,119,PID19120119,Empty Cylinder,12[ Pettry ],46,500,,Pettry
+52,1,121,PID19120121,Empty Cylinder,35[ Pettry ],0,1500,,Pettry
+53,1,123,PID19120123,Empty Cylinder,45[ Pettry ],0,2300,,Pettry
+54,1,65,PID19120065,Empty Cylinder,12[ PROMITA ],20,500,,PROMITA
+55,1,67,PID19120067,Empty Cylinder,35[ PROMITA ],0,1500,,PROMITA
+56,1,69,PID19120069,Empty Cylinder,45[ PROMITA ],0,2300,,PROMITA
+57,1,41,PID19120041,Empty Cylinder,12[ SENA ],10,500,,SENA
+58,1,43,PID19120043,Empty Cylinder,35[ SENA ],0,1500,,SENA
+59,1,45,PID19120045,Empty Cylinder,45[ SENA ],0,2300,,SENA
+60,1,107,PID19120107,Empty Cylinder,12[ TK-Super ],6,500,,TK-Super
+61,1,109,PID19120109,Empty Cylinder,35[ TK-Super ],0,1500,,TK-Super
+62,1,111,PID19120111,Empty Cylinder,45[ TK-Super ],0,2300,,TK-Super
+63,1,23,PID19120023,Empty Cylinder,12[ TOTAL ],362,500,,TOTAL
+64,1,25,PID19120025,Empty Cylinder,15[ TOTAL ],96,700,,TOTAL
+65,1,27,PID19120027,Empty Cylinder,33[ TOTAL ],18,1500,,TOTAL
+66,1,29,PID19120029,Empty Cylinder,45[ TOTAL ],0,2300,,TOTAL
+67,4,129,PID19120129,Hosepipe,.5[ RFL ],2,350,,RFL
+68,5,130,PID19120130,Regulator,20mm (Normal)[ UNISTAR ],2000,100,,UNISTAR
+69,5,131,PID19120131,Regulator,20mm Hihg-pressure[ UNISTAR ],70,100,,UNISTAR
+70,5,132,PID19120132,Regulator,22mm (Normal)[ UNISTAR ],6489,120,,UNISTAR
+71,5,133,PID19120133,Regulator,22mm High-pressure[ UNISTAR ],1184,200,,UNISTAR
+72,5,134,PID19120134,Regulator,Regulator Set[ UNISTAR ],417,200,,UNISTAR
+74,1,1,PACID19120001,Package Empty Cylinder,Empty Cylinder 12[ JAMUNA ],1231,500,,JAMUNA
+75,2,2,PACID19120001,Package Refill,Refill 12[ JAMUNA ],1231,900,,JAMUNA
+76,1,3,PACID19120002,Package Empty Cylinder,Empty Cylinder 5.5[ JAMUNA ],2,300,,JAMUNA
+77,2,4,PACID19120002,Package Refill,Refill 5.5[ JAMUNA ],2,360,,JAMUNA
+78,1,5,PACID19120003,Package Empty Cylinder,Empty Cylinder 35[ JAMUNA ],36,1500,,JAMUNA
+79,2,6,PACID19120003,Package Refill,Refill 35[ JAMUNA ],36,2500,,JAMUNA
+80,1,7,PACID19120004,Package Empty Cylinder,Empty Cylinder 45[ JAMUNA ],4,2300,,JAMUNA
+81,2,8,PACID19120004,Package Refill,Refill 45[ JAMUNA ],4,3170,,JAMUNA
+82,1,9,PACID19120005,Package Empty Cylinder,Empty Cylinder 12[ OMERA ],178,500,,OMERA
+83,2,10,PACID19120005,Package Refill,Refill 12[ OMERA ],178,900,,OMERA
+84,1,11,PACID19120006,Package Empty Cylinder,Empty Cylinder 5.5[ OMERA ],0,300,,OMERA
+85,2,12,PACID19120006,Package Refill,Refill 5.5[ OMERA ],0,360,,OMERA
+86,1,13,PACID19120007,Package Empty Cylinder,Empty Cylinder 35[ OMERA ],21,1500,,OMERA
+87,2,14,PACID19120007,Package Refill,Refill 35[ OMERA ],21,2500,,OMERA
+88,1,15,PACID19120008,Package Empty Cylinder,Empty Cylinder 45[ OMERA ],0,2300,,OMERA
+89,2,16,PACID19120008,Package Refill,Refill 45[ OMERA ],0,3170,,OMERA
+90,1,17,PACID19120009,Package Empty Cylinder,Empty Cylinder 12[ BM  ],241,500,,BM 
+91,2,18,PACID19120009,Package Refill,Refill 12[ BM  ],241,900,,BM 
+92,1,19,PACID19120010,Package Empty Cylinder,Empty Cylinder 33[ BM  ],7,1500,,BM 
+93,2,20,PACID19120010,Package Refill,Refill 33[ BM  ],7,2370,,BM 
+94,1,21,PACID19120011,Package Empty Cylinder,Empty Cylinder 45[ BM  ],2,2300,,BM 
+95,2,22,PACID19120011,Package Refill,Refill 45[ BM  ],2,3170,,BM 
+96,1,23,PACID19120012,Package Empty Cylinder,Empty Cylinder 12[ TOTAL ],50,500,,TOTAL
+97,2,24,PACID19120012,Package Refill,Refill 12[ TOTAL ],50,900,,TOTAL
+98,1,25,PACID19120013,Package Empty Cylinder,Empty Cylinder 15[ TOTAL ],10,700,,TOTAL
+99,2,26,PACID19120013,Package Refill,Refill 15[ TOTAL ],10,1115,,TOTAL
+100,1,27,PACID19120014,Package Empty Cylinder,Empty Cylinder 33[ TOTAL ],2,1500,,TOTAL
+101,2,28,PACID19120014,Package Refill,Refill 33[ TOTAL ],2,2375,,TOTAL
+102,1,29,PACID19120015,Package Empty Cylinder,Empty Cylinder 45[ TOTAL ],0,2300,,TOTAL
+103,2,30,PACID19120015,Package Refill,Refill 45[ TOTAL ],0,3170,,TOTAL
+104,1,31,PACID19120016,Package Empty Cylinder,Empty Cylinder 12[ PETROMAX ],394,500,,PETROMAX
+105,2,32,PACID19120016,Package Refill,Refill 12[ PETROMAX ],394,900,,PETROMAX
+106,1,33,PACID19120017,Package Empty Cylinder,Empty Cylinder 35[ PETROMAX ],0,1500,,PETROMAX
+107,2,34,PACID19120017,Package Refill,Refill 35[ PETROMAX ],0,2500,,PETROMAX
+108,1,35,PACID19120018,Package Empty Cylinder,Empty Cylinder 45[ PETROMAX ],0,2300,,PETROMAX
+109,2,36,PACID19120018,Package Refill,Refill 45[ PETROMAX ],0,3170,,PETROMAX
+110,1,37,PACID19120019,Package Empty Cylinder,Empty Cylinder 12[ PADMA ],25,500,,PADMA
+111,2,38,PACID19120019,Package Refill,Refill 12[ PADMA ],25,900,,PADMA
+112,1,39,PACID19120020,Package Empty Cylinder,Empty Cylinder 35[ PADMA ],0,1500,,PADMA
+113,2,40,PACID19120020,Package Refill,Refill 35[ PADMA ],0,2500,,PADMA
+114,1,41,PACID19120021,Package Empty Cylinder,Empty Cylinder 12[ SENA ],0,500,,SENA
+115,2,42,PACID19120021,Package Refill,Refill 12[ SENA ],0,900,,SENA
+116,1,43,PACID19120022,Package Empty Cylinder,Empty Cylinder 35[ SENA ],0,1500,,SENA
+117,2,44,PACID19120022,Package Refill,Refill 35[ SENA ],0,2500,,SENA
+118,1,45,PACID19120023,Package Empty Cylinder,Empty Cylinder 45[ SENA ],0,2300,,SENA
+119,2,46,PACID19120023,Package Refill,Refill 45[ SENA ],0,3170,,SENA
+120,1,47,PACID19120024,Package Empty Cylinder,Empty Cylinder 12[ G-Gas ],0,500,,G-Gas
+121,2,48,PACID19120024,Package Refill,Refill 12[ G-Gas ],0,900,,G-Gas
+122,1,49,PACID19120025,Package Empty Cylinder,Empty Cylinder 35[ G-Gas ],0,1500,,G-Gas
+123,2,50,PACID19120025,Package Refill,Refill 35[ G-Gas ],0,2500,,G-Gas
+124,1,51,PACID19120026,Package Empty Cylinder,Empty Cylinder 45[ G-Gas ],0,2300,,G-Gas
+125,2,52,PACID19120026,Package Refill,Refill 45[ G-Gas ],0,3170,,G-Gas
+126,1,53,PACID19120027,Package Empty Cylinder,Empty Cylinder 12[ ORION ],0,500,,ORION
+127,2,54,PACID19120027,Package Refill,Refill 12[ ORION ],0,900,,ORION
+128,1,55,PACID19120028,Package Empty Cylinder,Empty Cylinder 35[ ORION ],0,1500,,ORION
+129,2,56,PACID19120028,Package Refill,Refill 35[ ORION ],0,2500,,ORION
+130,1,57,PACID19120029,Package Empty Cylinder,Empty Cylinder 45[ ORION ],0,2300,,ORION
+131,2,58,PACID19120029,Package Refill,Refill 45[ ORION ],0,3170,,ORION
+132,1,59,PACID19120030,Package Empty Cylinder,Empty Cylinder 12[ NAVANA ],0,500,,NAVANA
+133,2,60,PACID19120030,Package Refill,Refill 12[ NAVANA ],0,900,,NAVANA
+134,1,61,PACID19120031,Package Empty Cylinder,Empty Cylinder 35[ NAVANA ],0,1500,,NAVANA
+135,2,62,PACID19120031,Package Refill,Refill 35[ NAVANA ],0,2500,,NAVANA
+136,1,63,PACID19120032,Package Empty Cylinder,Empty Cylinder 45[ NAVANA ],0,2300,,NAVANA
+137,2,64,PACID19120032,Package Refill,Refill 45[ NAVANA ],0,3170,,NAVANA
+138,1,65,PACID19120033,Package Empty Cylinder,Empty Cylinder 12[ PROMITA ],0,500,,PROMITA
+139,2,66,PACID19120033,Package Refill,Refill 12[ PROMITA ],0,900,,PROMITA
+140,1,67,PACID19120034,Package Empty Cylinder,Empty Cylinder 35[ PROMITA ],0,1500,,PROMITA
+141,2,68,PACID19120034,Package Refill,Refill 35[ PROMITA ],0,2500,,PROMITA
+142,1,69,PACID19120035,Package Empty Cylinder,Empty Cylinder 45[ PROMITA ],0,2300,,PROMITA
+143,2,70,PACID19120035,Package Refill,Refill 45[ PROMITA ],0,3170,,PROMITA
+144,1,71,PACID19120036,Package Empty Cylinder,Empty Cylinder 12[ Eurogas ],0,500,,Eurogas
+145,2,72,PACID19120036,Package Refill,Refill 12[ Eurogas ],0,900,,Eurogas
+146,1,73,PACID19120037,Package Empty Cylinder,Empty Cylinder 35[ Eurogas ],0,1500,,Eurogas
+147,2,74,PACID19120037,Package Refill,Refill 35[ Eurogas ],0,2500,,Eurogas
+148,1,75,PACID19120038,Package Empty Cylinder,Empty Cylinder 45[ Eurogas ],0,2300,,Eurogas
+149,2,76,PACID19120038,Package Refill,Refill 45[ Eurogas ],0,3170,,Eurogas
+150,1,77,PACID19120039,Package Empty Cylinder,Empty Cylinder 12[ BOSUNDHARA ],0,500,,BOSUNDHARA
+151,2,78,PACID19120039,Package Refill,Refill 12[ BOSUNDHARA ],0,900,,BOSUNDHARA
+152,1,79,PACID19120040,Package Empty Cylinder,Empty Cylinder 35[ BOSUNDHARA ],0,1500,,BOSUNDHARA
+153,2,80,PACID19120040,Package Refill,Refill 35[ BOSUNDHARA ],0,2500,,BOSUNDHARA
+154,1,81,PACID19120041,Package Empty Cylinder,Empty Cylinder 45[ BOSUNDHARA ],0,230,,BOSUNDHARA
+155,2,82,PACID19120041,Package Refill,Refill 45[ BOSUNDHARA ],0,3170,,BOSUNDHARA
+156,1,83,PACID19120042,Package Empty Cylinder,Empty Cylinder 12[ BIN Habib ],0,500,,BIN Habib
+157,2,84,PACID19120042,Package Refill,Refill 12[ BIN Habib ],0,900,,BIN Habib
+158,1,85,PACID19120043,Package Empty Cylinder,Empty Cylinder 35[ BIN Habib ],0,1500,,BIN Habib
+159,2,86,PACID19120043,Package Refill,Refill 35[ BIN Habib ],0,2500,,BIN Habib
+160,1,87,PACID19120044,Package Empty Cylinder,Empty Cylinder 45[ BIN Habib ],0,2300,,BIN Habib
+161,2,88,PACID19120044,Package Refill,Refill 45[ BIN Habib ],0,3170,,BIN Habib
+162,1,89,PACID19120045,Package Empty Cylinder,Empty Cylinder 12[ Newaz  ],0,500,,Newaz 
+163,2,90,PACID19120045,Package Refill,Refill 12[ Newaz  ],0,900,,Newaz 
+164,1,91,PACID19120046,Package Empty Cylinder,Empty Cylinder 35[ Newaz  ],0,1500,,Newaz 
+165,2,92,PACID19120046,Package Refill,Refill 35[ Newaz  ],0,2500,,Newaz 
+166,1,93,PACID19120047,Package Empty Cylinder,Empty Cylinder 45[ Newaz  ],0,2300,,Newaz 
+167,2,94,PACID19120047,Package Refill,Refill 45[ Newaz  ],0,3170,,Newaz 
+168,1,95,PACID19120048,Package Empty Cylinder,Empty Cylinder 12[ Laughfs ],0,500,,Laughfs
+169,2,96,PACID19120048,Package Refill,Refill 12[ Laughfs ],0,900,,Laughfs
+170,1,97,PACID19120049,Package Empty Cylinder,Empty Cylinder 35[ Laughfs ],0,1500,,Laughfs
+171,2,98,PACID19120049,Package Refill,Refill 35[ Laughfs ],0,2500,,Laughfs
+172,1,99,PACID19120050,Package Empty Cylinder,Empty Cylinder 45[ Laughfs ],0,2300,,Laughfs
+173,2,100,PACID19120050,Package Refill,Refill 45[ Laughfs ],0,3170,,Laughfs
+174,1,101,PACID19120051,Package Empty Cylinder,Empty Cylinder 12[ JMI ],0,500,,JMI
+175,2,102,PACID19120051,Package Refill,Refill 12[ JMI ],0,900,,JMI
+176,1,103,PACID19120052,Package Empty Cylinder,Empty Cylinder 35[ JMI ],0,1500,,JMI
+177,2,104,PACID19120052,Package Refill,Refill 35[ JMI ],0,2500,,JMI
+178,1,105,PACID19120053,Package Empty Cylinder,Empty Cylinder 45[ JMI ],0,2300,,JMI
+179,2,106,PACID19120053,Package Refill,Refill 45[ JMI ],0,3170,,JMI
+180,1,107,PACID19120054,Package Empty Cylinder,Empty Cylinder 12[ TK-Super ],0,500,,TK-Super
+181,2,108,PACID19120054,Package Refill,Refill 12[ TK-Super ],0,900,,TK-Super
+182,1,109,PACID19120055,Package Empty Cylinder,Empty Cylinder 35[ TK-Super ],0,1500,,TK-Super
+183,2,110,PACID19120055,Package Refill,Refill 35[ TK-Super ],0,2500,,TK-Super
+184,1,111,PACID19120056,Package Empty Cylinder,Empty Cylinder 45[ TK-Super ],0,2300,,TK-Super
+185,2,112,PACID19120056,Package Refill,Refill 45[ TK-Super ],0,3170,,TK-Super
+186,1,113,PACID19120057,Package Empty Cylinder,Empty Cylinder 12[ Delta ],0,500,,Delta
+187,2,114,PACID19120057,Package Refill,Refill 12[ Delta ],0,900,,Delta
+188,1,115,PACID19120058,Package Empty Cylinder,Empty Cylinder 35[ Delta ],0,1500,,Delta
+189,2,116,PACID19120058,Package Refill,Refill 35[ Delta ],0,2500,,Delta
+190,1,117,PACID19120059,Package Empty Cylinder,Empty Cylinder 45[ Delta ],0,2300,,Delta
+191,2,118,PACID19120059,Package Refill,Refill 45[ Delta ],0,3170,,Delta
+192,1,119,PACID19120060,Package Empty Cylinder,Empty Cylinder 12[ Pettry ],0,500,,Pettry
+193,2,120,PACID19120060,Package Refill,Refill 12[ Pettry ],0,900,,Pettry
+194,1,121,PACID19120061,Package Empty Cylinder,Empty Cylinder 35[ Pettry ],0,1500,,Pettry
+195,2,122,PACID19120061,Package Refill,Refill 35[ Pettry ],0,2500,,Pettry
+196,1,123,PACID19120062,Package Empty Cylinder,Empty Cylinder 45[ Pettry ],0,2300,,Pettry
+197,2,124,PACID19120062,Package Refill,Refill 45[ Pettry ],0,3170,,Pettry

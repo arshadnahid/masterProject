@@ -138,42 +138,72 @@ class SalesReport_Model extends CI_Model
         $result = $query->result();
         return $result;
     }
-    public function sales_report($start_date, $end_date, $brandId, $branch_id)
+    public function sales_report($start_date, $end_date, $brandId, $branch_id,$type="all",$customer_id='all')
     {
         $query = "SELECT
-                    sales_invoice_info.sales_invoice_id,
-                    sales_invoice_info.invoice_no,
-                    sales_invoice_info.invoice_date,
-                    sales_product.sales_product_price as invoice_amount,
-                    sales_invoice_info.payment_type,
-                    sales_invoice_info.narration,
-                    customer.customerName,
-                    customer.customerType,
-                    customer.customerID,
-                    customertype.typeTitle,
-                    sales_invoice_info.customer_id,
-                    branch.branch_name,branch.branch_id
-                FROM
-                    sales_invoice_info
-                    LEFT JOIN (
-                    SELECT SUM(sd.quantity*sd.unit_price) sales_product_price,sd.sales_invoice_id FROM sales_details sd WHERE sd.show_in_invoice=1
-                    GROUP BY sd.sales_invoice_id
-                    ) sales_product ON sales_product.sales_invoice_id=sales_invoice_info.sales_invoice_id
-                LEFT JOIN customer ON customer.customer_id = sales_invoice_info.customer_id
-                LEFT JOIN customertype ON customertype.type_id = customer.customerType
-                LEFT  JOIN branch On  branch.branch_id=sales_invoice_info.branch_id
-                
-                WHERE
-                    sales_invoice_info.is_active = 'Y'
-                AND sales_invoice_info.is_delete = 'N'
-                AND branch.is_active = '1'
+                        sales_invoice_info.invoice_no,
+                        sales_invoice_info.invoice_date,
+                        sales_invoice_info.sales_invoice_id,
+                        (sales_product.sales_product_price + sales_invoice_info.transport_charge + sales_invoice_info.loader_charge)AS invoice_amount,
+                        paid_against_invoice.paid_amount,
+                        (sales_product.sales_product_price + sales_invoice_info.transport_charge + sales_invoice_info.loader_charge)-paid_against_invoice.paid_amount AS balance,
+                        sales_invoice_info.due_date,
+                        sales_invoice_info.payment_type,
+                        sales_invoice_info.narration,
+                        customer.customerName,
+                        customer.customerType,
+                        customer.customerID,
+                        customertype.typeTitle,
+                        sales_invoice_info.customer_id,
+                        branch.branch_name,
+                        branch.branch_id
+                    FROM
+                        sales_invoice_info
+                    LEFT JOIN(
+                        SELECT
+                            SUM(sd.quantity * sd.unit_price)sales_product_price,
+                            sd.sales_invoice_id
+                        FROM
+                            sales_details sd
+                        WHERE
+                            sd.show_in_invoice = 1
+                        GROUP BY
+                            sd.sales_invoice_id
+                    )sales_product ON sales_product.sales_invoice_id = sales_invoice_info.sales_invoice_id
+                    LEFT JOIN(
+                        SELECT
+                            SUM(acd.GR_CREDIT)AS paid_amount,
+                            acd.invoice_id
+                        FROM
+                            ac_tb_accounts_voucherdtl acd
+                        WHERE
+                            acd.`for` = 5
+                        GROUP BY
+                            acd.invoice_id
+                    )paid_against_invoice ON paid_against_invoice.invoice_id = sales_invoice_info.sales_invoice_id
+                    LEFT JOIN customer ON customer.customer_id = sales_invoice_info.customer_id
+                    LEFT JOIN customertype ON customertype.type_id = customer.customerType
+                    LEFT JOIN branch ON branch.branch_id = sales_invoice_info.branch_id
+                    WHERE
+                        sales_invoice_info.is_active = 'Y'
+                    AND sales_invoice_info.is_delete = 'N'
+                    AND branch.is_active = '1'
+
                 AND sales_invoice_info.invoice_date >= '" . $start_date . "'
                 AND sales_invoice_info.invoice_date <= '" . $end_date . "'
                 ";
         if ($branch_id != 'all') {
             $query .= " AND sales_invoice_info.branch_id=" . $branch_id;
         }
-        $query .= " ORDER BY branch.branch_name";
+        if ($customer_id != 'all') {
+            $query .= " AND sales_invoice_info.customer_id=" . $customer_id;
+        }
+        if($type !='all'){
+            $query .= "  HAVING
+                    balance > 0 ";
+        }
+
+        $query .= " ORDER BY branch.branch_name,sales_invoice_info.due_date";
         //log_message('error', 'quert sales ' . print_r($query, true));
         $query = $this->db->query($query);
         $result = $query->result();

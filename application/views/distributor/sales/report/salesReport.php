@@ -2,6 +2,8 @@
 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 $branch_id = isset($_GET['branch_id']) ? $_GET['branch_id'] : '';
+$type = isset($_GET['type']) ? $_GET['type'] : 'all';
+$customer_id = isset($_GET['customer_id']) ? $_GET['customer_id'] : 'all';
 ?>
 
 <div class="row">
@@ -17,83 +19,161 @@ $branch_id = isset($_GET['branch_id']) ? $_GET['branch_id'] : '';
                 <form id="publicForm" action="" method="get" class="form-horizontal">
                     <div class="form-body noPrint">
                         <div class="row">
-                            <div class="col-md-3">
+
+                            <div class="col-sm-12 col-md-6" style="margin-top: 10px;">
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label no-padding-right"
-                                           for="BranchAutoId"> <?php echo get_phrase('Branch') ?>
-                                    </label>
-                                    <div class="col-sm-8">
-                                        <select name="branch_id" class="chosen-select form-control"
-                                                id="BranchAutoId" data-placeholder="Select Branch">
-                                            <option value=""></option>
-                                            <?php
-                                            if (!empty($branch_id)) {
-                                                $selected = $branch_id;
-                                            } else {
-                                                $selected = 'all';
-                                            }
-                                            // come from branch_dropdown_helper
-                                            echo branch_dropdown('all', $selected);
-                                            ?>
-                                        </select>
+                                    <label class="col-sm-3 control-label formfonterp" for="form-field-1">
+                                        <strong><?php echo get_phrase('Branch') ?></strong></label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <select id="branch_id" name="branch_id"
+                                                    class="chosen-select form-control"
+
+                                                    data-placeholder="Select Branch Name">
+                                                <?php
+                                                if (!empty($branch_id)) {
+                                                    $selected = $branch_id;
+                                                } else {
+                                                    $selected = 'all';
+                                                }
+                                                // come from branch_dropdown_helper
+                                                echo branch_dropdown('all', $selected);
+                                                ?>
+                                            </select>
+
+                                        </div>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label formfonterp" for="form-field-1"> <strong>Customer
+                                            Name</strong></label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <select id="customerid" name="customer_id"
+                                                    class="chosen-select form-control"
+
+                                                    data-placeholder="Select Customer Name">
+                                                <option value="all"<?php echo $customer_id=='all'?"selected":""?>>All</option>
+                                                <?php foreach ($customerList as $key => $each_info):
+
+
+
+                                                    ?>
+                                                    <option value="<?php echo $each_info->customer_id; ?>"   <?php
+
+                                                    if ( $each_info->customer_id == $customer_id) {
+                                                        echo "selected";
+                                                    }
+                                                    ?>><?php echo $each_info->customerName . '&nbsp&nbsp[ ' . $each_info->typeTitle . ' ] '; ?></option>
+
+                                                <?php endforeach; ?>
+                                            </select>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="col-sm-12 col-md-6" style="margin-top: 10px;">
+                                <div class="col-sm-12 col-md-6">
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label formfonterp" for="form-field-1">
+                                            <strong> <?php echo get_phrase('From') ?></strong></label>
+                                        <div class="col-sm-9">
+                                            <div class="input-group">
+                                                <input class="form-control date-picker" name="start_date"
+                                                       id="start_date"
+                                                       type="text"
+                                                       value="<?php
+                                                       if (!empty($start_date)) {
+                                                           echo $start_date;
+                                                       } else {
+                                                           echo date('d-m-Y');
+                                                       }
+                                                       ?>" data-date-format="dd-mm-yyyy"
+                                                       autocomplete="off"/>
+                                                <span class="input-group-addon">
+                                            <i class="fa fa-calendar bigger-110"></i>
+                                             </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-sm-12 col-md-6">
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label formfonterp" for="form-field-1">
+                                            <strong> <?php echo get_phrase('To') ?></strong></label>
+                                        <div class="col-sm-9">
+                                            <div class="input-group">
+                                                <input class="form-control date-picker" id="end_date"
+                                                       type="text" name="end_date"
+                                                       value="<?php
+                                                       if (!empty($end_date)):
+                                                           echo $end_date;
+                                                       else:
+                                                           echo date('d-m-Y');
+                                                       endif;
+                                                       ?>" data-date-format="dd-mm-yyyy"
+                                                       autocomplete="off"/>
+                                                <span class="input-group-addon">
+                                            <i class="fa fa-calendar bigger-110"></i>
+                                             </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-sm-12 col-md-6" style="">
+                                <div class="col-sm-12 col-md-6" style="">
+
+
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label formfonterp" for="form-field-1">
+                                            <strong><?php echo get_phrase('Type') ?></strong></label>
+                                        <div class="col-sm-9">
+                                            <div class="input-group">
+                                                <select id="type" name="type"
+                                                        class="chosen-select form-control"
+
+                                                        data-placeholder="Select Branch Name">
+                                                    <option value="all" <?php echo $type=='all'?'selected':""?> >ALL</option>
+                                                    <option value="due" <?php echo $type=='due'?'selected':""?> >DUE</option>
+                                                </select>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12 col-md-6" style="">
+
+
+                                    <div class="form-group">
+                                        <div class="col-sm-6">
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                <span class="ace-icon fa fa-search icon-on-right bigger-110"></span>
+                                                <?php echo get_phrase('Search') ?>
+                                            </button>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <button type="button" class="btn btn-info btn-sm" id="btn-print"
+                                                    onclick="window.print();" style="cursor:pointer;">
+                                                <i class="ace-icon fa fa-print  align-top bigger-125 icon-on-right"></i>
+                                                <?php echo get_phrase('Print') ?>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+
                             </div>
 
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label no-padding-right"
-                                           for="form-field-1"> <?php echo get_phrase('From') ?>
-                                    </label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="date-picker form-control" id="start_date"
-                                               name="start_date"
-                                               value="<?php
-                                               if (!empty($start_date)) {
-                                                   echo $start_date;
-                                               } else {
-                                                   echo date('d-m-Y');
-                                               }
-                                               ?>" data-date-format='dd-mm-yyyy'
-                                               placeholder="Start Date: dd-mm-yyyy"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label no-padding-right"
-                                           for="form-field-1"> <?php echo get_phrase('To') ?>
-                                    </label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="date-picker form-control" id="end_date"
-                                               name="end_date"
-                                               value="<?php
-                                               if (!empty($end_date)):
-                                                   echo $end_date;
-                                               else:
-                                                   echo date('d-m-Y');
-                                               endif;
-                                               ?>" data-date-format='dd-mm-yyyy'
-                                               placeholder="End Date: dd-mm-yyyy"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <div class="col-sm-6">
-                                        <button type="submit" class="btn btn-success btn-sm">
-                                            <span class="ace-icon fa fa-search icon-on-right bigger-110"></span>
-                                            <?php echo get_phrase('Search') ?>
-                                        </button>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <button type="button" class="btn btn-info btn-sm" id="btn-print"
-                                                onclick="window.print();" style="cursor:pointer;">
-                                            <i class="ace-icon fa fa-print  align-top bigger-125 icon-on-right"></i>
-                                            <?php echo get_phrase('Print') ?>
-                                        </button>
-                                    </div>
-                                </div>
+
+                            <div class="col-md-2">
+
                             </div>
                         </div>
                     </div>
@@ -132,16 +212,21 @@ $branch_id = isset($_GET['branch_id']) ? $_GET['branch_id'] : '';
                                     <td align="center"><strong><?php echo get_phrase('Branch') ?></strong></td>
                                     <td align="center"><strong><?php echo get_phrase('Date') ?></strong></td>
                                     <td align="center"><strong><?php echo get_phrase('Voucher No') ?>.</strong></td>
+                                    <td align="center"><strong><?php echo get_phrase('Due Date') ?>.</strong></td>
                                     <td align="center"><strong><?php echo get_phrase('Customer') ?></strong></td>
                                     <td align="center"><strong><?php echo get_phrase('Payment Type') ?></strong></td>
                                     <td align="center"><strong><?php echo get_phrase('Memo') ?></strong></td>
                                     <td align="center"><strong><?php echo get_phrase('Amount') ?></strong></td>
+                                    <td align="center"><strong><?php echo get_phrase('Paid Amount') ?></strong></td>
+                                    <td align="center"><strong><?php echo get_phrase('Due Amount') ?></strong></td>
                                     <!--<td align="center"><strong>GP Amount</strong></td>-->
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <?php
                                 $total_debit = 0;
+                                $total_paid_amount = 0;
+                                $total_due_amount = 0;
                                 $totalGpAmount = 0;
                                 $brandNameArray = array();
                                 foreach ($sales_data as $ind => $row):
@@ -149,14 +234,18 @@ $branch_id = isset($_GET['branch_id']) ? $_GET['branch_id'] : '';
                                         array_push($brandNameArray, $row->branch_name); ?>
 
                                         <tr>
-                                            <td colspan="6">
+                                            <td colspan="10">
                                                 <?php echo '<b>' . $row->branch_name . '</b>' ?>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td colspan="2" align="right"><?php echo date('M d, Y', strtotime($row->invoice_date)); ?></td>
+                                            <td colspan="2"
+                                                align="right"><?php echo date('M d, Y', strtotime($row->invoice_date)); ?>
+                                            </td>
                                             <td><a title="view invoice"
-                                                   href="<?php echo site_url($this->project.'/salesInvoice_view/' . $row->sales_invoice_id); ?>"><?php echo $row->invoice_no; ?></a>
+                                                   href="<?php echo site_url($this->project . '/salesInvoice_view/' . $row->sales_invoice_id); ?>"><?php echo $row->invoice_no; ?></a>
+                                            </td>
+                                            <td align="left"><?php echo date('M d, Y', strtotime($row->due_date)); ?>
                                             </td>
                                             <td>
                                                 <a href="javascript:void(0)">
@@ -179,24 +268,36 @@ $branch_id = isset($_GET['branch_id']) ? $_GET['branch_id'] : '';
                                                 ?>
                                             </td>
                                             <td><?php echo $row->narration; ?></td>
-                                            <td align="right"><?php
+                                            <td align="right">
+                                                <?php
                                                 echo number_format((float)abs($row->invoice_amount), 2, '.', ',');
                                                 $total_debit += $row->invoice_amount;
                                                 ?>
                                             </td>
-                                            <!-- <td align="right"><?php /*                                        $gpAmount = $this->Sales_Model->getGpAmountByInvoiceId($this->dist_id, $row->generals_id);
-                                          $totalGpAmount += round($gpAmount);
-                                          echo number_format((float)round($gpAmount), 2, '.', ',');
-                                         */ ?></td>-->
+                                            <td align="right">
+                                                <?php
+                                                echo number_format((float)abs($row->paid_amount), 2, '.', ',');
+                                                $total_paid_amount += $row->paid_amount;
+                                                ?>
+                                            </td>
+                                            <td align="right">
+                                                <?php
+                                                echo number_format((float)abs($row->balance), 2, '.', ',');
+                                                $total_due_amount += $row->balance;
+                                                ?>
+                                            </td>
+
                                         </tr>
 
                                     <?php } else {
                                         ?>
                                         <tr>
-                                            <td colspan="2" align="right"><?php echo date('M d, Y', strtotime($row->invoice_date)); ?></td>
+                                            <td colspan="2"
+                                                align="right"><?php echo date('M d, Y', strtotime($row->invoice_date)); ?></td>
                                             <td><a title="view invoice"
-                                                   href="<?php echo site_url($this->project.'/salesInvoice_view/' . $row->sales_invoice_id); ?>"><?php echo $row->invoice_no; ?></a>
+                                                   href="<?php echo site_url($this->project . '/salesInvoice_view/' . $row->sales_invoice_id); ?>"><?php echo $row->invoice_no; ?></a>
                                             </td>
+                                            <td align="left"><?php echo date('M d, Y', strtotime($row->due_date)); ?>
                                             <td>
                                                 <a href="javascript:void(0)">
                                                     <?php
@@ -223,10 +324,19 @@ $branch_id = isset($_GET['branch_id']) ? $_GET['branch_id'] : '';
                                                 $total_debit += $row->invoice_amount;
                                                 ?>
                                             </td>
-                                            <!-- <td align="right"><?php /*                                        $gpAmount = $this->Sales_Model->getGpAmountByInvoiceId($this->dist_id, $row->generals_id);
-                                          $totalGpAmount += round($gpAmount);
-                                          echo number_format((float)round($gpAmount), 2, '.', ',');
-                                         */ ?></td>-->
+                                            <td align="right">
+                                                <?php
+                                                echo number_format((float)abs($row->paid_amount), 2, '.', ',');
+                                                $total_paid_amount += $row->paid_amount;
+                                                ?>
+                                            </td>
+                                            <td align="right">
+                                                <?php
+                                                echo number_format((float)abs($row->balance), 2, '.', ',');
+                                                $total_due_amount += $row->balance;
+                                                ?>
+                                            </td>
+
                                         </tr>
                                     <?php }
                                 endforeach; ?>
@@ -234,13 +344,23 @@ $branch_id = isset($_GET['branch_id']) ? $_GET['branch_id'] : '';
                                 </tbody>
                                 <tfoot>
                                 <tr>
-                                    <td colspan="6" align="right"><strong>Total Sales Amount</strong></td>
+                                    <td colspan="7" align="right"><strong>Total Sales Amount</strong></td>
                                     <td align="right">
-                                        <strong><?php echo number_format((float)abs($total_debit), 2, '.', ','); ?>
-                                            &nbsp;</strong></td>
-                                    <!--<td align="right">
-                                            <strong><?php /* echo number_format((float)abs($totalGpAmount), 2, '.', ','); */ ?>
-                                                &nbsp;</strong></td>-->
+                                        <strong>
+                                            <?php echo number_format((float)abs($total_debit), 2, '.', ','); ?>
+                                            &nbsp;</strong>
+                                    </td>
+                                    <td align="right">
+                                        <strong>
+                                            <?php echo number_format((float)abs($total_paid_amount), 2, '.', ','); ?>
+                                            &nbsp;</strong>
+                                    </td>
+                                    <td align="right">
+                                        <strong>
+                                            <?php echo number_format((float)abs($total_due_amount), 2, '.', ','); ?>
+                                            &nbsp;</strong>
+                                    </td>
+
                                 </tr>
                                 </tfoot>
                             </table>

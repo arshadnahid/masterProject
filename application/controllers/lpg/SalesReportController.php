@@ -266,12 +266,14 @@ class SalesReportController extends CI_Controller
 
 
         $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
+        $type = isset($_GET['type']) ? $_GET['type'] : 'all';
         $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
         $branch_id = isset($_GET['branch_id']) ? $_GET['branch_id'] : '';
+        $customer_id = isset($_GET['customer_id']) ? $_GET['customer_id'] : 'all';
         if ($start_date != '' && $end_date != '') {
             $start_date = date('Y-m-d', strtotime($start_date));
             $end_date = date('Y-m-d', strtotime($end_date));
-            $data['sales_data'] = $this->SalesReport_Model->sales_report($start_date, $end_date, $this->dist_id,$branch_id);
+            $data['sales_data'] = $this->SalesReport_Model->sales_report($start_date, $end_date, $this->dist_id,$branch_id,$type,$customer_id);
             /*echo $this->db->last_query();
             echo '<pre>';
             print_r($data['sales_data']);
@@ -279,7 +281,7 @@ class SalesReportController extends CI_Controller
 
         }
 
-
+        $data['customerList'] = $this->Sales_Model->getCustomerList($this->dist_id);
         $data['customerType'] = $this->Common_model->get_data_list('customertype');
         $data['companyInfo'] = $this->Common_model->get_single_data_by_single_column('system_config', 'dist_id', $this->dist_id);
         $data['pageTitle'] = 'Sales Report';

@@ -213,10 +213,68 @@ $route['(:any)/vehicleAdd'] = 'lpg/SetupController/vehicleAdd';
 $route['(:any)/vehicleEdit/(:any)'] = 'lpg/SetupController/vehicleEdit/$2)';
 $route['(:any)/vehicleDelete/(:any)'] = 'lpg/SetupController/vehicleDelete/$2)';
 //employee
-$route['(:any)/employeeList'] = 'lpg/SetupController/employeeList';
-$route['(:any)/employeeAdd'] = 'lpg/SetupController/employeeAdd';
-$route['(:any)/employeeEdit/(:any)'] = 'lpg/SetupController/employeeEdit/$2)';
-$route['(:any)/employeeDelete/(:any)'] = 'lpg/SetupController/employeeDelete/$2)';
+$route['(:any)/employeeList'] = 'lpg/HrController/employeeList';
+$route['(:any)/employeeAdd'] = 'lpg/HrController/employeeAdd';
+$route['(:any)/employeeEdit/(:any)'] = 'lpg/HrController/employeeEdit/$2)';
+$route['(:any)/employeeDelete/(:any)'] = 'lpg/HrController/employeeDelete/$2)';
+//employee
+$route['(:any)/employeeList'] = 'lpg/HrController/employeeList';
+$route['(:any)/employeeAdd'] = 'lpg/HrController/employeeAdd';
+$route['(:any)/employeeEdit/(:any)'] = 'lpg/HrController/employeeEdit/$2)';
+$route['(:any)/employeeDelete/(:any)'] = 'lpg/HrController/employeeDelete/$2)';
+$route['(:any)/employeeConfiquration'] = 'lpg/EmployeeConfiqureController/employeeConfiquration';
+$route['(:any)/employeeSalaryList'] = 'lpg/HrController/employeeSalaryList';
+$route['(:any)/employeeSalaryAdd'] = 'lpg/HrController/employeeSalaryAdd';
+$route['(:any)/salaryEdit/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryEdit/$2/$3/$4';
+$route['(:any)/salaryView/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryView/$2/$3/$4';
+$route['(:any)/salaryDelete/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryDelete/$2/$3/$4';
+$route['(:any)/salaryViewPdf/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryViewPdf/$2/$3/$4';
+$route['(:any)/salaryViewCashPdf/(:any)/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryViewCashPdf/$2/$3/$4/$5';
+$route['(:any)/salaryViewBankPdf/(:any)/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryViewBankPdf/$2/$3/$4/$5';
+
+$route['(:any)/salaryViewByCash/(:any)/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryViewByCash/$2/$3/$4/$5';
+$route['(:any)/salaryViewByBank/(:any)/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryViewByBank/$2/$3/$4/$5';
+
+//department departmentAdd
+$route['(:any)/departmentList'] = 'lpg/EmpDepartmentController/departmentList';
+$route['(:any)/departmentAdd'] = 'lpg/EmpDepartmentController/departmentAdd';
+$route['(:any)/departmentEdit/(:any)'] = 'lpg/EmpDepartmentController/departmentEdit/$2)';
+$route['(:any)/departmentDelete/(:any)'] = 'lpg/EmpDepartmentController/departmentDelete/$2)';
+$route['(:any)/statusDepartment/(:any)'] = 'lpg/EmpDepartmentController/statusDepartment/$2)';
+$route['(:any)/statusDepartment2/(:any)'] = 'lpg/EmpDepartmentController/statusDepartment2/$2)';
+
+//Designation
+$route['(:any)/designationAdd'] = 'lpg/EmpDepartmentController/designationAdd';
+$route['(:any)/designationEdit/(:any)'] = 'lpg/EmpDepartmentController/designationEdit/$2)';
+$route['(:any)/designationDelete/(:any)'] = 'lpg/EmpDepartmentController/designationDelete/$2)';
+$route['(:any)/statusdesignationDepartment/(:any)'] = 'lpg/EmpDepartmentController/statusdesignationDepartment/$2)';
+$route['(:any)/statusdesignationDepartment2/(:any)'] = 'lpg/EmpDepartmentController/statusdesignationDepartment2/$2)';
+
+//SubCategory
+$route['(:any)/subCategory'] = 'myController/subCategory';
+$route['(:any)/subCatEdit/(:any)'] = 'myController/subCatEdit/$2)';
+$route['(:any)/subCatDelete/(:any)'] = 'myController/subCatDelete/$2)';
+$route['(:any)/statusSubCat/(:any)'] = 'myController/statusSubCat/$2)';
+$route['(:any)/statusSubCat2/(:any)'] = 'myController/statusSubCat2/$2)';
+//Model
+$route['(:any)/modelAdd'] = 'myController/modelAdd';
+$route['(:any)/modelEdit/(:any)'] = 'myController/modelEdit/$2)';
+$route['(:any)/modelDelete/(:any)'] = 'myController/modelDelete/$2)';
+$route['(:any)/statusModel/(:any)'] = 'myController/statusModel/$2)';
+$route['(:any)/statusModel2/(:any)'] = 'myController/statusModel2/$2)';
+//colorAdd
+$route['(:any)/colorAdd'] = 'myController/colorAdd';
+$route['(:any)/colorEdit/(:any)'] = 'myController/colorEdit/$2)';
+$route['(:any)/colorDelete/(:any)'] = 'myController/colorDelete/$2)';
+$route['(:any)/statusColor/(:any)'] = 'myController/statusColor/$2)';
+$route['(:any)/statusColor2/(:any)'] = 'myController/statusColor2/$2)';
+
+//sizeAdd
+$route['(:any)/sizeAdd'] = 'myController/sizeAdd';
+$route['(:any)/sizeEdit/(:any)'] = 'myController/sizeEdit/$2)';
+$route['(:any)/sizeDelete/(:any)'] = 'myController/sizeDelete/$2)';
+$route['(:any)/statusSize/(:any)'] = 'myController/statusSize/$2)';
+$route['(:any)/statusSize2/(:any)'] = 'myController/statusSize2/$2)';
 
 /* setup controller end */
 

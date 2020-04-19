@@ -140,6 +140,8 @@ class SalesReport_Model extends CI_Model
     }
     public function sales_report($start_date, $end_date, $brandId, $branch_id,$type="all",$customer_id='all')
     {
+
+
         $query = "SELECT
                         sales_invoice_info.invoice_no,
                         sales_invoice_info.invoice_date,

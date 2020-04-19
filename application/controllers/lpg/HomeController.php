@@ -44,7 +44,29 @@ class HomeController extends CI_Controller
     public function moduleDashboard()
     {
 
-
+        $query = $this->db->field_exists('ReferenceForBackEnd', 'ac_tb_accounts_voucherdtl');
+        if ($query != TRUE) {
+            $this->load->dbforge();
+            $fields = array(
+                'ReferenceForBackEnd' => array(
+                    'type' => 'VARCHAR',
+                    'constraint' => '255',
+                    //'unsigned' => TRUE,
+                    'after' => 'Reference')
+            );
+            $this->dbforge->add_column('ac_tb_accounts_voucherdtl', $fields);
+        } $query = $this->db->field_exists('ReferenceForBackEnd', 'ac_tb_accounts_voucherdtl_history');
+        if ($query != TRUE) {
+            $this->load->dbforge();
+            $fields = array(
+                'ReferenceForBackEnd' => array(
+                    'type' => 'VARCHAR',
+                    'constraint' => '255',
+                    //'unsigned' => TRUE,
+                    'after' => 'Reference')
+            );
+            $this->dbforge->add_column('ac_tb_accounts_voucherdtl_history', $fields);
+        }
         $query = $this->db->field_exists('for', 'ac_tb_accounts_voucherdtl');
         if ($query != TRUE) {
             $this->load->dbforge();
@@ -59,6 +81,21 @@ class HomeController extends CI_Controller
             $this->dbforge->add_column('ac_tb_accounts_voucherdtl', $fields);
         }
 
+        $query = $this->db->field_exists('for', 'ac_tb_accounts_voucherdtl_history');
+        if ($query != TRUE) {
+            $this->load->dbforge();
+            $fields = array(
+                'for' => array(
+                    'type' => 'INT',
+                    'null' => TRUE,
+                    'default' => '0',
+                    //'unsigned' => TRUE,
+                    'after' => 'ReferenceForBackEnd')
+            );
+            $this->dbforge->add_column('ac_tb_accounts_voucherdtl_history', $fields);
+        }
+
+
 
         $query = $this->db->field_exists('cus_due_collection_details_id', 'ac_tb_accounts_voucherdtl');
         if ($query != TRUE) {
@@ -72,6 +109,18 @@ class HomeController extends CI_Controller
                     'after' => 'ReferenceForBackEnd')
             );
             $this->dbforge->add_column('ac_tb_accounts_voucherdtl', $fields);
+        }$query = $this->db->field_exists('cus_due_collection_details_id', 'ac_tb_accounts_voucherdtl_history');
+        if ($query != TRUE) {
+            $this->load->dbforge();
+            $fields = array(
+                'cus_due_collection_details_id' => array(
+                    'type' => 'INT',
+                    'null' => TRUE,
+                    'default' => '0',
+                    //'unsigned' => TRUE,
+                    'after' => 'ReferenceForBackEnd')
+            );
+            $this->dbforge->add_column('ac_tb_accounts_voucherdtl_history', $fields);
         }
 
         $query = $this->db->field_exists('invoice_id', 'ac_tb_accounts_voucherdtl');
@@ -86,6 +135,18 @@ class HomeController extends CI_Controller
                     'after' => 'ReferenceForBackEnd')
             );
             $this->dbforge->add_column('ac_tb_accounts_voucherdtl', $fields);
+        }$query = $this->db->field_exists('invoice_id', 'ac_tb_accounts_voucherdtl_history');
+        if ($query != TRUE) {
+            $this->load->dbforge();
+            $fields = array(
+                'invoice_id' => array(
+                    'type' => 'INT',
+                    'null' => TRUE,
+                    'default' => '0',
+                    //'unsigned' => TRUE,
+                    'after' => 'ReferenceForBackEnd')
+            );
+            $this->dbforge->add_column('ac_tb_accounts_voucherdtl_history', $fields);
         }
 
 
@@ -94,13 +155,25 @@ class HomeController extends CI_Controller
             $this->load->dbforge();
             $fields = array(
                 'invoice_no' => array(
-                    'type' => 'TEXT',
-                    'null' => TRUE,
+                    'type' => 'VARCHAR',
+                    'constraint' => '255',
                     'default' => '0',
                     //'unsigned' => TRUE,
                     'after' => 'ReferenceForBackEnd')
             );
             $this->dbforge->add_column('ac_tb_accounts_voucherdtl', $fields);
+        }$query = $this->db->field_exists('invoice_no', 'ac_tb_accounts_voucherdtl_history');
+        if ($query != TRUE) {
+            $this->load->dbforge();
+            $fields = array(
+                'invoice_no' => array(
+                    'type' => 'VARCHAR',
+                    'constraint' => '255',
+                    'default' => '0',
+                    //'unsigned' => TRUE,
+                    'after' => 'ReferenceForBackEnd')
+            );
+            $this->dbforge->add_column('ac_tb_accounts_voucherdtl_history', $fields);
         }
 
 
@@ -215,18 +288,7 @@ class HomeController extends CI_Controller
 
 
 
-        $query = $this->db->field_exists('ReferenceForBackEnd', 'ac_tb_accounts_voucherdtl');
-        if ($query != TRUE) {
-            $this->load->dbforge();
-            $fields = array(
-                'ReferenceForBackEnd' => array(
-                    'type' => 'VARCHAR',
-                    'constraint' => '255',
-                    //'unsigned' => TRUE,
-                    'after' => 'Reference')
-            );
-            $this->dbforge->add_column('ac_tb_accounts_voucherdtl', $fields);
-        }
+
 
 
         $queryNeedToRunOrNor=0;

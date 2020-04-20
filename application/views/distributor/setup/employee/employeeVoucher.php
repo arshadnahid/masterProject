@@ -79,7 +79,7 @@
 
             "ajax": {
 
-                "url": "<?php echo site_url('lpg/ServerFilterController/employeeList') ?>",
+                "url": "<?php echo site_url('lpg/employeeVoucherController/employeeList') ?>",
 
                 "type": "POST"
 

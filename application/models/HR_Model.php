@@ -22,6 +22,7 @@ class HR_Model extends CI_Model {
     }
 
 
+
     public function getSubCatList(){
         $this->db->select('*');
         $this->db->from('tb_subCategory');
@@ -333,6 +334,149 @@ where b.is_active = 1 AND b.company_id = '$company'
 ORDER BY b.branch_id DESC";
         $result = $this->db->query($sql)->result();
         return $result;
+    }
+    private function _get_employee_datatables_query()
+    {
+
+        $this->db->select("admin.name,accounts_vouchertype_autoid.Accounts_VoucherType,
+        sum(ac_tb_accounts_voucherdtl.GR_DEBIT) as amount ,
+        ac_accounts_vouchermst.Accounts_VoucherMst_AutoID,
+        ac_accounts_vouchermst.Accounts_Voucher_Date,
+        ac_accounts_vouchermst.Accounts_Voucher_No,
+        ac_accounts_vouchermst.Narration,
+        ac_accounts_vouchermst.AccouVoucherType_AutoID,branch.branch_name");
+        $this->db->from("ac_accounts_vouchermst");
+        $this->db->join('ac_tb_accounts_voucherdtl ', 'ac_tb_accounts_voucherdtl.Accounts_VoucherMst_AutoID=ac_accounts_vouchermst.Accounts_VoucherMst_AutoID', 'left');
+        $this->db->join('accounts_vouchertype_autoid ', 'accounts_vouchertype_autoid.Accounts_VoucherType_AutoID=ac_accounts_vouchermst.AccouVoucherType_AutoID', 'left');
+        $this->db->join('admin ', 'admin.admin_id=ac_accounts_vouchermst.Created_By', 'left');
+        $this->db->join('branch ', 'branch.branch_id=ac_accounts_vouchermst.BranchAutoId', 'left');
+        //$this->db->where('ac_accounts_vouchermst.BranchAutoId', $this->dist_id);
+        /*$this->db->where('BackReferenceInvoiceNo', 0);
+        $this->db->where('BackReferenceInvoiceID', 0);*/
+        $this->db->where('ac_accounts_vouchermst.AccouVoucherType_AutoID', 8);
+        $this->db->where('ac_accounts_vouchermst.IsActive', 1);
+        $this->db->group_by('ac_tb_accounts_voucherdtl.Accounts_VoucherMst_AutoID');
+        $i = 0;
+        foreach ($this->column_search as $item) { // loop column
+            if ($_POST['search']['value']) { // if datatable send POST for search
+                if ($i === 0) { // first loop
+                    $this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
+                    $this->db->like($item, $_POST['search']['value']);
+                } else {
+                    $this->db->or_like($item, $_POST['search']['value']);
+                }
+                if (count($this->column_search) - 1 == $i) //last loop
+                    $this->db->group_end(); //close bracket
+            }
+            $i++;
+        }
+
+        if (isset($_POST['order'])) { // here order processing
+            $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        } else if (isset($this->order)) {
+            //$order = $this->order;
+            $this->db->order_by('ac_accounts_vouchermst.Accounts_Voucher_Date', 'desc');
+        }
+    }
+    private function _get_receive_datatables_query()
+    {
+
+        $this->db->select("admin.name,accounts_vouchertype_autoid.Accounts_VoucherType,
+        sum(ac_tb_accounts_voucherdtl.GR_DEBIT) as amount ,
+        ac_accounts_vouchermst.Accounts_VoucherMst_AutoID,
+        ac_accounts_vouchermst.Accounts_Voucher_Date,
+        ac_accounts_vouchermst.Accounts_Voucher_No,
+        ac_accounts_vouchermst.Narration,
+        ac_accounts_vouchermst.AccouVoucherType_AutoID,branch.branch_name");
+        $this->db->from("ac_accounts_vouchermst");
+        $this->db->join('ac_tb_accounts_voucherdtl ', 'ac_tb_accounts_voucherdtl.Accounts_VoucherMst_AutoID=ac_accounts_vouchermst.Accounts_VoucherMst_AutoID', 'left');
+        $this->db->join('accounts_vouchertype_autoid ', 'accounts_vouchertype_autoid.Accounts_VoucherType_AutoID=ac_accounts_vouchermst.AccouVoucherType_AutoID', 'left');
+        $this->db->join('admin ', 'admin.admin_id=ac_accounts_vouchermst.Created_By', 'left');
+        $this->db->join('branch ', 'branch.branch_id=ac_accounts_vouchermst.BranchAutoId', 'left');
+        //$this->db->where('ac_accounts_vouchermst.BranchAutoId', $this->dist_id);
+        /*$this->db->where('BackReferenceInvoiceNo', 0);
+        $this->db->where('BackReferenceInvoiceID', 0);*/
+        $this->db->where('ac_accounts_vouchermst.AccouVoucherType_AutoID', 1);
+        $this->db->where('ac_accounts_vouchermst.IsActive', 1);
+        $this->db->group_by('ac_tb_accounts_voucherdtl.Accounts_VoucherMst_AutoID');
+        $i = 0;
+        foreach ($this->column_search as $item) { // loop column
+            if ($_POST['search']['value']) { // if datatable send POST for search
+                if ($i === 0) { // first loop
+                    $this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
+                    $this->db->like($item, $_POST['search']['value']);
+                } else {
+                    $this->db->or_like($item, $_POST['search']['value']);
+                }
+                if (count($this->column_search) - 1 == $i) //last loop
+                    $this->db->group_end(); //close bracket
+            }
+            $i++;
+        }
+
+        if (isset($_POST['order'])) { // here order processing
+            $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        } else if (isset($this->order)) {
+            //$order = $this->order;
+            $this->db->order_by('ac_accounts_vouchermst.Accounts_Voucher_Date', 'desc');
+        }
+    }
+
+    function count_filtered_receive() {
+        $this->_get_receive_datatables_query();
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+
+    function get_employee_datatables() {
+        $this->_get_employee_datatables_query();
+        if ($_POST['length'] != -1)
+            $this->db->limit($_POST['length'], $_POST['start']);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function count_all_receive() {
+        $this->db->from($this->table);
+        $this->db->where('BackReferenceInvoiceNo', 0);
+        $this->db->where('BackReferenceInvoiceID', 0);
+        $this->db->where('AccouVoucherType_AutoID', 1);
+        return $this->db->count_all_results();
+    }
+    public function filterData($table, $column_order, $coumn_search, $order, $distId) {
+        $this->table = $table;
+        $this->column_order = $column_order;
+        $this->column_search = $coumn_search;
+        $this->order = $order;
+        $this->dist_id = $distId;
+    }
+
+    function getDebitAccountIdEmployeeVoucherNew($distId, $invoiceiD) {
+
+        $this->db->select('*');
+        $this->db->from('ac_tb_accounts_voucherdtl');
+        // $this->db->where('dist_id', $distId);
+        $this->db->where('Accounts_VoucherMst_AutoID', $invoiceiD);
+        $this->db->where('GR_DEBIT >', 0);
+        $this->db->where('IsActive', 1);
+        $result = $this->db->get()->result();
+        if (!empty($result)) {
+            return $result;
+        }
+    }
+
+    function getCreditAccountIdEmployeeVoucherNew($distId, $invoiceiD)
+    {
+        $this->db->select('*');
+        $this->db->from('ac_tb_accounts_voucherdtl');
+        // $this->db->where('dist_id', $distId);
+        $this->db->where('Accounts_VoucherMst_AutoID', $invoiceiD);
+        $this->db->where('GR_CREDIT >', 0);
+        $this->db->where('IsActive', 1);
+        $result = $this->db->get()->result();
+        if (!empty($result)) {
+            return $result;
+        }
     }
 
 

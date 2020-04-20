@@ -478,6 +478,43 @@ ORDER BY b.branch_id DESC";
             return $result;
         }
     }
+    function getImportEmployee($distId = null) {
+        $this->db->select('*');
+        $this->db->from('employeeimport');
+        $this->db->where('employeeimport.dist_id', $distId);
+        /*$this->db->group_start();
+        $this->db->where_in('catId', 0);
+        $this->db->or_where_in('brandId', 0);
+        $this->db->or_where_in('unitId', 0);
+        $this->db->group_end();*/
+        $result = $this->db->get()->result();
+        return $result;
+    }
+    function emplyeeListSameId($distId = null) {
+        $this->db->select('*');
+        $this->db->from('employeeimport');
+        $this->db->where('employeeimport.dist_id', $distId);
+        /*$this->db->group_start();
+        $this->db->where_in('catId', 0);
+        $this->db->or_where_in('brandId', 0);
+        $this->db->or_where_in('unitId', 0);
+        $this->db->group_end();*/
+        $result = $this->db->get()->result();
+        return $result;
+    }
+    public function checkDuplicateEmployee($distId, $employee)
+    {
+        $this->db->select("employee.id");
+        $this->db->from("employee");
+        /*$this->db->group_start();
+        $this->db->where('product.dist_id', $distId);
+        $this->db->or_where('product.dist_id', 1);
+        $this->db->group_end();*/
+        $this->db->where('employeeId', $employee);
+        $getemployee = $this->db->get()->row();
+        return $getemployee;
+    }
+
 
 
 }

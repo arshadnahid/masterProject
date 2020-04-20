@@ -237,7 +237,8 @@ $route['(:any)/employeeVoucherAdd/(:any)'] = 'lpg/employeeVoucherController/empl
 $route['(:any)/employeeVoucher'] = 'lpg/employeeVoucherController/employeeVoucher';
 $route['(:any)/employeeVoucherView/(:any)'] = 'lpg/employeeVoucherController/employeeVoucherView/$2';
 $route['(:any)/employeeVoucherEdit/(:any)'] = 'lpg/employeeVoucherController/employeeVoucherEdit/$2';
-
+//employee Import
+$route['(:any)/employeeImport'] = 'lpg/ImportEmployeeController/employeeImport';
 //department departmentAdd
 $route['(:any)/departmentList'] = 'lpg/EmpDepartmentController/departmentList';
 $route['(:any)/departmentAdd'] = 'lpg/EmpDepartmentController/departmentAdd';

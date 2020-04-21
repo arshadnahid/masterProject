@@ -230,7 +230,6 @@ $route['(:any)/salaryViewBankPdf/(:any)/(:any)/(:any)/(:any)'] = 'lpg/HrControll
 
 $route['(:any)/salaryViewByCash/(:any)/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryViewByCash/$2/$3/$4/$5';
 $route['(:any)/salaryViewByBank/(:any)/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryViewByBank/$2/$3/$4/$5';
-
 //employee Voucher
 $route['(:any)/employeeVoucherAdd'] = 'lpg/employeeVoucherController/employeeVoucherAdd';
 $route['(:any)/employeeVoucherAdd/(:any)'] = 'lpg/employeeVoucherController/employeeVoucherAdd/$2';

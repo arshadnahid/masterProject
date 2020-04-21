@@ -3710,3 +3710,60 @@ ERROR - 2020-04-19 15:35:29 --> Could not find the language line "Purchases_Invo
 INFO - 2020-04-19 15:35:29 --> File loaded: D:\xampp\htdocs\masterProject\application\views\distributor/masterTemplate.php
 INFO - 2020-04-19 15:35:29 --> Final output sent to browser
 DEBUG - 2020-04-19 15:35:29 --> Total execution time: 0.8503
+INFO - 2020-04-19 16:33:47 --> Config Class Initialized
+INFO - 2020-04-19 16:33:48 --> Hooks Class Initialized
+DEBUG - 2020-04-19 16:33:48 --> UTF-8 Support Enabled
+INFO - 2020-04-19 16:33:48 --> Utf8 Class Initialized
+INFO - 2020-04-19 16:33:48 --> URI Class Initialized
+INFO - 2020-04-19 16:33:48 --> Router Class Initialized
+INFO - 2020-04-19 16:33:48 --> Output Class Initialized
+INFO - 2020-04-19 16:33:48 --> Security Class Initialized
+DEBUG - 2020-04-19 16:33:48 --> Global POST, GET and COOKIE data sanitized
+INFO - 2020-04-19 16:33:48 --> Input Class Initialized
+INFO - 2020-04-19 16:33:48 --> Language Class Initialized
+INFO - 2020-04-19 16:33:48 --> Loader Class Initialized
+INFO - 2020-04-19 16:33:48 --> Helper loaded: url_helper
+INFO - 2020-04-19 16:33:48 --> Helper loaded: file_helper
+INFO - 2020-04-19 16:33:48 --> Helper loaded: utility_helper
+INFO - 2020-04-19 16:33:48 --> Helper loaded: unit_helper
+INFO - 2020-04-19 16:33:48 --> Helper loaded: multi_language_helper
+INFO - 2020-04-19 16:33:48 --> Helper loaded: db_dinamic_helper
+INFO - 2020-04-19 16:33:48 --> Helper loaded: create_voucher_no_helper
+INFO - 2020-04-19 16:33:48 --> Helper loaded: site_helper
+INFO - 2020-04-19 16:33:49 --> Helper loaded: branch_dropdown_helper
+INFO - 2020-04-19 16:33:49 --> Helper loaded: account_ledger_dropdown_helper
+INFO - 2020-04-19 16:33:49 --> Database Driver Class Initialized
+INFO - 2020-04-19 16:33:49 --> Email Class Initialized
+DEBUG - 2020-04-19 16:33:49 --> Session: "sess_save_path" is empty; using "session.save_path" value from php.ini.
+INFO - 2020-04-19 16:33:49 --> Session: Class initialized using 'files' driver.
+INFO - 2020-04-19 16:33:49 --> Helper loaded: form_helper
+INFO - 2020-04-19 16:33:49 --> Form Validation Class Initialized
+INFO - 2020-04-19 16:33:49 --> Controller Class Initialized
+INFO - 2020-04-19 16:33:49 --> Model "Common_model" initialized
+INFO - 2020-04-19 16:33:49 --> Model "Finane_Model" initialized
+INFO - 2020-04-19 16:33:49 --> Model "Accounts_model" initialized
+INFO - 2020-04-19 16:33:49 --> Model "Inventory_Model" initialized
+INFO - 2020-04-19 16:33:49 --> Model "Sales_Model" initialized
+INFO - 2020-04-19 16:33:49 --> Model "AccountReport_model" initialized
+INFO - 2020-04-19 16:33:49 --> Database Driver Class Initialized
+INFO - 2020-04-19 16:33:49 --> Helper loaded: language_helper
+INFO - 2020-04-19 16:33:49 --> Language file loaded: language/english/content_lang.php
+INFO - 2020-04-19 16:33:49 --> File loaded: D:\xampp\htdocs\masterProject\application\views\distributor/setup/employee/employeeConfigaration.php
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "Product_Category_Model_Color_Size"
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "Sales_Return"
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "Report"
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "Product_Wise_Sales"
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "Report"
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "Employee"
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "Branch_Info"
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "Bank_Account_Info"
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "Purchases_Import"
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "Sales_Import"
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "Finance_Import"
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "Purchases_lpg_add"
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "2019"
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "Report"
+ERROR - 2020-04-19 16:33:50 --> Could not find the language line "Purchases_Invoice"
+INFO - 2020-04-19 16:33:50 --> File loaded: D:\xampp\htdocs\masterProject\application\views\distributor/masterTemplate.php
+INFO - 2020-04-19 16:33:50 --> Final output sent to browser
+DEBUG - 2020-04-19 16:33:50 --> Total execution time: 2.9807

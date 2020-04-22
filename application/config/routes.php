@@ -254,30 +254,30 @@ $route['(:any)/statusdesignationDepartment/(:any)'] = 'lpg/EmpDepartmentControll
 $route['(:any)/statusdesignationDepartment2/(:any)'] = 'lpg/EmpDepartmentController/statusdesignationDepartment2/$2)';
 
 //SubCategory
-$route['(:any)/subCategory'] = 'myController/subCategory';
-$route['(:any)/subCatEdit/(:any)'] = 'myController/subCatEdit/$2)';
-$route['(:any)/subCatDelete/(:any)'] = 'myController/subCatDelete/$2)';
-$route['(:any)/statusSubCat/(:any)'] = 'myController/statusSubCat/$2)';
-$route['(:any)/statusSubCat2/(:any)'] = 'myController/statusSubCat2/$2)';
+$route['(:any)/subCategory'] = 'lpg/subCatModelColorController/subCategory';
+$route['(:any)/subCatEdit/(:any)'] = 'lpg/subCatModelColorController/subCatEdit/$2)';
+$route['(:any)/subCatDelete/(:any)'] = 'lpg/subCatModelColorController/subCatDelete/$2)';
+$route['(:any)/statusSubCat/(:any)'] = 'lpg/subCatModelColorController/statusSubCat/$2)';
+$route['(:any)/statusSubCat2/(:any)'] = 'lpg/subCatModelColorController/statusSubCat2/$2)';
 //Model
-$route['(:any)/modelAdd'] = 'myController/modelAdd';
-$route['(:any)/modelEdit/(:any)'] = 'myController/modelEdit/$2)';
-$route['(:any)/modelDelete/(:any)'] = 'myController/modelDelete/$2)';
-$route['(:any)/statusModel/(:any)'] = 'myController/statusModel/$2)';
-$route['(:any)/statusModel2/(:any)'] = 'myController/statusModel2/$2)';
+$route['(:any)/modelAdd'] = 'lpg/subCatModelColorController/modelAdd';
+$route['(:any)/modelEdit/(:any)'] = 'lpg/subCatModelColorController/modelEdit/$2)';
+$route['(:any)/modelDelete/(:any)'] = 'lpg/subCatModelColorController/modelDelete/$2)';
+$route['(:any)/statusModel/(:any)'] = 'lpg/subCatModelColorController/statusModel/$2)';
+$route['(:any)/statusModel2/(:any)'] = 'lpg/subCatModelColorController/statusModel2/$2)';
 //colorAdd
-$route['(:any)/colorAdd'] = 'myController/colorAdd';
-$route['(:any)/colorEdit/(:any)'] = 'myController/colorEdit/$2)';
-$route['(:any)/colorDelete/(:any)'] = 'myController/colorDelete/$2)';
-$route['(:any)/statusColor/(:any)'] = 'myController/statusColor/$2)';
-$route['(:any)/statusColor2/(:any)'] = 'myController/statusColor2/$2)';
+$route['(:any)/colorAdd'] = 'lpg/subCatModelColorController/colorAdd';
+$route['(:any)/colorEdit/(:any)'] = 'lpg/subCatModelColorController/colorEdit/$2)';
+$route['(:any)/colorDelete/(:any)'] = 'lpg/subCatModelColorController/colorDelete/$2)';
+$route['(:any)/statusColor/(:any)'] = 'lpg/subCatModelColorController/statusColor/$2)';
+$route['(:any)/statusColor2/(:any)'] = 'lpg/subCatModelColorController/statusColor2/$2)';
 
 //sizeAdd
-$route['(:any)/sizeAdd'] = 'myController/sizeAdd';
-$route['(:any)/sizeEdit/(:any)'] = 'myController/sizeEdit/$2)';
-$route['(:any)/sizeDelete/(:any)'] = 'myController/sizeDelete/$2)';
-$route['(:any)/statusSize/(:any)'] = 'myController/statusSize/$2)';
-$route['(:any)/statusSize2/(:any)'] = 'myController/statusSize2/$2)';
+$route['(:any)/sizeAdd'] = 'lpg/subCatModelColorController/sizeAdd';
+$route['(:any)/sizeEdit/(:any)'] = 'lpg/subCatModelColorController/sizeEdit/$2)';
+$route['(:any)/sizeDelete/(:any)'] = 'lpg/subCatModelColorController/sizeDelete/$2)';
+$route['(:any)/statusSize/(:any)'] = 'lpg/subCatModelColorController/statusSize/$2)';
+$route['(:any)/statusSize2/(:any)'] = 'lpg/subCatModelColorController/statusSize2/$2)';
 
 /* setup controller end */
 

@@ -212,11 +212,72 @@ $route['(:any)/vehicleList'] = 'lpg/SetupController/vehicleList';
 $route['(:any)/vehicleAdd'] = 'lpg/SetupController/vehicleAdd';
 $route['(:any)/vehicleEdit/(:any)'] = 'lpg/SetupController/vehicleEdit/$2)';
 $route['(:any)/vehicleDelete/(:any)'] = 'lpg/SetupController/vehicleDelete/$2)';
+
 //employee
-$route['(:any)/employeeList'] = 'lpg/SetupController/employeeList';
-$route['(:any)/employeeAdd'] = 'lpg/SetupController/employeeAdd';
-$route['(:any)/employeeEdit/(:any)'] = 'lpg/SetupController/employeeEdit/$2)';
-$route['(:any)/employeeDelete/(:any)'] = 'lpg/SetupController/employeeDelete/$2)';
+$route['(:any)/employeeList'] = 'lpg/HrController/employeeList';
+$route['(:any)/employeeAdd'] = 'lpg/HrController/employeeAdd';
+$route['(:any)/employeeEdit/(:any)'] = 'lpg/HrController/employeeEdit/$2)';
+$route['(:any)/employeeDelete/(:any)'] = 'lpg/HrController/employeeDelete/$2)';
+$route['(:any)/employeeConfiquration'] = 'lpg/EmployeeConfiqureController/employeeConfiquration';
+$route['(:any)/employeeSalaryList'] = 'lpg/HrController/employeeSalaryList';
+$route['(:any)/employeeSalaryAdd'] = 'lpg/HrController/employeeSalaryAdd';
+$route['(:any)/salaryEdit/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryEdit/$2/$3/$4';
+$route['(:any)/salaryView/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryView/$2/$3/$4';
+$route['(:any)/salaryDelete/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryDelete/$2/$3/$4';
+$route['(:any)/salaryViewPdf/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryViewPdf/$2/$3/$4';
+$route['(:any)/salaryViewCashPdf/(:any)/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryViewCashPdf/$2/$3/$4/$5';
+$route['(:any)/salaryViewBankPdf/(:any)/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryViewBankPdf/$2/$3/$4/$5';
+
+$route['(:any)/salaryViewByCash/(:any)/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryViewByCash/$2/$3/$4/$5';
+$route['(:any)/salaryViewByBank/(:any)/(:any)/(:any)/(:any)'] = 'lpg/HrController/salaryViewByBank/$2/$3/$4/$5';
+//employee Voucher
+$route['(:any)/employeeVoucherAdd'] = 'lpg/employeeVoucherController/employeeVoucherAdd';
+$route['(:any)/employeeVoucherAdd/(:any)'] = 'lpg/employeeVoucherController/employeeVoucherAdd/$2';
+$route['(:any)/employeeVoucher'] = 'lpg/employeeVoucherController/employeeVoucher';
+$route['(:any)/employeeVoucherView/(:any)'] = 'lpg/employeeVoucherController/employeeVoucherView/$2';
+$route['(:any)/employeeVoucherEdit/(:any)'] = 'lpg/employeeVoucherController/employeeVoucherEdit/$2';
+//employee Import
+$route['(:any)/employeeImport'] = 'lpg/ImportEmployeeController/employeeImport';
+//department departmentAdd
+$route['(:any)/departmentList'] = 'lpg/EmpDepartmentController/departmentList';
+$route['(:any)/departmentAdd'] = 'lpg/EmpDepartmentController/departmentAdd';
+$route['(:any)/departmentEdit/(:any)'] = 'lpg/EmpDepartmentController/departmentEdit/$2)';
+$route['(:any)/departmentDelete/(:any)'] = 'lpg/EmpDepartmentController/departmentDelete/$2)';
+$route['(:any)/statusDepartment/(:any)'] = 'lpg/EmpDepartmentController/statusDepartment/$2)';
+$route['(:any)/statusDepartment2/(:any)'] = 'lpg/EmpDepartmentController/statusDepartment2/$2)';
+
+//Designation
+$route['(:any)/designationAdd'] = 'lpg/EmpDepartmentController/designationAdd';
+$route['(:any)/designationEdit/(:any)'] = 'lpg/EmpDepartmentController/designationEdit/$2)';
+$route['(:any)/designationDelete/(:any)'] = 'lpg/EmpDepartmentController/designationDelete/$2)';
+$route['(:any)/statusdesignationDepartment/(:any)'] = 'lpg/EmpDepartmentController/statusdesignationDepartment/$2)';
+$route['(:any)/statusdesignationDepartment2/(:any)'] = 'lpg/EmpDepartmentController/statusdesignationDepartment2/$2)';
+
+//SubCategory
+$route['(:any)/subCategory'] = 'lpg/subCatModelColorController/subCategory';
+$route['(:any)/subCatEdit/(:any)'] = 'lpg/subCatModelColorController/subCatEdit/$2)';
+$route['(:any)/subCatDelete/(:any)'] = 'lpg/subCatModelColorController/subCatDelete/$2)';
+$route['(:any)/statusSubCat/(:any)'] = 'lpg/subCatModelColorController/statusSubCat/$2)';
+$route['(:any)/statusSubCat2/(:any)'] = 'lpg/subCatModelColorController/statusSubCat2/$2)';
+//Model
+$route['(:any)/modelAdd'] = 'lpg/subCatModelColorController/modelAdd';
+$route['(:any)/modelEdit/(:any)'] = 'lpg/subCatModelColorController/modelEdit/$2)';
+$route['(:any)/modelDelete/(:any)'] = 'lpg/subCatModelColorController/modelDelete/$2)';
+$route['(:any)/statusModel/(:any)'] = 'lpg/subCatModelColorController/statusModel/$2)';
+$route['(:any)/statusModel2/(:any)'] = 'lpg/subCatModelColorController/statusModel2/$2)';
+//colorAdd
+$route['(:any)/colorAdd'] = 'lpg/subCatModelColorController/colorAdd';
+$route['(:any)/colorEdit/(:any)'] = 'lpg/subCatModelColorController/colorEdit/$2)';
+$route['(:any)/colorDelete/(:any)'] = 'lpg/subCatModelColorController/colorDelete/$2)';
+$route['(:any)/statusColor/(:any)'] = 'lpg/subCatModelColorController/statusColor/$2)';
+$route['(:any)/statusColor2/(:any)'] = 'lpg/subCatModelColorController/statusColor2/$2)';
+
+//sizeAdd
+$route['(:any)/sizeAdd'] = 'lpg/subCatModelColorController/sizeAdd';
+$route['(:any)/sizeEdit/(:any)'] = 'lpg/subCatModelColorController/sizeEdit/$2)';
+$route['(:any)/sizeDelete/(:any)'] = 'lpg/subCatModelColorController/sizeDelete/$2)';
+$route['(:any)/statusSize/(:any)'] = 'lpg/subCatModelColorController/statusSize/$2)';
+$route['(:any)/statusSize2/(:any)'] = 'lpg/subCatModelColorController/statusSize2/$2)';
 
 /* setup controller end */
 

@@ -895,7 +895,7 @@ AND sii.customer_id = " . $customer_id;
         $results = $this->db->get()->row_array();
         return $results['totalAvgPurchasesPrice'];
     }
-    function productCostNew($productId, $dist_id)
+    function productCostNew($productId, $branch_id)
     {
         $query = "SELECT
 	(SUM(purchase_details.quantity * purchase_details.unit_price)/ SUM(purchase_details.quantity)) AS totalAvgPurchasesPrice
@@ -904,6 +904,10 @@ FROM
 WHERE
   purchase_details.is_active='Y'
 	AND purchase_details.product_id =" . $productId;
+        if($branch_id!=''){
+            $query.=" AND purchase_details.branch_id=".$branch_id;
+        }
+
         $query = $this->db->query($query);
         $result = $query->row_array();
         return $result['totalAvgPurchasesPrice'];

@@ -29,15 +29,6 @@
         border-bottom-width: 0;
     }
 </style>
-
-<?php
-$property_1=get_property_list_for_show_hide(1);
-$property_2=get_property_list_for_show_hide(2);
-$property_3=get_property_list_for_show_hide(3);
-$property_4=get_property_list_for_show_hide(4);
-$property_5=get_property_list_for_show_hide(5);
-
-?>
 <div class="row">
 
     <form id="publicForm" action="" method="post" class="form-horizontal" name="publicForm">
@@ -47,7 +38,7 @@ $property_5=get_property_list_for_show_hide(5);
                             style="color:red;">*</span><strong><?php echo get_phrase('Sales_Date') ?></strong></label>
                 <div class="col-sm-7">
                     <div class="input-group">
-                        <input class="form-control date-picker-sales" name="saleDate" id="saleDate" type="text"
+                        <input class="form-control date-picker" name="saleDate" id="saleDate" type="text"
                                value="<?php echo date('d-m-Y'); ?>" data-date-format="dd-mm-yyyy" autocomplete="off"/>
                         <span class="input-group-addon">
                             <i class="fa fa-calendar bigger-110"></i>
@@ -97,33 +88,6 @@ $property_5=get_property_list_for_show_hide(5);
                 <label class="col-sm-3 control-label formfonterp" for="form-field-1"> <strong>Customer
                         Info</strong></label>
                 <div class="col-sm-7">
-<!--                    <table class="table table-bordered table-striped table-condensed flip-content">-->
-<!--                        -->
-<!--                        <tbody>-->
-<!--                        <tr>-->
-<!--                            <td class="text-right" style="width: 30%"><strong>--><?php //echo get_phrase('Address') ?>
-<!--                                    :</strong></td>-->
-<!--                            <td class="text-left"><span id="customer_address_span"> </span></td>-->
-<!--                        </tr>-->
-<!--                        <tr>-->
-<!--                            <td class="text-right" style="width: 30%"><strong>--><?php //echo get_phrase('Phone') ?>
-<!--                                    :</strong></td>-->
-<!--                            <td class="text-left"><span id="customer_phone_span"> </span></td>-->
-<!--                        </tr>-->
-<!--                        <tr>-->
-<!--                            <td class="text-right" style="width: 30%"><strong-->
-<!--                                        id="previousDueText">--><?php //echo get_phrase('Due') ?><!--:</strong>-->
-<!--                            </td>-->
-<!--                            <td class="text-left">-->
-<!--                                <span style="display: none" id="previousDue">0.00</span>-->
-<!--                                <span style="" id="previousDueSpan">0.00</span>-->
-<!--                            </td>-->
-<!--                            <input type="text" value="0" id="CreditLimit"/>-->
-<!--                        </tr>-->
-<!--                        </tbody>-->
-<!--                    </table>-->
-
-
                     <table class="table table-bordered table-striped table-condensed flip-content">
                         <!--<thead>
                         <tr>
@@ -133,38 +97,24 @@ $property_5=get_property_list_for_show_hide(5);
                         </thead>-->
                         <tbody>
                         <tr>
-                            <td class="text-right" style="width: 42%;"><strong><?php echo get_phrase('Address') ?>
-                                    </strong></td>
-                            <td>:</td>
+                            <td class="text-right" style="width: 30%"><strong><?php echo get_phrase('Address') ?>
+                                    :</strong></td>
                             <td class="text-left"><span id="customer_address_span"> </span></td>
                         </tr>
                         <tr>
-                            <td class="text-right" style="width: 42%;"><strong><?php echo get_phrase('Phone') ?>
-                                    </strong></td>
-                            <td>:</td>
+                            <td class="text-right" style="width: 30%"><strong><?php echo get_phrase('Phone') ?>
+                                    :</strong></td>
                             <td class="text-left"><span id="customer_phone_span"> </span></td>
                         </tr>
                         <tr>
-                            <td class="text-right" style="width: 42%;"><strong
-                                        id="previousDueText"><?php echo get_phrase('Due') ?></strong>
+                            <td class="text-right" style="width: 30%"><strong
+                                        id="previousDueText"><?php echo get_phrase('Due') ?>:</strong>
                             </td>
-                            <td>:</td>
                             <td class="text-left">
                                 <span style="display: none" id="previousDue">0.00</span>
                                 <span style="" id="previousDueSpan">0.00</span>
                             </td>
-
-                        </tr>
-                        <tr>
-                            <td class="text-right" style="width: 42%;"><strong
-                                        id=""><?php echo get_phrase('Credit Limit') ?></strong>
-                            </td>
-                            <td>:</td>
-                            <td class="text-left">
-
-                                <input type="text" value="0" id="CreditLimit" readonly style="width: 77%;border: 0px;"/>
-                            </td>
-
+                            <input type="hidden" value="0" id="CreditLimit"/>
                         </tr>
                         </tbody>
                     </table>
@@ -422,21 +372,19 @@ $property_5=get_property_list_for_show_hide(5);
                                     style="color:red;"> *</span></strong></th>
                     <th nowrap><strong><?php echo get_phrase('Total Price') ?>(<?php echo get_phrase('BDT') ?>) <span
                                     style="color:red;"> *</span></strong></th>
-                    <th nowrap  style="text-align: center;width:17%;border-radius:10px;<?php echo $property_1 =='dont_have_this_property'?'display: none':''?>">
-                        <strong><?php echo $property_1; ?> </strong>
+                    <th nowrap style="width:17%;border-radius:10px;">
+                        <strong><?php echo get_phrase('IME NO') ?> </strong>
                     </th>
-                    <th nowrap  style="text-align: center;width:10%;border-radius:10px;<?php echo $property_2=='dont_have_this_property'?'display: none':''?> ">
-                        <strong><?php echo $property_2; ?> </strong>
-
+                    <th nowrap style="width:10%;border-radius:10px; display: none">
+                        <strong><?php echo get_phrase('Returned Cylinder') ?> <span style="color:red;">
+                        <strong>
+                            <?php echo get_phrase('Received Qty') ?>
+                            <span style="color:red;">
                     </th>
-                    <th nowrap  style="text-align: center;width:10%;border-radius:10px; <?php echo $property_3=='dont_have_this_property'?'display: none':''?>">
-                        <strong><?php echo $property_3; ?> </strong>
-                    </th>
-                    <th nowrap  style="text-align: center;width:10%;border-radius:10px; <?php echo $property_4=='dont_have_this_property'?'display: none':''?>">
-                        <strong><?php echo $property_4; ?> </strong>
-                    </th>
-                    <th nowrap  style="text-align: center;width:10%;border-radius:10px;<?php echo $property_5=='dont_have_this_property'?'display: none':''?>">
-                        <strong><?php echo $property_5; ?> </strong>
+                    <th nowrap style="width:10%;border-radius:10px;display: none">
+                        <strong>
+                            <?php echo get_phrase('Price') ?>
+                            <span style="color:red;">
                     </th>
                     <th><strong><?php echo get_phrase('Action') ?></strong></th>
                 </tr>
@@ -497,26 +445,37 @@ $property_5=get_property_list_for_show_hide(5);
                                placeholder="0.00"
                                readonly="readonly">
                     </td>
-                    <td style="<?php echo $property_1 =='dont_have_this_property'?'display: none':''?>">
-                        <input type="text" onclick="this.select();" class="form-control text-right property_1 "
-                               placeholder="<?php echo $property_1;?>"/>
+                    <td style="">
+                        <input type="text" onclick="this.select();" class="form-control text-right ime_no "
+                               placeholder="0.00"/>
                     </td>
-                    <td style="<?php echo $property_2 =='dont_have_this_property'?'display: none':''?>">
-
-                        <input type="text" onclick="this.select();" class="form-control text-right property_2 "
-                               placeholder="<?php echo $property_2;?>"/>
+                    <td style="display: none">
+                        <select id="productID2" class="chosen-select form-control received_cylilder_id"
+                                onchange="received_cylilder_price(this.value)"
+                                data-placeholder="Select  product ">
+                            <option value=""></option>
+                            <?php
+                            foreach ($cylinderProduct as $eachProduct):
+                                $productPreFix = substr($eachProduct->productName, 0, 5);
+                                if ($eachProduct->category_id == 1):
+                                    ?>
+                                    <option categoryName2="<?php echo $eachProduct->productCat; ?>"
+                                            brand_id="<?php echo $eachProduct->brand_id ?>"
+                                            productName2="<?php echo $eachProduct->productName . ' ' . $eachProduct->unitTtile . ' [ ' . $eachProduct->brandName . ']'; ?>"
+                                            value="<?php echo $eachProduct->product_id; ?>">
+                                        <?php echo $eachProduct->productName . ' [ ' . $eachProduct->brandName . ' ] '; ?>
+                                    </option>
+                                    <?php
+                                endif;
+                            endforeach;
+                            ?>
+                        </select>
+                        <input type="text" onclick="this.select();"
+                               class="form-control text-right returnQuantity2 decimal" placeholder="0.00">
                     </td>
-                    <td style="<?php echo $property_3 =='dont_have_this_property'?'display: none':''?>">
-                        <input type="text" onclick="this.select();" class="form-control text-right property_3 "
-                               placeholder="<?php echo $property_3;?>"/>
-                    </td>
-                    <td style="<?php echo $property_4=='dont_have_this_property'?'display: none':''?>">
-                        <input type="text" onclick="this.select();" class="form-control text-right property_4 "
-                               placeholder="<?php echo $property_4;?>"/>
-                    </td>
-                    <td style="<?php echo $property_5 =='dont_have_this_property'?'display: none':''?>">
-                        <input type="text" onclick="this.select();" class="form-control text-right property_5 "
-                               placeholder="<?php echo $property_5;?>"/>
+                    <td style="display: none">
+                        <input type="text" onclick="this.select();"
+                               class="form-control text-right received_cylilder_price  decimal" placeholder="0.00">
                     </td>
                     <td>
                         <a id="add_item" class="btn blue form-control" href="javascript:void(0);" title="Add Item">
@@ -1024,13 +983,7 @@ $property_5=get_property_list_for_show_hide(5);
 
             var quantity = $('.quantity').val();
             var rate = $('.rate').val();
-
-            var property_1 = $('.property_1').val();
-            var property_2 = $('.property_2').val();
-            var property_3 = $('.property_3').val();
-            var property_4 = $('.property_4').val();
-            var property_5 = $('.property_5').val();
-
+            var ime_no = $('.ime_no').val();
             var price = $('.price').val();
             var returnQuantity = $('.returnQuantity').val();
             var returnQuantity2 = $('.returnQuantity2').val();
@@ -1062,7 +1015,89 @@ $property_5=get_property_list_for_show_hide(5);
 
                 var tab;
 
+                if (productCatID == 2) {
+                    //refill cylinder
+                    if ($('.is_same').val() == 0) {
 
+                        slNo++;
+                        // for return cylender
+                        var returnedCylender = '';
+                        if (returnQuantity2 > 0) {
+                            returnedCylender = '<tr>' +
+                                '<td style="width: 46%;">' +
+                                '<input type="hidden" class="text-right form-control" id="" readonly name="returnproduct_' + slNo + '[]" value="' + package_id2 + '">' +
+                                productName2 +
+                                '</td>' +
+                                '<td style="width: 27%;">' +
+                                '<div class="input-group"><input type="text" class="text-right form-control" id="" readonly name="returnedQuantity_' + slNo + '[]" value="' + returnQuantity2 + '"></div>' +
+                                '</td>' +
+                                '<td>' +
+                                '<div class="input-group"><input type="text" class="text-right form-control" id="" readonly name="returnedQuantityPrice_' + slNo + '[]" value="' + received_cylilder_price + '"><a href="javascript:void(0)" id="2" class="btn red remove_returnable  input-group-addon"><i class="fa fa-minus-circle " style="color:#fff"></i> </a> </div>' +
+                                '</td>' +
+                                '</tr>';
+                        }
+
+
+                        tab = '<tr class="new_item' + j + '">' +
+                            '<input type="hidden" name="slNo[' + slNo + ']" value="' + slNo + '"/>' +
+                            '<input type="hidden" name="brand_id[]" value="' + brand_id + '"/>' +
+                            '<input type="hidden" name="is_package_' + slNo + '"  value="0">' +
+                            '<input type="hidden" name="category_id[]"  value="' + productCatID + '">' +
+                            '<td style="padding-left:15px;" colspan="2"> [ ' + productCatName + '] - ' + productName +
+                            '<input type="hidden"  name="product_id_' + slNo + '" value="' + productID + '">' +
+                            '</td>' +
+                            '<td align="right">' +
+                            '<input type="text" id="qty_' + j + '" class="form-control text-right add_quantity decimal" style="height: 33px;" onkeyup="checkStockOverQty(this.value)" name="quantity_' + slNo + '" value="' + quantity + '">' +
+                            '</td>' +
+                            '<td align="right" style="display: none"><input type="text" class="add_ReturnQuantity  text-right form-control decimal" name="returnQuantity[' + slNo + ']" value="' + returnQuantity + '">' +
+                            '</td>' +
+                            '<td align="right"><input type="text" id="rate_' + j + '" class="form-control add_rate text-right decimal" name="rate_' + slNo + '" value="' + rate + '">' +
+                            '</td>' +
+                            '<td align="right"><input readonly type="text" class="add_price text-right form-control" id="tprice_' + j + '" name="price[]" value="' + price + '">' +
+                            '</td>' +
+                            '<td colspan="3">' +
+                            '<table class="table table-bordered table-hover" style="margin-bottom: 0px;" id="return_product_' + slNo + '">' +
+                            '<tr>' +
+                            '<td>' +
+                            '<select   class="chosen-select form-control returnedProducted returnedProduct_' + slNo + '"  id="' + slNo + '" data-placeholder="Search by product name"> ' +
+                            option +
+                            '</select>' +
+                            '</td>' +
+                            '<td style="width: 27%">' +
+                            '<div class="input-group"><input type="text" class="form-control text-right returnedProductQty_' + slNo + '" /> </div>' +
+                            '</td>' +
+                            '<td style="width: 40%">' +
+                            '<div class="input-group"><input type="text" class="form-control text-right returnedProductPrice_' + slNo + '" /><a href="javascript:void(0)" id="' + slNo + '" class="btn blue AddreturnedProduct  input-group-addon"><i class="fa fa-plus" style=" color:#fff"></i> </a> </div>' +
+                            '</td>' +
+                            '</tr>' +
+                            returnedCylender +
+                            '</table>' +
+                            '</td>' +
+                            '<td>' +
+                            '<a del_id="' + j + '" class="delete_item btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times" style="margin-top: 4px;margin-left: 6px;"></i>&nbsp;</a>' +
+                            '</td>' +
+                            '</tr>';
+
+                        $("#show_item tfoot").append(tab);
+                    } else {
+                        slNo;
+                        var tab2 = "<tr>" +
+                            "<td>" +
+                            '<input type="hidden" class="text-right form-control" id="" readonly name="returnproduct_' + slNo + '[]" value="' + package_id2 + '">' +
+                            productName2 +
+                            "</td>" +
+                            "<td>" +
+                            '<div class="input-group"><input type="text" class="text-right form-control" id="" readonly name="returnedQuantity_' + slNo + '[]" value="' + returnQuantity2 + '"><a href="javascript:void(0)" id="2" class="btn red remove_returnable  input-group-addon"><i class="fa fa-minus-circle " style=" color:#fff"></i> </a> </div>' +
+                            "</td>" +
+                            "</tr>";
+
+                        $("#return_product_" + slNo).append(tab2);
+
+                    }
+
+
+                    $('.is_same').val('1')
+                } else {
 
                     slNo++;
                     tab = '<tr class="new_item' + j + '">' +
@@ -1082,20 +1117,18 @@ $property_5=get_property_list_for_show_hide(5);
                         '</td>' +
                         '<td align="right"><input readonly type="text" class="add_price text-right form-control" id="tprice_' + j + '" name="price[]" value="' + price + '">' +
                         '</td>' +
-                        '<td align="right" style="<?php echo $property_1 == 'dont_have_this_property'?'display: none':''?>" >' +
-                        '<input  type="text" class="add_property_1 text-right form-control" id="property_1' + j + '" name="property_1_' + slNo + '" value="' + property_1 + '">' +
+                        '<td align="right">' +
+                        '<input  type="text" class="add_ime_no text-right form-control" id="ime_no_' + j + '" name="ime_no_' + slNo + '" value="' + ime_no + '">' +
                         '</td>' +
-                        '<td align="right" style="<?php echo $property_2 == 'dont_have_this_property'?'display: none':''?>" >' +
-                        '<input  type="text" class="add_property_2 text-right form-control" id="property_2' + j + '" name="property_2_' + slNo + '" value="' + property_2 + '">' +
+                        '<td colspan="2" style="display: none">' +
+                        '<table class="table table-bordered table-hover" style="margin-bottom: 0px;" id="return_product_' + slNo + '">' +
+                        '<tr>' +
+                        '<td>' +
                         '</td>' +
-                        '<td align="right" style="<?php echo $property_3 == 'dont_have_this_property'?'display: none':''?>" >' +
-                        '<input  type="text" class="add_property_3 text-right form-control" id="property_3' + j + '" name="property_3_' + slNo + '" value="' + property_3 + '">' +
+                        '<td>' +
                         '</td>' +
-                        '<td align="right" style="<?php echo $property_4 == 'dont_have_this_property'?'display: none':''?>" >' +
-                        '<input  type="text" class="add_property_4 text-right form-control" id="property_4' + j + '" name="property_4_' + slNo + '" value="' + property_4 + '">' +
-                        '</td>' +
-                        '<td align="right" style="<?php echo $property_5 == 'dont_have_this_property'?'display: none':''?> ">' +
-                        '<input  type="text" class="add_property_5 text-right form-control" id="property_5' + j + '" name="property_5_' + slNo + '" value="' + property_5 + '">' +
+                        '</tr>' +
+                        '</table>' +
                         '</td>' +
                         '<td>' +
                         '<a del_id="' + j + '" class="delete_item btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times"></i>&nbsp;</a>' +
@@ -1105,7 +1138,7 @@ $property_5=get_property_list_for_show_hide(5);
                     $("#show_item tfoot").append(tab);
 
 
-
+                }
                 findTotalCal();
                 setTimeout(function () {
                     ///calculateCustomerDue();
@@ -1165,14 +1198,6 @@ $property_5=get_property_list_for_show_hide(5);
             $('.quantity').attr("placeholder", "0");
             $('.received_cylilder_price').attr("placeholder", "0");
             $('.received_cylilder_price').val('');
-
-
-            $('.property_1').val('');
-            $('.property_3').val('');
-            $('.property_3').val('');
-            $('.property_4').val('');
-            $('.property_5').val('');
-
             checkSalesRateLockPermission();
         })
 
@@ -1644,7 +1669,7 @@ $property_5=get_property_list_for_show_hide(5);
                                             data-placeholder="Search by Customer Type">
                                         <option>-Select Type-</option>
                                         <?php foreach ($customerType as $key => $eachType): ?>
-                                            <option value="<?php echo $eachType->type_id; ?>" selected><?php echo $eachType->typeTitle; ?></option>
+                                            <option value="<?php echo $eachType->type_id; ?>"><?php echo $eachType->typeTitle; ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
@@ -1692,27 +1717,6 @@ $property_5=get_property_list_for_show_hide(5);
                                     <!--<textarea id="editor1" cols="10" rows="5" name="comp_add"></textarea>-->
                                     <textarea cols="6" rows="3" placeholder="Type Address.." class="form-control"
                                               name="customerAddress"></textarea>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label no-padding-right"
-                                       for="credit_limit"> <?php echo get_phrase('Credit Limit') ?> </label>
-                                <div class="col-sm-6">
-                                    <!--<textarea id="editor1" cols="10" rows="5" name="comp_add"></textarea>-->
-                                    <input type="text" id="credit_limit" name="credit_limit" placeholder="Credit Limit" autocomplete="off"
-                                           class="form-control"/>
-                                </div>
-                            </div>
-
-
-
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label no-padding-right"
-                                       for="credit_days"> <?php echo get_phrase('Credit Days') ?> </label>
-                                <div class="col-sm-6">
-                                    <!--<textarea id="editor1" cols="10" rows="5" name="comp_add"></textarea>-->
-                                    <input type="text" id="credit_days" name="credit_days" placeholder="Credit Days" autocomplete="off"
-                                           class="form-control"/>
                                 </div>
                             </div>
                             <div class="clearfix form-actions">

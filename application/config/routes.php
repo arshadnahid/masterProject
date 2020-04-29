@@ -137,7 +137,9 @@ $route['(:any)/deleteUnit/(:any)'] = 'lpg/UnitController/deleteUnit/$2';
  *
  *
  * */
-$route['(:any)/productBarcode'] = 'lpg/InvProductController/productBarcode';
+//$route['(:any)/productBarcode'] = 'lpg/InvProductController/productBarcode';
+$route['(:any)/productBarcode'] = 'lpg/ProductBarcodeController/productBarcode';
+
 //$route['(:any)/getProductListForBarcode'] = 'lpg/InvProductController/getProductListForBarcode';
 
 /*product barcode end*/
@@ -227,7 +229,11 @@ $route['(:any)/stock_group_report'] = 'lpg/InvReportController/cylinder_stock_gr
 $route['(:any)/supplierPayment'] = 'lpg/InventoryController/supplierPayment';
 
 $route['(:any)/current_stock_report'] = 'lpg/InventoryReportController/current_stock_report';
-$route['(:any)/current_stock_value'] = 'lpg/InventoryReportController/current_stock_report';
+
+//$route['(:any)/current_stock_value'] = 'lpg/InventoryReportController/current_stock_report';
+
+$route['(:any)/current_stock_value'] = 'lpg/InventoryStockReportController/current_stock_report_with_branch';
+
 /*$route['(:any)/current_stock_value'] = 'lpg/PurchaseController/current_stock_value';*/
 $route['(:any)/current_stock_value2'] = 'lpg/PurchaseController/current_stock_value2';
 $route['(:any)/stockReport'] = 'lpg/InventoryReportController/stockReport';
@@ -316,11 +322,17 @@ $route['(:any)/generalLedger/(:any)'] = 'lpg/FinaneController/generalLedger/$2';
 
 
 $route['(:any)/balanceSheet2'] =  'lpg/FinaneController/balanceSheet';
-$route['(:any)/balanceSheet'] ='lpg/AccountController/balanceSheet';
+//$route['(:any)/balanceSheet'] ='lpg/AccountController/balanceSheet';
+$route['(:any)/balanceSheet'] ='lpg/AccountController/balanceSheetWithAllBranch';
 $route['(:any)/balanceSheetWithBranch'] ='lpg/AccountController/balanceSheetWithBranch';
+$route['(:any)/balanceSheetWithAllBranch'] ='lpg/AccountController/balanceSheetWithAllBranch';
+
+
 $route['(:any)/incomeStetement2'] = 'lpg/FinaneController/incomeStetement';
-$route['(:any)/incomeStetement'] = 'lpg/AccountController/incomeStetement';
+$route['(:any)/incomeStetement'] = 'lpg/AccountController/incomeStatementWithAllBranch';
+//$route['(:any)/incomeStetement'] = 'lpg/AccountController/incomeStatementWithBranch';
 $route['(:any)/incomeStatementWithBranch'] = 'lpg/AccountController/incomeStatementWithBranch';
+$route['(:any)/incomeStatementWithAllBranch'] = 'lpg/AccountController/incomeStatementWithAllBranch';
 
 $route['(:any)/cashFlow'] = 'lpg/FinaneController/cashFlow';
 $route['(:any)/cashBook'] = 'lpg/AccountReportController/cashBook';
@@ -393,7 +405,8 @@ $route['(:any)/deleteDamageProduct/(:any)'] = 'lpg/ReturnDagameController/delete
 /*Accounting Voucher */
 
 $route['(:any)/paymentVoucher'] = 'lpg/VoucherController/paymentVoucher';
-$route['(:any)/day_book_report'] = 'lpg/AccountReportController/day_book_report';
+//$route['(:any)/day_book_report'] = 'lpg/AccountReportController/day_book_report';
+$route['(:any)/day_book_report'] = 'lpg/AccountReportController/day_book_report_with_all_branch';
 
 
 
@@ -514,6 +527,9 @@ $route['(:any)/sizeEdit/(:any)'] = 'lpg/InvProductPropertyController/sizeEdit/$2
 $route['(:any)/sizeDelete/(:any)'] = 'lpg/InvProductPropertyController/sizeDelete/$2)';
 $route['(:any)/statusSize/(:any)'] = 'lpg/InvProductPropertyController/statusSize/$2)';
 $route['(:any)/statusSize2/(:any)'] = 'lpg/InvProductPropertyController/statusSize2/$2)';
+
+
+$route['(:any)/product_property_set'] = 'lpg/InvProductPropertyController/product_property_set';
 
 
 

@@ -197,9 +197,16 @@ class ImportController extends CI_Controller
     {
         if (isPostBack()) {
             if (!empty($_FILES['proImport']['name'])){//supplier list import operation start this block
-                $config['upload_path'] = './uploads/import/setup/';
+
+                if (!is_dir('uploads/'.$this->project)) {
+                    mkdir('./uploads/'.$this->project, 0777, TRUE);
+
+                }
+
+
+                $config['upload_path'] = './uploads/'.$this->project;
                 $config['allowed_types'] = 'xl|txt|csv|mdb';
-                $config['file_name'] = $this->project . '_ProductImport' . date("Y-m-d");
+                $config['file_name'] = $this->project . '_ProductImportCSV' . date("Y-m-d");
                 $this->load->library('upload');
                 $this->upload->initialize($config);
                 $upload = $this->upload->do_upload('proImport');

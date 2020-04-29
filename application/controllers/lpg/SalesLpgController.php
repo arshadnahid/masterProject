@@ -235,32 +235,101 @@ class SalesLpgController extends CI_Controller
                     $stock['insert_by'] = $this->admin_id;
                     $stock['insert_date'] = $this->timestamp;
                     $stock['branch_id'] = $branch_id;
-                    $stock['ime_no '] =isset($_POST['ime_no_' . $value])?$_POST['ime_no_' . $value]:"";
+                    $stock['property_1'] =$_POST['property_1_' . $value];
+                    $stock['property_2'] =$_POST['property_2_' . $value];
+                    $stock['property_3'] =$_POST['property_3_' . $value];
+                    $stock['property_4'] =$_POST['property_4_' . $value];
+                    $stock['property_5'] =$_POST['property_5_' . $value];
                     $sales_details_id = $this->Common_model->insert_data('sales_details', $stock);
-                    $productCost = $this->Sales_Model->productCostNew($product_id, $this->dist_id);
+
+
+                    $productCost = $this->Sales_Model->productCostNew($product_id, $branch_id);
+
+
                     $totalProductCost += ($_POST['quantity_' . $value] * $productCost);
                     $category_id = $this->Common_model->tableRow('product', 'product_id', $product_id)->category_id;
+                    $packageEmptyProductId=0;
+                    if ($category_id == 2 && $_POST['is_package_' . $value] == 0) {
+                        $packageEmptyProductId = $this->getPackageEmptyProductId($_POST['product_id_' . $value]);
+                    }
+                    $stockNewTable['parent_stock_id']=0;
+                    $stockNewTable['invoice_id']=$this->invoice_id;
+                    $stockNewTable['form_id']=3;
+                    $stockNewTable['Accounts_VoucherMst_AutoID']=$accountingVoucherId;
+                    $stockNewTable['Accounts_VoucherDtl_AutoID']=0;
+                    $stockNewTable['customer_id']=$customer_id;
+                    $stockNewTable['supplier_id']=0;
+                    $stockNewTable['branch_id']=$branch_id;
+                    $stockNewTable['invoice_date']=$saleDate;
+                    $stockNewTable['category_id']=$category_id;
+                    $stockNewTable['product_id']=$_POST['product_id_' . $value];
+                    $stockNewTable['empty_cylinder_id']=$packageEmptyProductId;
+                    $stockNewTable['is_package']=$_POST['is_package_' . $value];
+                    $stockNewTable['show_in_invoice']=1;
+                    $stockNewTable['unit']=getProductUnit($_POST['product_id_' . $value]);
+                    $stockNewTable['type']=2;
+                    $stockNewTable['quantity']=$_POST['quantity_' . $value];
+                    $stockNewTable['quantity_out']=$_POST['quantity_' . $value];
+                    $stockNewTable['quantity_in']=0;
+                    $stockNewTable['returnable_quantity']=$returnable_quantity;
+                    $stockNewTable['return_quentity']=$return_quentity;
+                    $stockNewTable['due_quentity']=$supplier_due;
+                    $stockNewTable['advance_quantity']=$supplier_advance;
+                    $stockNewTable['price']=$_POST['rate_' . $value];
+                    $stockNewTable['price_in']=0;
+                    $stockNewTable['price_out']=$_POST['rate_' . $value];
+                    $stockNewTable['last_purchase_price']=$lastPurchaseprice;
+                    $stockNewTable['product_details']="";
+                    $stockNewTable['property_1'] =$_POST['property_1_' . $value];
+                    $stockNewTable['property_2'] =$_POST['property_2_' . $value];
+                    $stockNewTable['property_3'] =$_POST['property_3_' . $value];
+                    $stockNewTable['property_4'] =$_POST['property_4_' . $value];
+                    $stockNewTable['property_5'] =$_POST['property_5_' . $value];
+                    $stockNewTable['openingStatus']=0;
+                    $stockNewTable['insert_by'] = $this->admin_id;
+                    $stockNewTable['insert_date'] = $this->timestamp;
+                    $stockNewTable['update_by']='';
+                    $stockNewTable['update_date']='';
+                    $stock_id = $this->Common_model->insert_data('stock', $stockNewTable);
+
+
+
+
+
+
                     if ($category_id == 1) {
                         //Empty Cylinder
                         $EmptyCylinderProductCost += ($_POST['quantity_' . $value] * $productCost);
                         $emptyCylindet['product_id'] = $_POST['product_id_' . $value];
                         $emptyCylindet['price'] = ($_POST['quantity_' . $value] * $productCost);
+                        $emptyCylindet['quantity'] = ($_POST['quantity_' . $value]);
+                        $emptyCylindet['unit_price'] = ($productCost);
+                        $emptyCylindet['stock_id'] = $stock_id;
+
                         $allEmptyCylinderSalesArray[] = $emptyCylindet;
                     } elseif ($category_id == 2) {
                         //Refill
                         $RefillProductCost += ($_POST['rate_' . $value] * $productCost);
                         $refillCylindet['product_id'] = $_POST['product_id_' . $value];
                         $refillCylindet['price'] = ($_POST['quantity_' . $value] * $productCost);
+                        $refillCylindet['quantity'] = ($_POST['quantity_' . $value]);
+                        $refillCylindet['unit_price'] = ($productCost);
+                        $refillCylindet['stock_id'] = $stock_id;
+
                         $allRefillCylinderArray[] = $refillCylindet;
                     } else {
                         //OtherProduct
                         $OtherProductCost += ($_POST['quantity_' . $value] * $productCost);
                         $otherProduct['product_id'] = $_POST['product_id_' . $value];
                         $otherProduct['price'] = ($_POST['quantity_' . $value] * $productCost);
+                        $otherProduct['quantity'] = ($_POST['quantity_' . $value]);
+                        $otherProduct['unit_price'] = ($productCost);
+                        $otherProduct['stock_id'] = $stock_id;
+
                         $allOtherProductArray[] = $otherProduct;
                     }
                     if ($category_id == 2 && $_POST['is_package_' . $value] == 0) {
-                        $packageEmptyProductId = $this->getPackageEmptyProductId($_POST['product_id_' . $value]);
+                        //$packageEmptyProductId = $this->getPackageEmptyProductId($_POST['product_id_' . $value]);
                         //sitehelper
                         $product_last_sales_price = get_product_last_sales_price($packageEmptyProductId);
                         //$productCost = $this->Sales_Model->emptyCylinderPurchasePrice($packageEmptyProductId, $this->dist_id);
@@ -299,8 +368,57 @@ class SalesLpgController extends CI_Controller
                         $this->Common_model->insert_data('sales_details', $stock);
 
 
+                        $stockNewTable=array();
+                        $stockNewTable['parent_stock_id']=0;
+                        $stockNewTable['invoice_id']=$this->invoice_id;
+                        $stockNewTable['form_id']=3;
+                        $stockNewTable['Accounts_VoucherMst_AutoID']=$accountingVoucherId;
+                        $stockNewTable['Accounts_VoucherDtl_AutoID']=0;
+                        $stockNewTable['customer_id']=$customer_id;
+                        $stockNewTable['supplier_id']=0;
+                        $stockNewTable['branch_id']=$branch_id;
+                        $stockNewTable['invoice_date']=$saleDate;
+                        $stockNewTable['category_id']=1;
+                        $stockNewTable['product_id']=$packageEmptyProductId;
+                        $stockNewTable['empty_cylinder_id']=$packageEmptyProductId;
+                        $stockNewTable['is_package']=0;
+                        $stockNewTable['show_in_invoice']=0;
+                        $stockNewTable['unit']=getProductUnit($packageEmptyProductId);
+                        $stockNewTable['type']=2;
+                        $stockNewTable['quantity']=$_POST['quantity_' . $value];
+                        $stockNewTable['quantity_out']=$_POST['quantity_' . $value];
+                        $stockNewTable['quantity_in']=0;
+                        $stockNewTable['returnable_quantity']=0;
+                        $stockNewTable['return_quentity']=0;
+                        $stockNewTable['due_quentity']=0;
+                        $stockNewTable['advance_quantity']=0;
+                        $stockNewTable['price']=$productCost;
+                        $stockNewTable['price_in']=0;
+                        $stockNewTable['price_out']=$productCost;
+                        $stockNewTable['last_purchase_price']=$lastPurchaseprice;
+                        $stockNewTable['product_details']="";
+                        $stockNewTable['property_1'] ='';
+                        $stockNewTable['property_2'] ="";
+                        $stockNewTable['property_3'] ="";
+                        $stockNewTable['property_4'] ="";
+                        $stockNewTable['property_5'] ="";
+                        $stockNewTable['openingStatus']=0;
+                        $stockNewTable['insert_by'] = $this->admin_id;
+                        $stockNewTable['insert_date'] = $this->timestamp;
+                        $stockNewTable['update_by']='';
+                        $stockNewTable['update_date']='';
+                        $stock_id_empty_cylinder_out_with_refill = $this->Common_model->insert_data('stock', $stockNewTable);
+
+
+
+
+
+
+
+
                         $emptyCylindetWithRefill['product_id'] = $packageEmptyProductId;
                         $emptyCylindetWithRefill['price'] = ($productCost * $_POST['quantity_' . $value]);
+                        $emptyCylindetWithRefill['stock_id'] = $stock_id_empty_cylinder_out_with_refill;
                         $allEmptyCylinderWithRefillArray[] = $emptyCylindetWithRefill;
                         $product_last_sales_price = get_product_purchase_price($packageEmptyProductId);
                         $customerReceivableForEmptyCylinderTotal += ($product_last_sales_price * $_POST['quantity_' . $value]);
@@ -312,8 +430,56 @@ class SalesLpgController extends CI_Controller
                             //$totalProductCost += ($_POST['returnedQuantity_' . $value][$key1] * $productCost);
                             unset($stock2);
                             $product_last_purchase_price = $this->Sales_Model->productCostNew($value1, $this->dist_id);
-                            $emptyCylindetReturn['product_id'] = $value1;
+
                             //$emptyCylindetReturn['price'] = $product_last_purchase_price * $_POST['returnedQuantity_' . $value][$key1];
+
+                            $stockNewTable=array();
+                            $stockNewTable['parent_stock_id']=$stock_id;
+                            $stockNewTable['invoice_id']=$this->invoice_id;
+                            $stockNewTable['form_id']=3;
+                            $stockNewTable['Accounts_VoucherMst_AutoID']=$accountingVoucherId;
+                            $stockNewTable['Accounts_VoucherDtl_AutoID']=0;
+                            $stockNewTable['customer_id']=$customer_id;
+                            $stockNewTable['supplier_id']=0;
+                            $stockNewTable['branch_id']=$branch_id;
+                            $stockNewTable['invoice_date']=$saleDate;
+                            $stockNewTable['category_id']=1;
+                            $stockNewTable['product_id']=$value1;
+                            $stockNewTable['empty_cylinder_id']=$value1;
+                            $stockNewTable['is_package']=0;
+                            $stockNewTable['show_in_invoice']=1;
+                            $stockNewTable['unit']=getProductUnit($value1);
+                            $stockNewTable['type']=2;
+                            $stockNewTable['quantity']=$_POST['returnedQuantity_' . $value][$key1];
+                            $stockNewTable['quantity_out']=0;
+                            $stockNewTable['quantity_in']=$_POST['returnedQuantity_' . $value][$key1];
+                            $stockNewTable['returnable_quantity']=0;
+                            $stockNewTable['return_quentity']=0;
+                            $stockNewTable['due_quentity']=0;
+                            $stockNewTable['advance_quantity']=0;
+                            $stockNewTable['price']=$productCost;
+                            $stockNewTable['price_in']=0;
+                            $stockNewTable['price_out']=$productCost;
+                            $stockNewTable['last_purchase_price']=$lastPurchaseprice;
+                            $stockNewTable['product_details']="";
+                            $stockNewTable['property_1'] ='';
+                            $stockNewTable['property_2'] ="";
+                            $stockNewTable['property_3'] ="";
+                            $stockNewTable['property_4'] ="";
+                            $stockNewTable['property_5'] ="";
+                            $stockNewTable['openingStatus']=0;
+                            $stockNewTable['insert_by'] = $this->admin_id;
+                            $stockNewTable['insert_date'] = $this->timestamp;
+                            $stockNewTable['update_by']='';
+                            $stockNewTable['update_date']='';
+                            $stock_id_empty_cylinder_out_with_refill = $this->Common_model->insert_data('stock', $stockNewTable);
+
+
+
+
+
+
+                            $emptyCylindetReturn['product_id'] = $value1;
                             $emptyCylindetReturn['price'] = $_POST['returnedQuantity_' . $value][$key1] * $_POST['returnedQuantityPrice_' . $value][$key1];//returnedQuantityPrice_2[]
                             $emptyCylindetReturn['Reference'] = "";
                             $allEmptyCylinderReturnArray[] = $emptyCylindetReturn;
@@ -556,13 +722,21 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableNewCylinderStock['CHILD_ID'] = $ac_account_ledger_coa_info->id;//$this->config->item("New_Cylinder_Stock");//'22';
                         $accountingDetailsTableNewCylinderStock['GR_DEBIT'] = '0.00';
                         $accountingDetailsTableNewCylinderStock['GR_CREDIT'] = $valueEmpCly['price'];
-                        $accountingDetailsTableNewCylinderStock['Reference'] = 'New Cylinder Sales Stock Out ';
+                        $accountingDetailsTableNewCylinderStock['Reference'] = 'New Cylinder Sales Stock Out ('.$valueEmpCly['quantity'] .'*'.$valueEmpCly['unit_price'].')';
                         $accountingDetailsTableNewCylinderStock['IsActive'] = 1;
                         $accountingDetailsTableNewCylinderStock['Created_By'] = $this->admin_id;
                         $accountingDetailsTableNewCylinderStock['Created_Date'] = $this->timestamp;
                         $accountingDetailsTableNewCylinderStock['BranchAutoId'] = $branch_id;
                         $accountingDetailsTableNewCylinderStock['date'] = $saleDate;
-                        $finalDetailsArray[] = $accountingDetailsTableNewCylinderStock;
+                        //$finalDetailsArray[] = $accountingDetailsTableNewCylinderStock;
+
+                        $ac_tb_accounts_voucherdtl_id = $this->Common_model->insert_data('ac_tb_accounts_voucherdtl', $accountingDetailsTableNewCylinderStock);
+
+                        $data['Accounts_VoucherDtl_AutoID'] = $ac_tb_accounts_voucherdtl_id;
+                        $this->Common_model->update_data('stock', $data, 'stock_id', $valueEmpCly['stock_id']);
+
+
+
                         $accountingDetailsTableNewCylinderStock = array();
                         $totalGR_DEBIT=$totalGR_DEBIT+0;
                         $totalGR_CREDIT=$totalGR_CREDIT+$valueEmpCly['price'];
@@ -583,13 +757,20 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableRefill['CHILD_ID'] = $ac_account_ledger_coa_info->id;//$this->config->item("Refill");//'95';
                         $accountingDetailsTableRefill['GR_DEBIT'] = '0.00';
                         $accountingDetailsTableRefill['GR_CREDIT'] = $valueRefill['price'];
-                        $accountingDetailsTableRefill['Reference'] = 'Refill  Cylinder Sales(Stock Out)';
+                        $accountingDetailsTableRefill['Reference'] = 'Refill  Cylinder Sales(Stock Out)('.$valueRefill['quantity'] .'*'.$valueRefill['unit_price'].')';;
                         $accountingDetailsTableRefill['IsActive'] = 1;
                         $accountingDetailsTableRefill['Created_By'] = $this->admin_id;
                         $accountingDetailsTableRefill['Created_Date'] = $this->timestamp;
                         $accountingDetailsTableRefill['BranchAutoId'] = $branch_id;
                         $accountingDetailsTableRefill['date'] = $saleDate;
-                        $finalDetailsArray[] = $accountingDetailsTableRefill;
+                        //$finalDetailsArray[] = $accountingDetailsTableRefill;
+                        $ac_tb_accounts_voucherdtl_id = $this->Common_model->insert_data('ac_tb_accounts_voucherdtl', $accountingDetailsTableRefill);
+
+                        $data['Accounts_VoucherDtl_AutoID'] = $ac_tb_accounts_voucherdtl_id;
+                        $this->Common_model->update_data('stock', $data, 'stock_id', $valueRefill['stock_id']);
+
+
+
                         $accountingDetailsTable = array();
                         $totalGR_DEBIT=$totalGR_DEBIT+0;
                         $totalGR_CREDIT=$totalGR_CREDIT+$valueRefill['price'];
@@ -611,13 +792,19 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableRefill['CHILD_ID'] = $ac_account_ledger_coa_info->id;//$this->config->item("Refill");//'95';
                         $accountingDetailsTableRefill['GR_DEBIT'] = '0.00';
                         $accountingDetailsTableRefill['GR_CREDIT'] = $valueEmptyWithRefill['price'];
-                        $accountingDetailsTableRefill['Reference'] = 'Empty Cylinder With Refill Cylinder Sales(Stock Out)';
+                        $accountingDetailsTableRefill['Reference'] = 'Empty Cylinder With Refill Cylinder Sales(Stock Out)('.$valueEmptyWithRefill['quantity'] .'*'.$valueEmptyWithRefill['unit_price'].')';
                         $accountingDetailsTableRefill['IsActive'] = 1;
                         $accountingDetailsTableRefill['Created_By'] = $this->admin_id;
                         $accountingDetailsTableRefill['Created_Date'] = $this->timestamp;
                         $accountingDetailsTableRefill['BranchAutoId'] = $branch_id;
                         $accountingDetailsTableRefill['date'] = $saleDate;
-                        $finalDetailsArray[] = $accountingDetailsTableRefill;
+                        //$finalDetailsArray[] = $accountingDetailsTableRefill;
+
+
+                        $ac_tb_accounts_voucherdtl_id = $this->Common_model->insert_data('ac_tb_accounts_voucherdtl', $accountingDetailsTableRefill);
+
+                        $data['Accounts_VoucherDtl_AutoID'] = $ac_tb_accounts_voucherdtl_id;
+                        $this->Common_model->update_data('stock', $data, 'stock_id', $valueEmptyWithRefill['stock_id']);
                         $totalGR_DEBIT=$totalGR_DEBIT+0;
                         $totalGR_CREDIT=$totalGR_CREDIT+$valueEmptyWithRefill['price'];
                         $accountingDetailsTable = array();
@@ -694,13 +881,19 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableOtherProductCost['CHILD_ID'] = $ac_account_ledger_coa_info->id;// $this->config->item("Inventory_Stock");//'20';
                         $accountingDetailsTableOtherProductCost['GR_DEBIT'] = '0.00';
                         $accountingDetailsTableOtherProductCost['GR_CREDIT'] = $valueOtherProduct['price'];// $OtherProductCost;
-                        $accountingDetailsTableOtherProductCost['Reference'] = 'Inventory stock Out Of ' . $ac_account_ledger_coa_info->parent_name;
+                        $accountingDetailsTableOtherProductCost['Reference'] = 'Inventory stock Out Of ' . $ac_account_ledger_coa_info->parent_name.' ('.$valueEmpCly['quantity'] .'*'.$valueEmpCly['unit_price'].')';
                         $accountingDetailsTableOtherProductCost['IsActive'] = 1;
                         $accountingDetailsTableOtherProductCost['Created_By'] = $this->admin_id;
                         $accountingDetailsTableOtherProductCost['Created_Date'] = $this->timestamp;
                         $accountingDetailsTableOtherProductCost['BranchAutoId'] = $branch_id;
                         $accountingDetailsTableOtherProductCost['date'] = $saleDate;
-                        $finalDetailsArray[] = $accountingDetailsTableOtherProductCost;
+                        //$finalDetailsArray[] = $accountingDetailsTableOtherProductCost;
+
+                        $ac_tb_accounts_voucherdtl_id = $this->Common_model->insert_data('ac_tb_accounts_voucherdtl', $accountingDetailsTableOtherProductCost);
+
+                        $data['Accounts_VoucherDtl_AutoID'] = $ac_tb_accounts_voucherdtl_id;
+                        $this->Common_model->update_data('stock', $data, 'stock_id', $valueOtherProduct['stock_id']);
+
                         $accountingDetailsTable = array();
                         $totalGR_DEBIT=$totalGR_DEBIT+0;
                         $totalGR_CREDIT=$totalGR_CREDIT+$valueOtherProduct['price'];
@@ -1143,7 +1336,19 @@ class SalesLpgController extends CI_Controller
                     $stock['insert_date'] = $this->timestamp;
                     $stock['branch_id'] = $branch_id;
                     $sales_details_id = $this->Common_model->insert_data('sales_details', $stock);
-                    $productCost = $this->Sales_Model->productCostNew($product_id, $this->dist_id);
+
+
+
+
+
+
+
+
+
+
+
+                    $productCost = $this->Sales_Model->productCostNew($product_id, $branch_id);
+
                     $totalProductCost += ($_POST['quantity_' . $value] * $productCost);
                     $category_id = $this->Common_model->tableRow('product', 'product_id', $product_id)->category_id;
                     if ($category_id == 1) {
@@ -2063,6 +2268,16 @@ class SalesLpgController extends CI_Controller
             $result[$element->sales_invoice_id][$element->sales_details_id]['brandName'] = $element->brandName;
             $result[$element->sales_invoice_id][$element->sales_details_id]['quantity'] = $element->quantity;
             $result[$element->sales_invoice_id][$element->sales_details_id]['unit_price'] = $element->unit_price;
+
+
+
+            $result[$element->sales_invoice_id][$element->sales_details_id]['property_1'] = $element->property_1;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['property_2'] = $element->property_2;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['property_3'] = $element->property_3;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['property_4'] = $element->property_4;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['property_5'] = $element->property_5;
+
+
             //$result[$element->sales_invoice_id][$element->sales_details_id]['unit_price'] = $element->unit_price;
             if ($element->returnable_quantity > 0) {
                 $result[$element->sales_invoice_id][$element->sales_details_id]['return'][$element->sales_details_id][] = array('return_product_name' => $element->return_product_name,
@@ -2080,7 +2295,15 @@ class SalesLpgController extends CI_Controller
         $data['stockList'] = $result;
         /*echo '<pre>';
         print_r( $data['stockList']);exit;*/
-        $data['mainContent'] = $this->load->view('distributor/sales/salesInvoiceLpg/sales_view_final', $data, true);
+        if ($this->business_type == "LPG") {
+            $data['mainContent'] = $this->load->view('distributor/sales/salesInvoiceLpg/sales_view_final', $data, true);
+
+            //$this->folderSub = 'distributor/inventory/product_mobile/';
+        }else{
+            $data['mainContent'] = $this->load->view('distributor/sales/salesInvoiceMobile/sales_view_final', $data, true);
+        }
+
+
         $this->load->view('distributor/masterTemplate', $data);
     }
 

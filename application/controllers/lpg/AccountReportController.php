@@ -270,15 +270,19 @@ class AccountReportController extends CI_Controller
             echo $this->db->last_query();
             print_r($data['getalldayBookSummery']);exit;*/
             $data['getalldayBookDetails'] = $this->Accounts_model->getalldayBookDetails($start_date, $branch_id);
-            /*echo"<pre>";
-            echo $this->db->last_query();
-            print_r($data['getalldayBookDetails']);
-            exit;*/
+//            echo"<pre>";
+//            echo $this->db->last_query();
+//            print_r($data['getalldayBookDetails']);
+//            exit;
 
         }
 
 
         $data['dayBookCofig'] = $this->Accounts_model->getalldayBook();
+       /* echo "<pre>";
+        print_r($data['dayBookCofig']);
+        echo $this->db->last_query();
+        exit;*/
 
         $data['title'] = 'Day Book Report';
         $data['page_type'] = $this->page_type;
@@ -288,6 +292,47 @@ class AccountReportController extends CI_Controller
         /*page navbar details*/
         $data['pageTitle'] = 'General Ledger';
         $data['mainContent'] = $this->load->view('distributor/account/report/day_book_report', $data, true);
+        $this->load->view('distributor/masterTemplate', $data);
+    }
+
+
+    public function day_book_report_with_all_branch($start_date = '')
+    {
+        $start_date = isset($_GET['to_date']) ? $_GET['to_date'] : '';
+        $branch_id = isset($_GET['branch_id']) ? $_GET['branch_id'] : 'all';
+        if ($start_date != '') {
+            $start_date = date('Y-m-d', strtotime($start_date));
+
+            if($branch_id !='all'){
+                $data['getalldayBookSummery'] = $this->Accounts_model->getalldayBookSummeryNew($start_date, $branch_id);
+            }else{
+                $data['getalldayBookSummery'] = $this->Accounts_model->getalldayBookSummeryNew_all_branch($start_date, $branch_id);
+            }
+
+
+
+
+            $data['getalldayBookDetails'] = $this->Accounts_model->getalldayBookDetails($start_date, $branch_id);
+
+
+
+        }
+
+
+        $data['dayBookCofig'] = $this->Accounts_model->getalldayBook();
+       /* echo "<pre>";
+        print_r($data['dayBookCofig']);
+        echo $this->db->last_query();
+        exit;*/
+
+        $data['title'] = 'Day Book Report';
+        $data['page_type'] = $this->page_type;
+        $data['link_page_name'] = '';
+        $data['link_page_url'] = '';
+        $data['link_icon'] = "";
+        /*page navbar details*/
+        $data['pageTitle'] = 'General Ledger';
+        $data['mainContent'] = $this->load->view('distributor/account/report/day_book_report_with_all_branch', $data, true);
         $this->load->view('distributor/masterTemplate', $data);
     }
 

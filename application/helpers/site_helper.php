@@ -263,7 +263,6 @@ if (!function_exists('get_menu_list_by_user_role')) {
         $sql = $CI->db->get();
         return $sql->result();
 
-        return $ledger_type;
     }
 }
 
@@ -312,5 +311,101 @@ if (!function_exists('check_parmission_by_user_role')) {
             return 0;
         }
 
+    }
+
+
+    if (!function_exists('get_property_list_for_show_hide')) {
+        function get_property_list_for_show_hide($given_property_id=array(1,2,3,4,5),$is_show=1)
+        {
+            $CI =& get_instance();
+            $CI->load->database();
+
+
+
+
+            $CI->db->select('property_id,property_name_show');
+            $CI->db->from('product_property');
+            $CI->db->where('is_show', 1);
+            if($given_property_id!=''){
+                $CI->db->where('property_id', $given_property_id);
+            }
+
+            $sql = $CI->db->get();
+            $result=$sql->row();
+            if(!empty($result)){
+                return $result->property_name_show;
+            }else{
+                return "dont_have_this_property";
+            }
+
+            /*foreach ($result as $key => $value) {
+                $array[]=$value->property_id;
+            }*/
+
+            return $array;
+
+
+        }
+    }
+
+
+    if (!function_exists('product_list_for_dropdown')) {
+        function product_list_for_dropdown($catid,$option=1)
+        {
+            $CI =& get_instance();
+            $CI->load->database();
+
+
+
+            if ($catid != 'package') {
+                $option = '';
+
+
+                $CI->db->select('product.product_id,productcategory.title as productCat,product.brand_id,product.category_id,product.productName,product.dist_id,product.status,brand.brandName,unit.unitTtile');
+                $CI->db->from('product');
+                $CI->db->join('brand', 'brand.brandId = product.brand_id', 'left');
+                $CI->db->join('unit', 'unit.unit_id = product.unit_id', 'left');
+                $CI->db->join('productcategory', 'productcategory.category_id = product.category_id', 'left');
+
+                $CI->db->where('product.status', 1);
+                if ($catid == 'all') {
+                } else {
+                    $CI->db->where('product.category_id', $catid);
+                }
+                $CI->db->order_by('product.productName', 'ASE');
+                $productList = $CI->db->get()->result();
+                if (!empty($productList)):
+                    $option .= '<option value="0" disabled selected>Select Product</option>';
+                    foreach ($productList as $key => $value):
+                        $option .= "<option  ispackage='0'  categoryName='" . $value->productCat . " '  categoryId='" . $value->category_id . "' productName='" . $value->productName . " [" . $value->brandName . "]' value='" . $value->product_id . "' >$value->productName  [" . $value->brandName . "]</option>";
+                    endforeach;
+//                    echo $add;
+//                    DIE;
+                else:
+                    $option .= "<option value='' selected disabled>Product Not Available</option>";
+                    //DIE;
+                endif;
+
+            }else{
+
+
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+            return $option;
+
+
+        }
     }
 }

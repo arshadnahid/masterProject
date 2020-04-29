@@ -13,7 +13,7 @@ if (!function_exists('branch_dropdown')) {
         $CI->load->database();
 
         if ($selected_branch_id == null) {
-           // $selected_branch_id = 1;
+            $selected_branch_id = 1;
         } else {
             $selected_branch_id = $selected_branch_id;
         }

@@ -720,7 +720,7 @@
         } else {
             var tab;
 
-            tab = '<tr class="new_item' + j + '">' +
+            tab = '<tr class="new_item_inv_in_' + j + '">' +
                 '<td style="text-align: center"><input type="hidden" name="productID[]" value="' + productID + '">' + productCatName +
                 '</td>' +
                 '<td style="text-align: center"><input type="hidden" name="catproductID[]" value="' + productCatID + '">' + productName +
@@ -731,7 +731,7 @@
                 '</td>' +
                 '<td style="text-align: right"><input type="hidden" class="inventory_in_price" name="price[]" value="' + price + '">' + price +
                 '</td>' +
-                '<td><a del_id="" class="delete_item_in_amount btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times"></i></a></td>' +
+                '<td><a del_id="' + j + '" class="delete_item_in_inventory btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times"></i></a></td>' +
 
                 '</tr>';
             $("#show_item_in tbody").append(tab);
@@ -822,7 +822,7 @@
         } else {
             var tab;
 
-            tab = '<tr class="new_item' + k + '">' +
+            tab = '<tr class="new_item_inv_out_' + k + '">' +
                 '<td style="text-align: center"><input type="text" name="productIdOut[]" value="' + productIDOut + '">' + productCatNameOut +
                 '</td>' +
                 '<td style="text-align: center"><input type="hidden" name="categoryOut[]" value="' + productCatIDOut + '">' + productNameOut +
@@ -833,7 +833,7 @@
                 '</td>' +
                 '<td style="text-align: right"><input type="hidden" class="inventory_out_price" name="priceOut[]" value="' + priceOut + '">' + priceOut +
                 '</td>' +
-                '<td><a del_id="" class="delete_item_in_amount btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times"></i></a></td>' +
+                '<td><a del_id="' + k + '" class="delete_item_out_inventory btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times"></i></a></td>' +
                 '</tr>';
             $("#show_item_out tbody").append(tab);
 
@@ -1555,6 +1555,107 @@
                     if (isConfirm) {
 
                         $('.new_item' + id).remove();
+
+                        findAmountDr();
+
+                        findAmountCr();
+
+                        checkValidation();
+
+                    } else {
+
+                        return false;
+
+                    }
+
+                });
+
+
+        });
+
+        $(document).on('click', '.delete_item_in_inventory', function () {
+
+            var id = $(this).attr("del_id");
+
+            swal({
+
+                    title: "Are you sure ?",
+
+                    text: "You won't be able to revert this!",
+
+                    showCancelButton: true,
+
+                    confirmButtonColor: '#73AE28',
+
+                    cancelButtonColor: '#d33',
+
+                    confirmButtonText: 'Yes',
+
+                    cancelButtonText: "No",
+
+                    closeOnConfirm: true,
+
+                    closeOnCancel: true,
+
+                    type: 'success'
+
+                },
+
+                function (isConfirm) {
+
+                    if (isConfirm) {
+
+                        $('.new_item_inv_in_' + id).remove();
+
+                        findAmountDr();
+
+                        findAmountCr();
+
+                        checkValidation();
+
+                    } else {
+
+                        return false;
+
+                    }
+
+                });
+
+
+        });
+        $(document).on('click', '.delete_item_out_inventory', function () {
+
+            var id = $(this).attr("del_id");
+
+            swal({
+
+                    title: "Are you sure ?",
+
+                    text: "You won't be able to revert this!",
+
+                    showCancelButton: true,
+
+                    confirmButtonColor: '#73AE28',
+
+                    cancelButtonColor: '#d33',
+
+                    confirmButtonText: 'Yes',
+
+                    cancelButtonText: "No",
+
+                    closeOnConfirm: true,
+
+                    closeOnCancel: true,
+
+                    type: 'success'
+
+                },
+
+                function (isConfirm) {
+
+                    if (isConfirm) {
+
+                        $('.new_item_inv_out_' + id).remove();
 
                         findAmountDr();
 

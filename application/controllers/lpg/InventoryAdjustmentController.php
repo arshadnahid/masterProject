@@ -122,6 +122,16 @@ class InventoryAdjustmentController extends CI_Controller
                             $inventory_adjustment['is_active'] = 'Y';
                             $inventory_adjustment_details[] = $inventory_adjustment;
 
+                            $branch_id=$_POST['branchId'];
+                            $lastPurchasepriceArray = $this->db->where('product_id', $value)
+                                ->where('branch_id', $branch_id)
+                                ->order_by('purchase_details_id', "desc")
+                                ->limit(1)
+                                ->get('purchase_details')
+                                ->row();
+                            $category_id = $this->Common_model->tableRow('product', 'product_id', $value)->category_id;
+                            $lastPurchaseprice = !empty($lastPurchasepriceArray) ? $lastPurchasepriceArray->unit_price : 0;
+
 
                             $condition = array(
                                 'related_id' => $value,
@@ -135,13 +145,66 @@ class InventoryAdjustmentController extends CI_Controller
                             $accountingDetailsTableNewCylinderStock['GR_DEBIT'] = $_POST['quantity'][$key] * $_POST['rate'][$key];
                             $accountingDetailsTableNewCylinderStock['GR_CREDIT'] = 0;
                             $accountingDetailsTableNewCylinderStock['Reference'] = 'Stock In';
+                            $accountingDetailsTableNewCylinderStock['ReferenceForBackEnd'] = "";
                             $accountingDetailsTableNewCylinderStock['IsActive'] = 1;
                             $accountingDetailsTableNewCylinderStock['Created_By'] = $this->admin_id;
                             $accountingDetailsTableNewCylinderStock['Created_Date'] = $this->timestamp;
                             $accountingDetailsTableNewCylinderStock['BranchAutoId'] = $branch_id;
                             $accountingDetailsTableNewCylinderStock['date'] = $date;
-                            $finalDetailsArray[] = $accountingDetailsTableNewCylinderStock;
+                            //$finalDetailsArray[] = $accountingDetailsTableNewCylinderStock;
+
+                            $ac_tb_accounts_voucherdtl_id = $this->Common_model->insert_data('ac_tb_accounts_voucherdtl', $accountingDetailsTableNewCylinderStock);
+
                             $accountingDetailsTableNewCylinderStock = array();
+
+
+                            $stockNewTable['parent_stock_id']=0;
+                            $stockNewTable['invoice_id']=$last_inserted_id;
+                            $stockNewTable['form_id']=4;
+                            $stockNewTable['type']=1;
+                            $stockNewTable['Accounts_VoucherMst_AutoID']=$general_id;
+                            $stockNewTable['Accounts_VoucherDtl_AutoID']=$ac_tb_accounts_voucherdtl_id;
+                            $stockNewTable['customer_id']=0;
+                            $stockNewTable['supplier_id']=0;
+                            $stockNewTable['branch_id']=$branch_id;
+                            $stockNewTable['invoice_date']=$date;
+                            $stockNewTable['category_id']=$category_id;
+                            $stockNewTable['product_id']=$value;
+                            $stockNewTable['empty_cylinder_id']=0;
+                            $stockNewTable['is_package']=0;
+                            $stockNewTable['show_in_invoice']=1;
+                            $stockNewTable['unit']=getProductUnit($value);
+
+                            $stockNewTable['quantity']=$_POST['quantity'][$key];
+                            $stockNewTable['quantity_out']=0;
+                            $stockNewTable['quantity_in']=$_POST['quantity'][$key];
+                            $stockNewTable['returnable_quantity']=0;
+                            $stockNewTable['return_quentity']=0;
+                            $stockNewTable['due_quentity']=0;
+                            $stockNewTable['advance_quantity']=0;
+                            $stockNewTable['price']=$_POST['rate'][$key];
+                            $stockNewTable['price_in']=$_POST['rate'][$key];
+                            $stockNewTable['price_out']=0;
+                            $stockNewTable['last_purchase_price']=$lastPurchaseprice;
+                            $stockNewTable['product_details']="";
+                            $stockNewTable['property_1'] =$_POST['property_1_' . $value];
+                            $stockNewTable['property_2'] =$_POST['property_2_' . $value];
+                            $stockNewTable['property_3'] =$_POST['property_3_' . $value];
+                            $stockNewTable['property_4'] =$_POST['property_4_' . $value];
+                            $stockNewTable['property_5'] =$_POST['property_5_' . $value];
+                            $stockNewTable['openingStatus']=0;
+                            $stockNewTable['insert_by'] = $this->admin_id;
+                            $stockNewTable['insert_date'] = $this->timestamp;
+                            $stockNewTable['update_by']='';
+                            $stockNewTable['update_date']='';
+                            $stock_id = $this->Common_model->insert_data('stock', $stockNewTable);
+                            $stockNewTable=array();
+
+
+
+
+
+
                         }
                     }
                     if (!empty($_POST['productIdOut'])) {
@@ -172,60 +235,121 @@ class InventoryAdjustmentController extends CI_Controller
                             $accountingDetailsTableNewCylinderStock['GR_DEBIT'] = 0;
                             $accountingDetailsTableNewCylinderStock['GR_CREDIT'] = $_POST['quantityOut'][$key] * $_POST['rateOut'][$key];
                             $accountingDetailsTableNewCylinderStock['Reference'] = 'Stock Out';
+                            $accountingDetailsTableNewCylinderStock['ReferenceForBackEnd'] = "S";
                             $accountingDetailsTableNewCylinderStock['IsActive'] = 1;
                             $accountingDetailsTableNewCylinderStock['Created_By'] = $this->admin_id;
                             $accountingDetailsTableNewCylinderStock['Created_Date'] = $this->timestamp;
                             $accountingDetailsTableNewCylinderStock['BranchAutoId'] = $branch_id;
                             $accountingDetailsTableNewCylinderStock['date'] = $date;
-                            $finalDetailsArray[] = $accountingDetailsTableNewCylinderStock;
+                           // $finalDetailsArray[] = $accountingDetailsTableNewCylinderStock;
+                            $ac_tb_accounts_voucherdtl_id = $this->Common_model->insert_data('ac_tb_accounts_voucherdtl', $accountingDetailsTableNewCylinderStock);
+
                             $accountingDetailsTableNewCylinderStock = array();
+
+                            $branch_id=$_POST['branchId'];
+                            $lastPurchasepriceArray = $this->db->where('product_id', $value)
+                                ->where('branch_id', $branch_id)
+                                ->order_by('purchase_details_id', "desc")
+                                ->limit(1)
+                                ->get('purchase_details')
+                                ->row();
+                            $category_id = $this->Common_model->tableRow('product', 'product_id', $value)->category_id;
+                            $lastPurchaseprice = !empty($lastPurchasepriceArray) ? $lastPurchasepriceArray->unit_price : 0;
+
+                            $stockNewTable['parent_stock_id']=0;
+                            $stockNewTable['invoice_id']=$last_inserted_id;
+                            $stockNewTable['form_id']=4;
+                            $stockNewTable['Accounts_VoucherMst_AutoID']=$general_id;
+                            $stockNewTable['Accounts_VoucherDtl_AutoID']=$ac_tb_accounts_voucherdtl_id;
+                            $stockNewTable['customer_id']=0;
+                            $stockNewTable['supplier_id']=0;
+                            $stockNewTable['branch_id']=$branch_id;
+                            $stockNewTable['invoice_date']=$date;
+                            $stockNewTable['category_id']=$category_id;
+                            $stockNewTable['product_id']=0;
+                            $stockNewTable['empty_cylinder_id']=0;
+                            $stockNewTable['is_package']=0;
+                            $stockNewTable['show_in_invoice']=1;
+                            $stockNewTable['unit']=getProductUnit($value);
+                            $stockNewTable['type']=2;
+                            $stockNewTable['quantity']=$_POST['quantityOut'][$key];
+                            $stockNewTable['quantity_out']=$_POST['quantityOut'][$key];
+                            $stockNewTable['quantity_in']=0;
+                            $stockNewTable['returnable_quantity']=0;
+                            $stockNewTable['return_quentity']=0;
+                            $stockNewTable['due_quentity']=0;
+                            $stockNewTable['advance_quantity']=0;
+                            $stockNewTable['price']=$_POST['rateOut'][$key];
+                            $stockNewTable['price_in']=0;
+                            $stockNewTable['price_out']=$_POST['rateOut'][$key];
+                            $stockNewTable['last_purchase_price']=$lastPurchaseprice;
+                            $stockNewTable['product_details']="";
+                            $stockNewTable['property_1'] =$_POST['property_1_' . $value];
+                            $stockNewTable['property_2'] =$_POST['property_2_' . $value];
+                            $stockNewTable['property_3'] =$_POST['property_3_' . $value];
+                            $stockNewTable['property_4'] =$_POST['property_4_' . $value];
+                            $stockNewTable['property_5'] =$_POST['property_5_' . $value];
+                            $stockNewTable['openingStatus']=0;
+                            $stockNewTable['insert_by'] = $this->admin_id;
+                            $stockNewTable['insert_date'] = $this->timestamp;
+                            $stockNewTable['update_by']='';
+                            $stockNewTable['update_date']='';
+                            $stock_id = $this->Common_model->insert_data('stock', $stockNewTable);
+
+
                         }
                     }
                 }
                 $account = $this->input->post('accountIN');
                 $alldr = array();
-                foreach ($account as $key => $value) {
-                    unset($jv);
-                    $jv['Accounts_VoucherMst_AutoID'] = $general_id;
-                    if ($this->input->post('amountDrIN')[$key] > 0) {
-                        $jv['TypeID'] = 1;
-                    } else {
-                        $jv['TypeID'] = 2;
-                    }
+                if(!empty($account)){
+                    foreach ($account as $key => $value) {
+                        unset($jv);
+                        $jv['Accounts_VoucherMst_AutoID'] = $general_id;
+                        if ($this->input->post('amountDrIN')[$key] > 0) {
+                            $jv['TypeID'] = 1;
+                        } else {
+                            $jv['TypeID'] = 2;
+                        }
 
-                    $jv['CHILD_ID'] = $value;
-                    $jv['GR_CREDIT'] = $this->input->post('amountCrIN')[$key];
-                    $jv['GR_DEBIT'] = $this->input->post('amountDrIN')[$key];
-                    $jv['Reference'] = $this->input->post('memoIN')[$key];
-                    $jv['ReferenceForBackEnd'] = "Stock-In Additional Transition";
-                    $jv['IsActive'] = 1;
-                    $jv['Created_By'] = $this->dist_id;
-                    $jv['Created_Date'] = $this->timestamp;
-                    $jv['BranchAutoId'] = $this->input->post('BranchAutoId');
-                    $jv['date'] = $date;
-                    $finalDetailsArray[] = $jv;
-                }
-                $accountOut = $this->input->post('accountOut');
-                foreach ($accountOut as $key => $value) {
-                    unset($jv);
-                    if ($this->input->post('amountDrOut')[$key] > 0) {
-                        $jv['TypeID'] = 1;
-                    } else {
-                        $jv['TypeID'] = 2;
+                        $jv['CHILD_ID'] = $value;
+                        $jv['GR_CREDIT'] = $this->input->post('amountCrIN')[$key];
+                        $jv['GR_DEBIT'] = $this->input->post('amountDrIN')[$key];
+                        $jv['Reference'] = $this->input->post('memoIN')[$key];
+                        $jv['ReferenceForBackEnd'] = "Stock-In Additional Transition";
+                        $jv['IsActive'] = 1;
+                        $jv['Created_By'] = $this->dist_id;
+                        $jv['Created_Date'] = $this->timestamp;
+                        $jv['BranchAutoId'] = $this->input->post('BranchAutoId');
+                        $jv['date'] = $date;
+                        $finalDetailsArray[] = $jv;
                     }
-                    $jv['Accounts_VoucherMst_AutoID'] = $general_id;
-                    $jv['CHILD_ID'] = $value;
-                    $jv['GR_CREDIT'] = $this->input->post('amountCrOut')[$key];
-                    $jv['GR_DEBIT'] = $this->input->post('amountDrOut')[$key];
-                    $jv['Reference'] = $this->input->post('memoOut')[$key];
-                    $jv['ReferenceForBackEnd'] = "Stock-Out Additional Transition";
-                    $jv['IsActive'] = 1;
-                    $jv['Created_By'] = $this->dist_id;
-                    $jv['Created_Date'] = $this->timestamp;
-                    $jv['BranchAutoId'] = $this->input->post('BranchAutoId');
-                    $jv['date'] = $date;
-                    $finalDetailsArray[] = $jv;
                 }
+
+                $accountOut = $this->input->post('accountOut');
+                if(!empty($accountOut)){
+                    foreach ($accountOut as $key => $value) {
+                        unset($jv);
+                        if ($this->input->post('amountDrOut')[$key] > 0) {
+                            $jv['TypeID'] = 1;
+                        } else {
+                            $jv['TypeID'] = 2;
+                        }
+                        $jv['Accounts_VoucherMst_AutoID'] = $general_id;
+                        $jv['CHILD_ID'] = $value;
+                        $jv['GR_CREDIT'] = $this->input->post('amountCrOut')[$key];
+                        $jv['GR_DEBIT'] = $this->input->post('amountDrOut')[$key];
+                        $jv['Reference'] = $this->input->post('memoOut')[$key];
+                        $jv['ReferenceForBackEnd'] = "Stock-Out Additional Transition";
+                        $jv['IsActive'] = 1;
+                        $jv['Created_By'] = $this->dist_id;
+                        $jv['Created_Date'] = $this->timestamp;
+                        $jv['BranchAutoId'] = $this->input->post('BranchAutoId');
+                        $jv['date'] = $date;
+                        $finalDetailsArray[] = $jv;
+                    }
+                }
+
                 $this->db->insert_batch('ac_tb_accounts_voucherdtl', $finalDetailsArray);
                 $this->db->insert_batch('inventory_adjustment_details', $inventory_adjustment_details);
                 $this->db->trans_complete();

@@ -128,7 +128,20 @@ $distributor_id = strtolower($this->session->userdata('dis_id'));
 
                                                                 $link = $url;
 
-                                                                $label = $each_menu->label;
+                                                                if($url=="subCategory"){
+                                                                    $ProductSubCategory=get_property_list_for_show_hide(6);
+                                                                    $Color=get_property_list_for_show_hide(7);
+                                                                    $Size=get_property_list_for_show_hide(8);
+                                                                    $ProductSubCategory_Lable=$ProductSubCategory=='dont_have_this_property'?'':$ProductSubCategory;
+                                                                    $Color_Lable=$Color=='dont_have_this_property'?'':$Color;
+                                                                    $Size_Lable=$Size=='dont_have_this_property'?'':$Size;
+
+                                                                    $label='Product Property';
+                                                                }else{
+                                                                    $label = $each_menu->label;
+                                                                }
+
+
                                                                 ?>
 
                                                                 <li>

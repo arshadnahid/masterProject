@@ -1667,9 +1667,9 @@ $query.=" ORDER BY branch.branch_name";
                             product.brand_id,
                             product.productName
                         ORDER BY brand.brandId,product.productName";
-                                    
+
                                     log_message('error', 'error'. print_r($query,TRUE));
-                                    
+
         $query = $this->db->query($query);
         $result = $query->result();
         return $result;
@@ -2688,7 +2688,6 @@ AND iai.date <= '".$endDate."'
         return $array;
 
     }
-
 
     public function stock_report_empty_cylinder($productCatagory,$productBrand,$productId,$startDate,$endDate){
 

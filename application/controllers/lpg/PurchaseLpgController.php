@@ -174,6 +174,14 @@ class PurchaseLpgController extends CI_Controller
                     $refillCylindet = array();
                     $otherProduct = array();
 
+                    $lastPurchasepriceArray = $this->db->where('product_id', $_POST['product_id_' . $value])
+                        ->where('branch_id', $branch_id)
+                        ->order_by('purchase_details_id', "desc")
+                        ->limit(1)
+                        ->get('purchase_details')
+                        ->row();
+                    $lastPurchaseprice = !empty($lastPurchasepriceArray) ? $lastPurchasepriceArray->unit_price : 0;
+
                     unset($stock);
                     $returnable_quantity = $_POST['add_returnAble'][$value] != '' ? $_POST['add_returnAble'][$value] : 0;
                     $return_quentity = empty($_POST['returnQuentity_' . $value]) ? 0 : array_sum($_POST['returnQuentity_' . $value]);
@@ -196,10 +204,64 @@ class PurchaseLpgController extends CI_Controller
                     $stock['insert_date'] = $this->timestamp;
                     $stock['branch_id'] = $branch_id;
                     $stock['supplier_id '] = $supplierID;
-                    $stock['ime_no '] =isset($_POST['ime_no_' . $value])?$_POST['ime_no_' . $value]:"";
+                    $stock['property_1'] =$_POST['property_1_' . $value];
+                    $stock['property_2'] =$_POST['property_2_' . $value];
+                    $stock['property_3'] =$_POST['property_3_' . $value];
+                    $stock['property_4'] =$_POST['property_4_' . $value];
+                    $stock['property_5'] =$_POST['property_5_' . $value];
+
                     $purchase_details_id = $this->Common_model->insert_data('purchase_details', $stock);
                     $category_id = $this->Common_model->tableRow('product', 'product_id', $product_id)->category_id;
                     //$newCylinderProductCost = $newCylinderProductCost + ($_POST['rate_' . $value] * $_POST['quantity_' . $value]);
+
+
+                    $packageEmptyProductId=0;
+                    if ($category_id == 2 && $_POST['is_package_' . $value] == 0) {
+                        $packageEmptyProductId = $this->getPackageEmptyProductId($_POST['product_id_' . $value]);
+                    }
+
+
+                    $stockNewTable['parent_stock_id']=0;
+                    $stockNewTable['invoice_id']=$this->invoice_id;
+                    $stockNewTable['form_id']=2;
+                    $stockNewTable['type']=1;
+                    $stockNewTable['Accounts_VoucherMst_AutoID']=$accountingVoucherId;
+                    $stockNewTable['Accounts_VoucherDtl_AutoID']=0;
+                    $stockNewTable['customer_id']=0;
+                    $stockNewTable['supplier_id']=$this->input->post('supplierID');
+                    $stockNewTable['branch_id']=$branch_id;
+                    $stockNewTable['invoice_date']=$purchasesDate;
+                    $stockNewTable['category_id']=$category_id;
+                    $stockNewTable['product_id']=$_POST['product_id_' . $value];
+                    $stockNewTable['empty_cylinder_id']=$packageEmptyProductId;
+                    $stockNewTable['is_package']=$_POST['is_package_' . $value];
+                    $stockNewTable['show_in_invoice']=1;
+                    $stockNewTable['unit']=getProductUnit($_POST['product_id_' . $value]);
+
+                    $stockNewTable['quantity']=$_POST['quantity_' . $value];
+                    $stockNewTable['quantity_out']=0;
+                    $stockNewTable['quantity_in']=$_POST['quantity_' . $value];
+                    $stockNewTable['returnable_quantity']=$returnable_quantity;
+                    $stockNewTable['return_quentity']=$return_quentity;
+                    $stockNewTable['due_quentity']=$supplier_due;
+                    $stockNewTable['advance_quantity']=$supplier_advance;
+                    $stockNewTable['price']=$_POST['rate_' . $value];
+                    $stockNewTable['price_in']=$_POST['rate_' . $value];
+                    $stockNewTable['price_out']=0;
+                    $stockNewTable['last_purchase_price']=$lastPurchaseprice;
+                    $stockNewTable['product_details']="";
+                    $stockNewTable['property_1'] =$_POST['property_1_' . $value];
+                    $stockNewTable['property_2'] =$_POST['property_2_' . $value];
+                    $stockNewTable['property_3'] =$_POST['property_3_' . $value];
+                    $stockNewTable['property_4'] =$_POST['property_4_' . $value];
+                    $stockNewTable['property_5'] =$_POST['property_5_' . $value];
+                    $stockNewTable['openingStatus']=0;
+                    $stockNewTable['insert_by'] = $this->admin_id;
+                    $stockNewTable['insert_date'] = $this->timestamp;
+                    $stockNewTable['update_by']='';
+                    $stockNewTable['update_date']='';
+                    $stock_id = $this->Common_model->insert_data('stock', $stockNewTable);
+
                     if ($category_id == 1) {
                         //Empty Cylinder
                         $EmptyCylinderProductCost += ($_POST['rate_' . $value] * $_POST['quantity_' . $value]);
@@ -216,6 +278,10 @@ class PurchaseLpgController extends CI_Controller
                         $otherProductCost += ($_POST['rate_' . $value] * $_POST['quantity_' . $value]);
                         $otherProduct['product_id'] = $_POST['product_id_' . $value];
                         $otherProduct['price'] = ($_POST['rate_' . $value] * $_POST['quantity_' . $value]);
+                        $otherProduct['quantity'] = ($_POST['quantity_' . $value]);
+                        $otherProduct['unit_price'] = ($_POST['rate_' . $value]);
+                        $otherProduct['stock_id'] = $stock_id;
+
                         $allOtherProductArray[] = $otherProduct;
                     }
                     if($category_id==2 && $_POST['is_package_' . $value]==0){
@@ -425,7 +491,12 @@ class PurchaseLpgController extends CI_Controller
                         $accountingDetailsTable['Created_Date'] = $this->timestamp;
                         $accountingDetailsTable['BranchAutoId'] = $branch_id;
                         $accountingDetailsTable['date'] = $purchasesDate;
-                        $finalDetailsArray[] = $accountingDetailsTable;
+                        //$finalDetailsArray[] = $accountingDetailsTable;
+
+                        $ac_tb_accounts_voucherdtl_id = $this->Common_model->insert_data('ac_tb_accounts_voucherdtl', $accountingDetailsTable);
+
+                        $data['Accounts_VoucherDtl_AutoID'] = $ac_tb_accounts_voucherdtl_id;
+                        $this->Common_model->update_data('stock', $data, 'stock_id', $valueOtherProduct['stock_id']);
                         $accountingDetailsTable = array();
 
                         $totalGR_DEBIT=$totalGR_DEBIT+$valueOtherProduct['price'];
@@ -1288,6 +1359,12 @@ class PurchaseLpgController extends CI_Controller
             $result[$element->purchase_invoice_id][$element->purchase_details_id]['brandName'] = $element->brandName;
             $result[$element->purchase_invoice_id][$element->purchase_details_id]['quantity'] = $element->quantity;
             $result[$element->purchase_invoice_id][$element->purchase_details_id]['unit_price'] = $element->unit_price;
+
+            $result[$element->purchase_invoice_id][$element->purchase_details_id]['property_1'] = $element->property_1;
+            $result[$element->purchase_invoice_id][$element->purchase_details_id]['property_2'] = $element->property_2;
+            $result[$element->purchase_invoice_id][$element->purchase_details_id]['property_3'] = $element->property_3;
+            $result[$element->purchase_invoice_id][$element->purchase_details_id]['property_4'] = $element->property_4;
+            $result[$element->purchase_invoice_id][$element->purchase_details_id]['property_5'] = $element->property_5;
             //$result[$element->sales_invoice_id][$element->sales_details_id]['unit_price'] = $element->unit_price;
             if ($element->returnable_quantity > 0) {
                 $result[$element->purchase_invoice_id][$element->purchase_details_id]['return'][$element->purchase_details_id][] = array('return_product_name' => $element->return_product_name,
@@ -1313,7 +1390,15 @@ class PurchaseLpgController extends CI_Controller
         $data['companyInfo'] = $this->Common_model->get_single_data_by_single_column('system_config', 'dist_id', $this->dist_id);
 
         $data['supplierInfo'] = $this->Common_model->get_single_data_by_single_column('supplier', 'sup_id', $data['purchasesList']->supplier_id);
-        $data['mainContent'] = $this->load->view('distributor/inventory/purchases_lpg/purchases_view', $data, true);
+
+        if ($this->business_type == "LPG") {
+            $data['mainContent'] = $this->load->view('distributor/inventory/purchases_lpg/purchases_view', $data, true);
+
+            //$this->folderSub = 'distributor/inventory/product_mobile/';
+        }else{
+            $data['mainContent'] = $this->load->view('distributor/inventory/purchases_mobile/purchases_view', $data, true);
+        }
+
         $this->load->view('distributor/masterTemplate', $data);
     }
     public function supPendingCheque111()

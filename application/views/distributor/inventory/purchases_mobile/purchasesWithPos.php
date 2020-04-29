@@ -59,7 +59,14 @@
         font-weight: normal !important;
     }
 </style>
+<?php
+$property_1=get_property_list_for_show_hide(1);
+$property_2=get_property_list_for_show_hide(2);
+$property_3=get_property_list_for_show_hide(3);
+$property_4=get_property_list_for_show_hide(4);
+$property_5=get_property_list_for_show_hide(5);
 
+?>
 <div class="row">
     <form id="publicForm" action="" method="post" class="form-horizontal">
         <div class="col-sm-12 col-md-6">
@@ -69,7 +76,7 @@
                 </label>
                 <div class="col-sm-7">
                     <div class="input-group">
-                        <input class="form-control date-picker" name="purchasesDate"
+                        <input class="form-control date-picker-purchase" name="purchasesDate"
                                id="purchasesDate" type="text"
                                value="<?php echo date('d-m-Y'); ?>"
                                data-date-format="dd-mm-yyyy" required/>
@@ -180,25 +187,28 @@
                             data-placeholder="Search by Account Head"
                             onchange="check_pretty_cash(this.value)">
                         <option value=""></option>
+                        <option value=""></option>
                         <?php
                         foreach ($accountHeadList as $key => $head) {
 
                             ?>
                             <optgroup
-                                label="<?php echo get_phrase($head['parentName']); ?>">
+                                    label="<?php echo get_phrase($head['parentName']); ?>">
                                 <?php
-                                foreach ($head['Accountledger'] as $eachLedger) :
+                                foreach ($head['Accountledger'] as $key2 => $eachLedger) :
+                                    /*log_message('error','this is the account hade list'.print_r($eachLedger["parent_name"],true));*/
                                     ?>
                                     <option <?php
-                                    if ($eachLedger->id == '23') {
+                                    if ($head['parent_id'] == '28') {
                                         echo "selected";
                                     }
-                                    ?> value="<?php echo $eachLedger["id"]; ?>"><?php echo get_phrase($eachLedger->parent_name) . " ( " . $eachLedger->code . " ) "; ?></option>
+                                    ?> value="<?php echo $eachLedger["id"]; ?>"><?php echo get_phrase($eachLedger["parent_name"]) . " ( " . $eachLedger["code"] . " ) "; ?></option>
                                 <?php endforeach; ?>
                             </optgroup>
                             <?php
 
                         }
+                        ?>
                         ?>
                     </select>
                 </div>
@@ -356,12 +366,22 @@
                                 style="color:red;"> *</span></strong></th>
                     <th nowrap><strong><?php echo get_phrase('Total_Price_Bdt') ?> <span
                                 style="color:red;"> *</span></strong></th>
-                    <th nowrap style="width:17%;border-radius:10px;">
-                        <strong style="display: none"><?php echo get_phrase('Returned Cylinder'); ?></strong> <span style="color:red;"></span>
-                        <strong style=""><?php echo get_phrase('IME NO'); ?></strong> </span>
+                    <th nowrap  style="text-align: center;width:17%;border-radius:10px;<?php echo $property_1 =='dont_have_this_property'?'display: none':''?>">
+                        <strong><?php echo $property_1; ?> </strong>
                     </th>
-                    <th nowrap style="width:10%;border-radius:10px;display: none"><strong><?php echo get_phrase('Returned Qty') ?>
-                            <span style="color:red;"></th>
+                    <th nowrap  style="text-align: center;width:10%;border-radius:10px;<?php echo $property_2=='dont_have_this_property'?'display: none':''?> ">
+                        <strong><?php echo $property_2; ?> </strong>
+
+                    </th>
+                    <th nowrap  style="text-align: center;width:10%;border-radius:10px; <?php echo $property_3=='dont_have_this_property'?'display: none':''?>">
+                        <strong><?php echo $property_3; ?> </strong>
+                    </th>
+                    <th nowrap  style="text-align: center;width:10%;border-radius:10px; <?php echo $property_4=='dont_have_this_property'?'display: none':''?>">
+                        <strong><?php echo $property_4; ?> </strong>
+                    </th>
+                    <th nowrap  style="text-align: center;width:10%;border-radius:10px;<?php echo $property_5=='dont_have_this_property'?'display: none':''?>">
+                        <strong><?php echo $property_5; ?> </strong>
+                    </th>
                     <th align="center"><strong><?php echo get_phrase('Action') ?></strong></th>
                 </tr>
                 </thead>
@@ -417,43 +437,28 @@
                                class="form-control text-right price decimal"
                                placeholder="0.00" readonly="readonly"></td>
                     <!--onchange="getProductPrice2(this.value)"-->
-                    <td style="">
-
-                        <input type="text"
-                               class="form-control text-right ime_no " autocomplete="off" onclick="this.select();"
-                               placeholder="0.00">
-
+                    <td style="<?php echo $property_1 =='dont_have_this_property'?'display: none':''?>">
+                        <input type="text" onclick="this.select();" class="form-control text-right property_1 "
+                               placeholder="<?php echo $property_1;?>"/>
                     </td>
-                    <td style="display: none">
-                        <select id="productID2"
-                                onchange="received_cylilder_price(this.value)"
+                    <td style="<?php echo $property_2 =='dont_have_this_property'?'display: none':''?>">
 
-                                class="chosen-select form-control"
-                                id="form-field-select-3"
-                                data-placeholder="Search by product name" style="display: none">
-                            <option value=""></option>
-                            <?php
-                            foreach ($cylinderProduct as $eachProduct):
-                                $productPreFix = substr($eachProduct->productName, 0, 5);
-                                if ($eachProduct->category_id == 1):
-                                    ?>
-                                    <option categoryName2="<?php echo $eachProduct->productCat; ?>"
-                                            brand_id="<?php echo $eachProduct->brand_id ?>"
-                                            productName2="<?php echo $eachProduct->productName . ' ' . $eachProduct->unitTtile . ' [ ' . $eachProduct->brandName . ']'; ?>"
-                                            value="<?php echo $eachProduct->product_id; ?>">
-                                        <?php echo $eachProduct->productName . ' [ ' . $eachProduct->brandName . ' ] '; ?>
-                                    </option>
-                                    <?php
-                                endif;
-                            endforeach;
-                            ?>
-                        </select>
-                        <input type="text"
-                               class="form-control text-right returnQuentity decimal" autocomplete="off" onclick="this.select();"
-                               placeholder="0.00">
-                        <input type="hidden" onclick="this.select();"
-                               class="form-control text-right received_cylilder_price  decimal" placeholder="0.00">
+                        <input type="text" onclick="this.select();" class="form-control text-right property_2 "
+                               placeholder="<?php echo $property_2;?>"/>
                     </td>
+                    <td style="<?php echo $property_3 =='dont_have_this_property'?'display: none':''?>">
+                        <input type="text" onclick="this.select();" class="form-control text-right property_3 "
+                               placeholder="<?php echo $property_3;?>"/>
+                    </td>
+                    <td style="<?php echo $property_4=='dont_have_this_property'?'display: none':''?>">
+                        <input type="text" onclick="this.select();" class="form-control text-right property_4 "
+                               placeholder="<?php echo $property_4;?>"/>
+                    </td>
+                    <td style="<?php echo $property_5 =='dont_have_this_property'?'display: none':''?>">
+                        <input type="text" onclick="this.select();" class="form-control text-right property_5 "
+                               placeholder="<?php echo $property_5;?>"/>
+                    </td>
+
                     <td><a id="add_item" class="btn btn-info form-control"
                            href="javascript:;" title="Add Item"><i
                                 class="fa fa-plus"
@@ -1179,6 +1184,280 @@
             }
         });
     }
+    $(document).ready(function () {
+
+
+        var j = 0;
+
+        $("#add_item").click(function () {
+
+            var productID = $('#productID').val();
+            var package_id = $('#package_id').val();
+            var package_id2 = $('#productID2').val();
+
+            var property_1 = $('.property_1').val();
+            var property_2 = $('.property_2').val();
+            var property_3 = $('.property_3').val();
+            var property_4 = $('.property_4').val();
+            var property_5 = $('.property_5').val();
+
+            var productCatID = $('#productID').find('option:selected').attr('categoryId');
+            var productCatName = $('#productID').find('option:selected').attr('categoryName');
+            var productCatName2 = $('#productID2').find('option:selected').attr('categoryName2');
+            var productName = $('#productID').find('option:selected').attr('productName');
+            var productName2 = $('#productID2').find('option:selected').attr('productName2');
+            var ispackage = $('#productID').find('option:selected').attr('ispackage');
+            var quantity = $('.quantity').val();
+            var returnAble = $('.returnAble').val();
+            var rate = $('.rate').val();
+            var price = $('.price').val();
+            var returnQuentity = $('.returnQuentity').val();
+
+
+            if (quantity == '') {
+                swal("Qty can't be empty.!", "Validation Error!", "error");
+                return false;
+            } else if (price == '' || price == '0.00') {
+                swal("Price can't be empty.!", "Validation Error!", "error");
+                return false;
+            } else if (productID == '') {
+                swal("Product id can't be empty.!", "Validation Error!", "error");
+                return false;
+            } else if (ispackage == 0) {
+                //var productCatID = $('#productID').find('option:selected').attr('categoryId');
+                // var productCatName = $('#productID').find('option:selected').attr('categoryName');
+                //var productName = $('#productID').find('option:selected').attr('productName');
+                var brand_id = $('#productID').find('option:selected').attr('brand_id');
+                //var quantity = $('.quantity').val();
+                //var returnAble = $('.returnAble').val();
+                //var rate = $('.rate').val();
+                //var price = $('.price').val();
+
+                var received_cylilder_price = parseFloat($('.received_cylilder_price').val());
+                if (quantity == '') {
+                    swal("Qty can't be empty.!", "Validation Error!", "error");
+                    return false;
+                } else if (price == '' || price == '0.00') {
+                    swal("Price can't be empty.!", "Validation Error!", "error");
+                    return false;
+                } else if (productID == '') {
+                    swal("Product id can't be empty.!", "Validation Error!", "error");
+                    return false;
+                }else if (productCatID == 2 && received_cylilder_price <= 0 && received_cylilder_id != "") {
+                    swal(" Received Cylilder Price ! ", "Validation Error!", "error");
+                    return false;
+                } else {
+                    var tab;
+                    if ($('.is_same').val() == 0) {
+                        slNo++;
+                    } else {
+                        slNo;
+                    }
+                    if (productCatID == 2) {
+
+                        /*if ($('.is_same').val() == 0) {
+
+
+                            var returnedCylender = '';
+                            if (returnQuentity > 0) {
+                                returnedCylender = '<tr>' +
+                                    '<td>' +
+                                    '<input type="hidden" class="text-right form-control" id="" readonly name="returnproduct_' + slNo + '[]" value="' + package_id2 + '">' +
+                                    productName2 +
+                                    '</td>' +
+                                    '<td>' +
+                                    '<div class="input-group"><input type="hidden" class="text-right form-control" id="" readonly name="returnQuentity_Price_' + slNo + '[]" value="' + received_cylilder_price + '"><input type="text" class="text-right form-control" id="" readonly name="returnQuentity_' + slNo + '[]" value="' + returnQuentity + '"><a href="javascript:void(0)" id="2" class="remove_returnable  input-group-addon"><i class="fa fa-minus-circle "></i> </a> </div>' +
+                                    '</td>' +
+                                    '</tr>' +
+                                    '</tr>';
+                            }
+
+                            tab = '<tr class="new_item' + j + '">' +
+                                '<input type="hidden" name="slNo[' + slNo + ']" value="' + slNo + '"/>' +
+                                '<input type="hidden" name="package_id_' + slNo + '" value="0"/>'+
+                                '<input type="hidden" name="brand_id[]" value="' + brand_id + '"/>' +
+                                '<input type="hidden" name="is_package_' + slNo + '" value="0">' +
+                                '<input type="hidden" name="category_id_' + slNo + '" value="' + productCatID + '">' +
+                                '<td style="padding-left:15px;" colspan="2"> [ ' + productCatName + '] - ' + productName + ' ' +
+                                '<input type="hidden"  name="product_id_' + slNo + '" value="' + productID + '">' +
+                                '</td>' +
+                                '<td align="right">' +
+                                '<input type="text" class="add_quantity decimal form-control text-right" id="qty_' + j + '" name="quantity_' + slNo + '" value="' + quantity + '">' +
+                                '</td>' +
+                                '<td align="right">' +
+                                '<input type="text" class="add_return form-control text-right decimal "  id="qtyReturn_' + j + '"   name="add_returnAble[' + slNo + ']" value="' + returnAble + '"  >' +
+                                '</td>' +
+                                '<td align="right">' +
+                                '<input type="text" id="rate_' + j + '" class="add_rate form-control decimal text-right" name="rate_' + slNo + '" value="' + rate + '">' +
+                                '</td>' +
+                                '<td align="right">' +
+                                '<input type="text" class="add_price  text-right form-control" id="tprice_' + j + '" readonly name="price[]" value="' + price + '">' +
+                                '</td>' +
+                                '<td colspan="2">' +
+                                '<table class="table table-bordered table-hover" style="margin-bottom: 0px;" id="return_product_' + slNo + '">' +
+                                '<tr>' +
+                                '<td>' +
+                                '<select   class=" form-control returnedProducted  returnedProduct_' + slNo + '" id="' + slNo + '" data-placeholder="Search by product name">' +
+                                option +
+                                '</select>' +
+                                '</td>' +
+                                '<td style="width:37%">' +
+                                '<div class="input-group"><input type="hidden" class="form-control text-right returnedProductPrice_' + slNo + '" /><input type="text" class="form-control returnedProductQty_' + slNo + '" style="" /><a href="javascript:void(0)" id="' + slNo + '" class="AddreturnedProduct   input-group-addon"><i class="fa fa-plus"></i> </a> </div>' +
+                                '</td>' +
+
+                                '</tr>' + returnedCylender
+                                +
+                                '</table>' +
+                                '</td>' +
+                                '<td>' +
+                                '<a del_id="' + j + '" class="delete_item btn form-control btn-danger" href="javascript:void(0);" title=""><i class="fa fa-times"></i>&nbsp;</a>' +
+                                '</td>' +
+                                '</tr>';
+                            $("#show_item tfoot").append(tab);
+                        } else {
+                            slNo;
+                            var tab2 = "<tr>" +
+                                "<td>" +
+                                '<input type="hidden" class="text-right form-control" id="" readonly name="returnproduct_' + slNo + '[]" value="' + package_id2 + '">' +
+                                productName2 +
+                                "</td>" +
+                                "<td>" +
+                                '<div class="input-group"><input type="hidden" class="text-right form-control" id="" readonly name="returnQuentity_Price_' + slNo + '[]" value="' + received_cylilder_price + '"><input type="text" class="text-right form-control" id="" readonly name="returnQuentity_' + slNo + '[]" value="' + returnQuentity + '"><a href="javascript:void(0)" id="2" class="remove_returnable  input-group-addon"><i class="fa fa-minus-circle "></i> </a> </div>' +
+
+                                "</td>" +
+                                "</tr>";
+
+                            $("#return_product_" + slNo).append(tab2);
+
+                        }*/
+                    } else {
+
+
+                        tab = '<tr class="new_item' + j + '">' +
+                            '<input type="hidden" name="slNo[' + slNo + ']" value="' + slNo + '"/>' +
+                            '<input type="hidden" name="package_id_' + slNo + '" value="0"/>'+
+                            '<input type="hidden" name="is_package_' + slNo + '" value="0">' +
+                            '<input type="hidden" name="category_id_' + slNo + '" value="' + productCatID + '">' +
+                            '<td style="padding-left:15px;" colspan="2"> [ ' + productCatName + '] - ' + productName + ' <input type="hidden"  name="product_id_' + slNo + '" value="' + productID + '">' +
+                            '</td>' +
+                            '</td>' +
+                            '<td align="right">' +
+                            '<input type="text" onclick="this.select();" class="add_quantity decimal form-control text-right" id="qty_' + j + '" name="quantity_' + slNo + '" value="' + quantity + '" autocomplete="off">' +
+                            '</td>' +
+                            '<td align="right" style="display: none"><input type="text" class="add_return form-control text-right decimal "  id="qtyReturn_' + j + '"   name="add_returnAble[' + slNo + ']" value=""  readonly>' +
+                            '</td>' +
+                            '<td align="right">' +
+                            '<input type="text" id="rate_' + j + '" class="add_rate form-control decimal text-right" name="rate_' + slNo + '" value="' + rate + '">' +
+                            '</td>' +
+                            '<td align="right">' +
+                            '<input type="text" onclick="this.select();" class="add_price  text-right form-control" id="tprice_' + j + '" readonly name="price[]" value="' + price + '" autocomplete="off">' +
+                            '</td>' +
+                            '<td align="right" style="<?php echo $property_1 == 'dont_have_this_property'?'display: none':''?>" >' +
+                            '<input  type="text" class="add_property_1 text-right form-control" id="property_1' + j + '" name="property_1_' + slNo + '" value="' + property_1 + '">' +
+                            '</td>' +
+                            '<td align="right" style="<?php echo $property_2 == 'dont_have_this_property'?'display: none':''?>" >' +
+                            '<input  type="text" class="add_property_2 text-right form-control" id="property_2' + j + '" name="property_2_' + slNo + '" value="' + property_2 + '">' +
+                            '</td>' +
+                            '<td align="right" style="<?php echo $property_3 == 'dont_have_this_property'?'display: none':''?>" >' +
+                            '<input  type="text" class="add_property_3 text-right form-control" id="property_3' + j + '" name="property_3_' + slNo + '" value="' + property_3 + '">' +
+                            '</td>' +
+                            '<td align="right" style="<?php echo $property_4 == 'dont_have_this_property'?'display: none':''?>" >' +
+                            '<input  type="text" class="add_property_4 text-right form-control" id="property_4' + j + '" name="property_4_' + slNo + '" value="' + property_4 + '">' +
+                            '</td>' +
+                            '<td align="right" style="<?php echo $property_5 == 'dont_have_this_property'?'display: none':''?> ">' +
+                            '<input  type="text" class="add_property_5 text-right form-control" id="property_5' + j + '" name="property_5_' + slNo + '" value="' + property_5 + '">' +
+                            '</td>' +
+                            '<td>' +
+                            '<a del_id="' + j + '" class="delete_item btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times"></i>&nbsp;</a>' +
+                            '</td>' +
+                            '</tr>';
+                        $("#show_item tfoot").append(tab);
+                    }
+                    j++;
+                }
+
+                if (productCatID == 2) {
+                    $('.is_same').val('1');
+                } else {
+                    $('#productID').val('').trigger('chosen:updated');
+                    $('.quantity').val('');
+                    $('.is_same').val('0');
+                    $('.rate').val('');
+                    $('.price').val('');
+                    $('.returnAble').val('');
+                }
+
+                findTotalCal();
+                setTimeout(function () {
+                    calcutateFinal();
+                }, 100);
+
+            } else {
+                var quantity = $('.quantity').val();
+                var returnAble = $('.returnAble').val();
+                var rate = $('.rate').val();
+                var price = $('.price').val();
+                $.ajax({
+                    type: "POST",
+                    dataType: 'json',
+                    url: baseUrl + "lpg/PurchaseController/package_product_list",
+                    data: 'package_id=' + productID,
+                    success: function (data) {
+                        var style = '';
+                        var rowspan = '';
+                        $.each(data, function (key, value) {
+
+                            slNo++;
+                            rowspan = '2';
+                            $("#show_item tfoot").append('<tr class="new_item' + slNo + '    packageDeleteRow_' + value['package_id'] + '"  ><input type="hidden" name="package_id_' + slNo + '" value="' +  value['package_id']  + '"/><input type="hidden" name="is_package_' + slNo + '" value="1"><input type="hidden" name="category_id_' + slNo + '" value="' + value['category_id'] + '">' +
+                                '<td style="padding-left:15px;" colspan="2"> <input type="hidden" name="slNo[' + slNo + ']" value="' + slNo + '"/>[ ' + value['title'] + '] - ' + value['productName'] + '&nbsp;' + value['unitTtile'] + '&nbsp;[ ' + value['brandName'] + " ]" +
+                                ' <input type="hidden"  name="product_id_' + slNo + '" value="' + value['product_id'] + '"></td>' +
+                                '</td><td align="right"><input type="text" class="add_quantity decimal form-control text-right" id="qty_' + j + '" name="quantity_' + slNo + '" value="' + quantity + '"></td><td align="right"><input type="text" class="add_return form-control text-right decimal "  id="qtyReturn_' + j + '"   name="add_returnAble[]" value=""  readonly></td><td align="right"><input type="text" id="rate_' + j + '" class="add_rate form-control decimal text-right" name="rate_' + slNo + '" value="' + rate + '" onclick="this.select();"></td><td align="right"><input type="text" class="add_price  text-right form-control" id="tprice_' + j + '" readonly name="price[]" value="' + price + '"></td><td></td><td></td><td style="' + style + '"   rowspan="' + rowspan + '"><a del_id="' + slNo + '"package_id_delete="' + value['package_id'] + '" class="delete_item btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times"></i>&nbsp;</a></td></tr>');
+                            j++;
+                            style = 'display:none';
+                            //rate='';
+
+                        });
+
+                    }, complete: function () {
+                        findTotalCal();
+                        setTimeout(function () {
+                            calcutateFinal();
+                        }, 100);
+                    }
+                });
+
+
+                $('.quantity').val('');
+                $('.rate').val('');
+                $('.price').val('');
+                $('.returnAble').val('');
+
+
+            }
+            checkPurchaseRateLockPermission();
+            $('#CategorySelect2').val('').trigger('chosen:updated');
+            $('#productID').val('').trigger('chosen:updated');
+            $('#productID2').val('').trigger('chosen:updated');
+            $('.quantity').val('');
+            $('.is_same').val('0');
+            $('.rate').val('');
+            $('.price').val('');
+            $('.returnAble').val('');
+            $('.returnQuentity').val('');
+
+
+            $('.property_1').val('');
+            $('.property_3').val('');
+            $('.property_3').val('');
+            $('.property_4').val('');
+            $('.property_5').val('');
+            //$('#category_product').val('').trigger('chosen:updated');
+            //$('#productUnit').val('').trigger('chosen:updated');
+
+        });
+
+    });
 
 </script>
 <script type="text/javascript" src="<?php echo base_url('assets/purchases_mobile/purchasesAdd.js'); ?>"></script>

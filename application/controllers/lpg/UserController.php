@@ -146,6 +146,15 @@ class UserController extends CI_Controller {
                     $insertId = $this->Common_model->insert_data('admin', $data);
 
                     if (!empty($insertId)):
+                        $this->db->close();
+                        $config_app = switch_db_dinamico($Maindb_username, $Maindb_password, $Maindb_name);
+                        $this->db = $this->load->database($config_app, TRUE);
+
+                        $data['d_admin_id'] = $insertId;
+                        $this->Common_model->update_data('master_admin', $data, 'admin_id', $m_admin_id);
+                        $this->db->close();
+                        $config_app = switch_db_dinamico($this->db_username, $this->db_password, $this->db_name);
+                        $this->db = $this->load->database($config_app, TRUE);
                         $msg = "New User Created successfully.";
                         $this->session->set_flashdata('success', $msg);
                     else:

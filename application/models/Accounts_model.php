@@ -1182,7 +1182,7 @@ AND aalc.show_in_income_stetement=1 AND 1=1 ";
 ,IFNULL(AC_TALCOA6.code,'') ASC
 ,IFNULL(AC_TALCOA7.code,'') ASC
 ,IFNULL(AC_TALCOA8.code,'') ASC";
-        // log_message('error', 'this is get_sales_revenue ' . print_r($query, true));
+
         $query = $this->db->query($query);
         $result = $query->result();
         foreach ($result as $key => $value) {
@@ -1751,6 +1751,86 @@ GROUP BY acd.BranchAutoId";
         return $array;
     }
 
+    function get_sum_of_a_accounting_group_all_branch($groupId, $date, $BranchAutoId = '1')
+    {
+
+        $query = "SELECT
+--  baseTable.CHILD_ID,
+(SUM(acd.GR_DEBIT)-SUM(GR_CREDIT)) AS amount FROM (SELECT
+	CHILD_ID
+FROM
+	ac_tb_coa
+WHERE
+	PARENT_ID = " . $groupId . "
+AND CHILD_ID <> 0
+UNION ALL
+	SELECT
+		
+		CHILD_ID
+	FROM
+		ac_tb_coa
+	WHERE
+		PARENT_ID1 = " . $groupId . "
+	AND CHILD_ID <> 0
+	UNION ALL
+		SELECT
+			CHILD_ID
+		FROM
+			ac_tb_coa
+		WHERE
+			PARENT_ID2 = " . $groupId . "
+		AND CHILD_ID <> 0
+		UNION ALL
+			SELECT
+				CHILD_ID
+			FROM
+				ac_tb_coa
+			WHERE
+				PARENT_ID3 = " . $groupId . "
+			AND CHILD_ID <> 0
+			UNION ALL
+				SELECT
+					CHILD_ID
+				FROM
+					ac_tb_coa
+				WHERE
+					PARENT_ID4 = " . $groupId . "
+				AND CHILD_ID <> 0
+				UNION ALL
+					SELECT
+						CHILD_ID
+					FROM
+						ac_tb_coa
+					WHERE
+						PARENT_ID5 = " . $groupId . "
+					AND CHILD_ID <> 0
+					UNION ALL
+						SELECT
+							CHILD_ID
+						FROM
+							ac_tb_coa
+						WHERE
+							PARENT_ID6 = " . $groupId . "
+						AND CHILD_ID <> 0
+						UNION ALL
+							SELECT
+								CHILD_ID
+							FROM
+								ac_tb_coa 
+							WHERE
+								PARENT_ID7 = " . $groupId . "
+							AND CHILD_ID <> 0) baseTable
+LEFT JOIN ac_tb_accounts_voucherdtl acd ON acd.CHILD_ID=baseTable.CHILD_ID
+LEFT JOIN ac_accounts_vouchermst acm ON acm.Accounts_VoucherMst_AutoID=acd.Accounts_VoucherMst_AutoID
+WHERE acm.Accounts_Voucher_Date <= '" . $date . "' and acd.IsActive=1 and 1='" . 1 . "'
+";
+
+
+        $query = $this->db->query($query);
+        $array = $query->row();
+
+        return $array;
+    }
 
     function get_third_level_group_sum($first_group, $thired_level_group)
     {
@@ -2359,7 +2439,7 @@ ORDER BY base_table.branch_id,base_table.CHILD_ID";
     {
         $this->db->select('day_book_report_config.id,ac_account_ledger_coa.id as groupId,ac_account_ledger_coa.parent_name,ac_account_ledger_coa.code');
         $this->db->from("day_book_report_config");
-        $this->db->join('ac_account_ledger_coa', 'ac_account_ledger_coa.id=day_book_report_config.acc_group_id');
+        $this->db->join('ac_account_ledger_coa', 'ac_account_ledger_coa.id=day_book_report_config.acc_group_id', 'LEFT');
         $this->db->where('ac_account_ledger_coa.level_no ', 3);
         $accountGroup = $this->db->get()->result();
         return $accountGroup;
@@ -2396,11 +2476,9 @@ GROUP BY base_table.acc_group_id";
         $result = $query->result();
         return $result;
     }
-
     public function getalldayBookSummeryNew($start_date, $branch_id)
     {
-        $query = "
-SELECT baseTable.branch_id,
+        $query = "SELECT baseTable.branch_id,
 baseTable.branch_name,
 baseTable.acc_group_id,
 baseTable.`code`,
@@ -2414,8 +2492,6 @@ CASE WHEN baseTable.PARENT_ID=3 OR baseTable.PARENT_ID=4
 	 THEN 	SUM(IFNULL(balance_on_that_day_table.balance_on_that_day,0))  
 	 ELSE SUM(IFNULL(balance_upto_that_day_table.balance_upto_that_day,0))
 		END dayBookBalance
-
-
 FROM(
 SELECT
 branch.branch_id,
@@ -2457,177 +2533,420 @@ LEFT JOIN(
 LEFT JOIN (
 SELECT  acd.CHILD_ID,(SUM(acd.GR_CREDIT)-SUM(acd.GR_DEBIT)) as balance_on_that_day 
 FROM ac_tb_accounts_voucherdtl acd 
-WHERE 1=1 AND  acd.date ='" . $start_date . "' AND acd.BranchAutoId='" . $branch_id . "'
-GROUP BY acd.CHILD_ID
+WHERE   acd.date ='" . $start_date . "' AND acd.BranchAutoId=" . $branch_id . "  GROUP BY acd.CHILD_ID,acd.BranchAutoId
 ) balance_on_that_day_table ON balance_on_that_day_table.CHILD_ID=baseTable.CHILD_ID
 
 
 LEFT JOIN (
 SELECT  acd.CHILD_ID,(SUM(acd.GR_DEBIT)-SUM(acd.GR_CREDIT)) as balance_upto_that_day 
 FROM ac_tb_accounts_voucherdtl acd 
-WHERE 1=1 AND  acd.date <='" . $start_date . "' AND acd.BranchAutoId='" . $branch_id . "'
-GROUP BY acd.CHILD_ID
+WHERE   acd.date <='" . $start_date . "'  AND acd.BranchAutoId=" . $branch_id . "   GROUP BY acd.CHILD_ID,acd.BranchAutoId
 ) balance_upto_that_day_table ON balance_upto_that_day_table.CHILD_ID=baseTable.CHILD_ID
-WHERE baseTable.branch_id ='" . $branch_id . "'
-GROUP BY baseTable.acc_group_id,baseTable.branch_id
-ORDER BY  baseTable.PARENT_ID,baseTable.branch_id
+WHERE baseTable.branch_id=" . $branch_id . "  GROUP BY baseTable . acc_group_id ,baseTable.branch_id ORDER BY  baseTable . PARENT_ID";
+
+
+        $query = $this->db->query($query);
+        $result = $query->result();
+        return $result;
+    }
+    public function getalldayBookSummeryNew_all_branch($start_date, $branch_id)
+    {
+        $query = "
+SELECT 
+baseTable.acc_group_id,
+baseTable.`code`,
+baseTable.parent_name,
+baseTable.posted,
+baseTable.CHILD_ID,
+baseTable.PARENT_ID,
+SUM(IFNULL(balance_on_that_day_table.balance_on_that_day,0)) balance_on_that_day,
+SUM(IFNULL(balance_upto_that_day_table.balance_upto_that_day,0)) balance_upto_that_day,
+CASE WHEN baseTable.PARENT_ID=3 OR baseTable.PARENT_ID=4
+	 THEN 	SUM(IFNULL(balance_on_that_day_table.balance_on_that_day,0))  
+	 ELSE SUM(IFNULL(balance_upto_that_day_table.balance_upto_that_day,0))
+		END dayBookBalance
+FROM(
+SELECT
+
+	dbc.acc_group_id,
+	acl.`code`,
+	acl.parent_name,
+	acl.posted,
+CASE WHEN acl.posted=1 
+	 THEN 	dbc.acc_group_id  
+	 ELSE childTable.CHILD_ID
+		END CHILD_ID,
+
+	CASE WHEN acl.posted=1 
+	 THEN 	(SELECT ac_tb_coa.PARENT_ID FROM ac_tb_coa WHERE ac_tb_coa.TB_AccountsLedgerCOA_id= dbc.acc_group_id)
+	 ELSE childTable.PARENT_ID
+		END PARENT_ID
+
+FROM
+	day_book_report_config dbc
+LEFT JOIN ac_account_ledger_coa acl ON acl.id = dbc.acc_group_id
+
+LEFT JOIN(
+	SELECT
+		ac_tb_coa.CHILD_ID,
+		ac_tb_coa.PARENT_ID,
+		ac_tb_coa.PARENT_ID1,
+		ac_tb_coa.PARENT_ID2
+	FROM
+		ac_tb_coa
+	WHERE
+		1 = 1
+	AND ac_tb_coa.CHILD_ID != 0
+	AND ac_tb_coa.CHILD_ID NOT IN(106,105)
+-- 105=Sales Empty Cylinder With Refill,106=Cost of Empty Cylinder With Refill
+)AS childTable ON childTable.PARENT_ID2 = dbc.acc_group_id
+) baseTable
+
+LEFT JOIN (
+SELECT  acd.CHILD_ID,(SUM(acd.GR_CREDIT)-SUM(acd.GR_DEBIT)) as balance_on_that_day 
+FROM ac_tb_accounts_voucherdtl acd 
+WHERE   acd.date ='" . $start_date . "' AND 1=1 ";
 
 
 
-";
+        $query .= " GROUP BY acd.CHILD_ID
+) balance_on_that_day_table ON balance_on_that_day_table.CHILD_ID=baseTable.CHILD_ID
+
+
+LEFT JOIN (
+SELECT  acd.CHILD_ID,(SUM(acd.GR_DEBIT)-SUM(acd.GR_CREDIT)) as balance_upto_that_day 
+FROM ac_tb_accounts_voucherdtl acd 
+WHERE   acd.date <='" . $start_date . "'  AND 1=1  ";
+
+
+
+        $query .= " GROUP BY acd.CHILD_ID
+) balance_upto_that_day_table ON balance_upto_that_day_table.CHILD_ID=baseTable.CHILD_ID
+WHERE 1=1 ";
+
+
+
+        $query .= " GROUP BY baseTable . acc_group_id";
+
+
+        $query .= " ORDER BY  baseTable . PARENT_ID";
+
 
         $query = $this->db->query($query);
         $result = $query->result();
         return $result;
     }
 
-    public function getalldayBookDetails($start_date, $branch_id)
+    public function getalldayBookDetails_bk($start_date, $branch_id)
     {
         $query = "SELECT
-tran_amount.Accounts_Voucher_Date,
-tran_amount.Accounts_Voucher_No,
-tran_amount.AccouVoucherType_AutoID,
-tran_amount.BackReferenceInvoiceID,
-tran_amount.BackReferenceInvoiceNo,
-tran_amount.Accounts_VoucherType,
-tran_amount.for,
- acl.code, acl.parent_name,acl.level_no,	base_table.acc_group_id,
-  CASE WHEN IFNULL(aci.CHILD_ID,0)=0 
-	 THEN 	base_table.acc_group_id  
-	 ELSE aci.CHILD_ID
+tran_amount . Accounts_Voucher_Date,
+tran_amount . Accounts_Voucher_No,
+tran_amount . AccouVoucherType_AutoID,
+tran_amount . BackReferenceInvoiceID,
+tran_amount . BackReferenceInvoiceNo,
+tran_amount . Accounts_VoucherType,
+tran_amount .for,
+ acl . code, acl . parent_name,acl . level_no,	base_table . acc_group_id,
+  CASE WHEN IFNULL(aci . CHILD_ID, 0) = 0 
+	 THEN 	base_table . acc_group_id  
+	 ELSE aci . CHILD_ID
 		END CHILD_ID,
-CASE WHEN IFNULL(aci.CHILD_ID,0)=0 
-	 THEN 	acl.parent_name  
-	 ELSE tran_amount.ledger_name
+CASE WHEN IFNULL(aci . CHILD_ID, 0) = 0 
+	 THEN 	acl . parent_name  
+	 ELSE tran_amount . ledger_name
 		END ledger_name,
-(IFNULL(tran_amount.GR_DEBIT,0)) as GR_DEBIT,
-(IFNULL(tran_amount.GR_CREDIT,0)) as GR_CREDIT
+(IFNULL(tran_amount . GR_DEBIT, 0)) as GR_DEBIT,
+(IFNULL(tran_amount . GR_CREDIT, 0)) as GR_CREDIT
 FROM
 	day_book_report_config AS base_table 
 LEFT JOIN 
-ac_tb_coa aci ON aci.PARENT_ID2=base_table.acc_group_id AND aci.CHILD_ID !=0 AND aci.PARENT_ID2 !=0 
-LEFT JOIN ac_account_ledger_coa acl ON acl.id=base_table.acc_group_id 
-LEFT JOIN ( SELECT
-	(IFNULL(acd.GR_CREDIT,0)) GR_CREDIT,(IFNULL(acd.GR_DEBIT,0)) GR_DEBIT ,acd.CHILD_ID,
-acm.Accounts_Voucher_No,acm.Accounts_Voucher_Date,
-acm.BackReferenceInvoiceID,acm.BackReferenceInvoiceNo,acm.`for`,acm.AccouVoucherType_AutoID,acl.parent_name as ledger_name,voucher_name.Accounts_VoucherType
+ac_tb_coa aci ON aci . PARENT_ID2 = base_table . acc_group_id AND aci . CHILD_ID != 0 AND aci . PARENT_ID2 != 0 
+LEFT JOIN ac_account_ledger_coa acl ON acl . id = base_table . acc_group_id 
+LEFT JOIN(SELECT
+    (IFNULL(acd . GR_CREDIT, 0)) GR_CREDIT,(IFNULL(acd . GR_DEBIT, 0)) GR_DEBIT ,acd . CHILD_ID,
+acm . Accounts_Voucher_No,acm . Accounts_Voucher_Date,
+acm . BackReferenceInvoiceID,acm . BackReferenceInvoiceNo,acm . `for`,acm . AccouVoucherType_AutoID,acl . parent_name as ledger_name,voucher_name . Accounts_VoucherType
 FROM
 	ac_tb_accounts_voucherdtl acd
-LEFT JOIN ac_accounts_vouchermst acm on acm.Accounts_VoucherMst_AutoID=acd.Accounts_VoucherMst_AutoID
-LEFT JOIN ac_account_ledger_coa acl ON acl.id=acd.CHILD_ID
-LEFT JOIN accounts_vouchertype_autoid voucher_name on voucher_name.Accounts_VoucherType_AutoID=acm.AccouVoucherType_AutoID
+LEFT JOIN ac_accounts_vouchermst acm on acm . Accounts_VoucherMst_AutoID = acd . Accounts_VoucherMst_AutoID
+LEFT JOIN ac_account_ledger_coa acl ON acl . id = acd . CHILD_ID
+LEFT JOIN accounts_vouchertype_autoid voucher_name on voucher_name . Accounts_VoucherType_AutoID = acm . AccouVoucherType_AutoID
 WHERE
 	1 = 1
-AND acd.date='" . $start_date . "'
-AND acd.BranchAutoId='" . $branch_id . "'
- ) AS tran_amount on tran_amount.CHILD_ID=aci.CHILD_ID
-WHERE 1=1";
+    AND acd . date = '" . $start_date . "'
+    AND acd . BranchAutoId = '" . $branch_id . "'
+ ) AS tran_amount on tran_amount . CHILD_ID =IF (IFNULL(aci . CHILD_ID, 0) = 0 ,base_table . acc_group_id, aci . CHILD_ID)
+WHERE 1 = 1";
         $query = $this->db->query($query);
         $result = $query->result();
         return $result;
+    }
+    public function getalldayBookDetails($start_date, $branch_id)
+    {
+        $query = "SELECT
+tran_amount . Accounts_Voucher_Date,
+tran_amount . Accounts_Voucher_No,
+tran_amount . AccouVoucherType_AutoID,
+tran_amount . BackReferenceInvoiceID,
+tran_amount . BackReferenceInvoiceNo,
+tran_amount . Accounts_VoucherType,
+tran_amount .for,
+ acl . code, acl . parent_name,acl . level_no,	base_table . acc_group_id,
+  CASE WHEN IFNULL(aci . CHILD_ID, 0) = 0 
+	 THEN 	base_table . acc_group_id  
+	 ELSE aci . CHILD_ID
+		END CHILD_ID,
+CASE WHEN IFNULL(aci . CHILD_ID, 0) = 0 
+	 THEN 	acl . parent_name  
+	 ELSE tran_amount . ledger_name
+		END ledger_name,
+(IFNULL(tran_amount . GR_DEBIT, 0)) as GR_DEBIT,
+(IFNULL(tran_amount . GR_CREDIT, 0)) as GR_CREDIT
+FROM
+	day_book_report_config AS base_table 
+LEFT JOIN 
+ac_tb_coa aci ON aci . PARENT_ID2 = base_table . acc_group_id AND aci . CHILD_ID != 0 AND aci . PARENT_ID2 != 0 
+LEFT JOIN ac_account_ledger_coa acl ON acl . id = base_table . acc_group_id 
+LEFT JOIN(SELECT
+    (IFNULL(acd . GR_CREDIT, 0)) GR_CREDIT,(IFNULL(acd . GR_DEBIT, 0)) GR_DEBIT ,acd . CHILD_ID,
+acm . Accounts_Voucher_No,acm . Accounts_Voucher_Date,
+acm . BackReferenceInvoiceID,acm . BackReferenceInvoiceNo,acm . `for`,acm . AccouVoucherType_AutoID,acl . parent_name as ledger_name,voucher_name . Accounts_VoucherType
+FROM
+	ac_tb_accounts_voucherdtl acd
+LEFT JOIN ac_accounts_vouchermst acm on acm . Accounts_VoucherMst_AutoID = acd . Accounts_VoucherMst_AutoID
+LEFT JOIN ac_account_ledger_coa acl ON acl . id = acd . CHILD_ID
+LEFT JOIN accounts_vouchertype_autoid voucher_name on voucher_name . Accounts_VoucherType_AutoID = acm . AccouVoucherType_AutoID
+WHERE
+	1 = 1
+    AND acd . date = '" . $start_date . "' and 1=1 ";
+        if($branch_id!='all'){
+            $query.=" AND acd . BranchAutoId = " . $branch_id ;
+        }
+
+ $query .=" ) AS tran_amount on tran_amount . CHILD_ID =IF (IFNULL(aci . CHILD_ID, 0) = 0 ,base_table . acc_group_id, aci . CHILD_ID)
+WHERE 1 = 1";
+        $query = $this->db->query($query);
+        $result = $query->result();
+        return $result;
+    }
+
+    function balance_sheet_query_with_all_branch($end_date, $branch, $optional = "")
+    {
+        $query = "SELECT 
+branch . branch_name,
+table1 . BranchAutoId,
+SUM(table1 . GR_DEBIT) AS GR_DEBIT,
+SUM(table1 . GR_CREDIT) AS GR_CREDIT,
+CASE
+    WHEN table1 . PARENT_ID = 1 THEN(SUM(table1 . GR_DEBIT) - SUM(table1 . GR_CREDIT))
+    ELSE (SUM(table1 . GR_CREDIT) - SUM(table1 . GR_DEBIT))
+END AS Balance,
+table1 . PARENT_ID,
+table1 . PN,
+table1 . PN_Code,
+table1 . PARENT_ID1,
+table1 . PN1,
+table1 . PN1_Code,
+table1 . PARENT_ID2,
+CASE
+    WHEN table1 . PN2 != '' THEN table1 . PN2
+    ELSE table1 . CN
+END AS PN2,
+CASE
+    WHEN table1 . PN2_Code != '' THEN table1 . PN2_Code
+    ELSE table1 . PN2_Code
+END AS PN2_Code,
+table1 . PARENT_ID3,
+table1 . PN3,
+table1 . PN3_Code,
+table1 . PARENT_ID4,
+table1 . PN4,
+table1 . PN4_Code,table1 . CN   ,table1 . CN_Code
+ FROM(
+     SELECT    
+
+ AC_TAVDtl . BranchAutoId,
+SUM(IFNULL(AC_TAVDtl . GR_DEBIT, 0)) GR_DEBIT ,
+SUM(IFNULL(AC_TAVDtl . GR_CREDIT, 0)) GR_CREDIT ,
+ (SUM(IFNULL(AC_TAVDtl . GR_DEBIT, 0)) - SUM(IFNULL(AC_TAVDtl . GR_CREDIT, 0))) AS Balance
+    ,AC_TCOA . PARENT_ID  , IFNULL(AC_TALCOA . parent_name, '') PN    , IFNULL(AC_TALCOA . code, '')  PN_Code
+    ,AC_TCOA . PARENT_ID1 , IFNULL(AC_TALCOA1 . parent_name, '') PN1  , IFNULL(AC_TALCOA1 . code, '') PN1_Code
+    ,AC_TCOA . PARENT_ID2 , IFNULL(AC_TALCOA2 . parent_name, '') PN2  , IFNULL(AC_TALCOA2 . code, '') PN2_Code
+    ,AC_TCOA . PARENT_ID3 , IFNULL(AC_TALCOA3 . parent_name, '') PN3  , IFNULL(AC_TALCOA3 . code, '') PN3_Code
+    ,AC_TCOA . PARENT_ID4 , IFNULL(AC_TALCOA4 . parent_name, '') PN4  , IFNULL(AC_TALCOA4 . code, '') PN4_Code
+    ,AC_TCOA . PARENT_ID5 , IFNULL(AC_TALCOA5 . parent_name, '') PN5  , IFNULL(AC_TALCOA5 . code, '') PN5_Code
+    ,AC_TCOA . PARENT_ID6 , IFNULL(AC_TALCOA6 . parent_name, '') PN6  , IFNULL(AC_TALCOA6 . code, '') PN6_Code
+    ,AC_TCOA . PARENT_ID7 , IFNULL(AC_TALCOA7 . parent_name, '') PN7  , IFNULL(AC_TALCOA7 . code, '') PN7_Code
+    ,AC_TCOA . CHILD_ID   , IFNULL(AC_TALCOA8 . parent_name, '') CN   , IFNULL(AC_TALCOA8 . code, '') CN_Code
+
+FROM         ac_tb_accounts_voucherdtl  AC_TAVDtl LEFT OUTER JOIN 
+ ac_accounts_vouchermst  AC_TAVMst ON AC_TAVDtl . Accounts_VoucherMst_AutoID = AC_TAVMst . Accounts_VoucherMst_AutoID  LEFT OUTER JOIN 
+ac_tb_coa  AC_TCOA ON AC_TAVDtl . CHILD_ID = AC_TCOA . CHILD_ID  LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA  ON AC_TCOA . PARENT_ID = AC_TALCOA . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA1 ON AC_TCOA . PARENT_ID1 = AC_TALCOA1 . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA2 ON AC_TCOA . PARENT_ID2 = AC_TALCOA2 . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA3 ON AC_TCOA . PARENT_ID3 = AC_TALCOA3 . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA4 ON AC_TCOA . PARENT_ID4 = AC_TALCOA4 . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA5 ON AC_TCOA . PARENT_ID5 = AC_TALCOA5 . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA6 ON AC_TCOA . PARENT_ID6 = AC_TALCOA6 . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA7 ON AC_TCOA . PARENT_ID7 = AC_TALCOA7 . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA8 ON AC_TCOA . CHILD_ID = AC_TALCOA8 . id  
+
+/*WHERE   CONVERT(DATETIME, AC_TAVMst.[Accounts_Voucher_Date],103)
+BETWEEN CONVERT(DATETIME, @FDate,103) AND CONVERT(DATETIME, @TDate,103) */
+WHERE AC_TCOA . PARENT_ID IN(1, 2) AND AC_TAVMst . Accounts_Voucher_Date <= '" . $end_date . "' AND AC_TAVDtl . IsActive = 1  ";
+
+        $query .= "  GROUP BY  
+ AC_TCOA . PARENT_ID  , IFNULL(AC_TALCOA . parent_name, '')     , IFNULL(AC_TALCOA . code, '')   
+,AC_TCOA . PARENT_ID1 , IFNULL(AC_TALCOA1 . parent_name, '')    , IFNULL(AC_TALCOA1 . code, '')  
+,AC_TCOA . PARENT_ID2 , IFNULL(AC_TALCOA2 . parent_name, '')    , IFNULL(AC_TALCOA2 . code, '')  
+,AC_TCOA . PARENT_ID3 , IFNULL(AC_TALCOA3 . parent_name, '')    , IFNULL(AC_TALCOA3 . code, '')  
+,AC_TCOA . PARENT_ID4 , IFNULL(AC_TALCOA4 . parent_name, '')    , IFNULL(AC_TALCOA4 . code, '')  
+,AC_TCOA . PARENT_ID5 , IFNULL(AC_TALCOA5 . parent_name, '')    , IFNULL(AC_TALCOA5 . code, '')  
+,AC_TCOA . PARENT_ID6 , IFNULL(AC_TALCOA6 . parent_name, '')    , IFNULL(AC_TALCOA6 . code, '')  
+,AC_TCOA . PARENT_ID7 , IFNULL(AC_TALCOA7 . parent_name, '')    , IFNULL(AC_TALCOA7 . code, '')  
+,AC_TCOA . CHILD_ID   , IFNULL(AC_TALCOA8 . parent_name, '')    , IFNULL(AC_TALCOA8 . code, '')  
+  
+ ORDER BY  AC_TAVDtl . BranchAutoId ASC,IFNULL(AC_TALCOA . code, '')      ASC
+,IFNULL(AC_TALCOA1 . code, '') ASC
+,IFNULL(AC_TALCOA2 . code, '') ASC
+,IFNULL(AC_TALCOA3 . code, '') ASC
+,IFNULL(AC_TALCOA4 . code, '') ASC
+,IFNULL(AC_TALCOA5 . code, '') ASC
+,IFNULL(AC_TALCOA6 . code, '') ASC
+,IFNULL(AC_TALCOA7 . code, '') ASC
+,IFNULL(AC_TALCOA8 . code, '') ASC
+
+) table1
+LEFT JOIN branch on branch . branch_id = table1 . BranchAutoId
+
+GROUP BY table1 . BranchAutoId,table1 . PARENT_ID,
+table1 . PN,
+table1 . PN_Code,
+table1 . PARENT_ID1,
+table1 . PN1,
+table1 . PN1_Code,
+table1 . PARENT_ID2,
+table1 . PN2,
+table1 . PN2_Code";
+
+
+        $query = $this->db->query($query);
+        $result = $query->result();
+
+        foreach ($result as $key => $value) {
+
+            $array['All Branch Summary' . '~#@~' . 'a'][$value->PN . '~#@~' . $value->PARENT_ID][$value->PN1_Code . '~#@~' . $value->PN1][] = $value;
+
+
+        }
+
+
+        return $array;
     }
 
     function balance_sheet_query_with_branch($end_date, $branch, $optional = "")
     {
         $query = "SELECT 
-branch.branch_name,
-table1.BranchAutoId,
-SUM(table1.GR_DEBIT) AS GR_DEBIT,
-SUM(table1.GR_CREDIT) AS GR_CREDIT,
+branch . branch_name,
+table1 . BranchAutoId,
+SUM(table1 . GR_DEBIT) AS GR_DEBIT,
+SUM(table1 . GR_CREDIT) AS GR_CREDIT,
 CASE
-    WHEN table1.PARENT_ID = 1 THEN (SUM(table1.GR_DEBIT)-SUM(table1.GR_CREDIT))
-    ELSE (SUM(table1.GR_CREDIT)-SUM(table1.GR_DEBIT))
+    WHEN table1 . PARENT_ID = 1 THEN(SUM(table1 . GR_DEBIT) - SUM(table1 . GR_CREDIT))
+    ELSE (SUM(table1 . GR_CREDIT) - SUM(table1 . GR_DEBIT))
 END AS Balance,
-table1.PARENT_ID,
-table1.PN,
-table1.PN_Code,
-table1.PARENT_ID1,
-table1.PN1,
-table1.PN1_Code,
-table1.PARENT_ID2,
+table1 . PARENT_ID,
+table1 . PN,
+table1 . PN_Code,
+table1 . PARENT_ID1,
+table1 . PN1,
+table1 . PN1_Code,
+table1 . PARENT_ID2,
 CASE
-    WHEN table1.PN2 !='' THEN table1.PN2
-    ELSE table1.CN
+    WHEN table1 . PN2 != '' THEN table1 . PN2
+    ELSE table1 . CN
 END AS PN2,
 CASE
-    WHEN table1.PN2_Code !='' THEN table1.PN2_Code
-    ELSE table1.PN2_Code
+    WHEN table1 . PN2_Code != '' THEN table1 . PN2_Code
+    ELSE table1 . PN2_Code
 END AS PN2_Code,
-table1.PARENT_ID3,
-table1.PN3,
-table1.PN3_Code,
-table1.PARENT_ID4,
-table1.PN4,
-table1.PN4_Code,table1.CN   ,table1.CN_Code
- FROM ( 
-SELECT    
+table1 . PARENT_ID3,
+table1 . PN3,
+table1 . PN3_Code,
+table1 . PARENT_ID4,
+table1 . PN4,
+table1 . PN4_Code,table1 . CN   ,table1 . CN_Code
+ FROM(
+     SELECT    
 
- AC_TAVDtl.BranchAutoId,
-SUM(IFNULL(AC_TAVDtl.GR_DEBIT,0)) GR_DEBIT ,
-SUM(IFNULL(AC_TAVDtl.GR_CREDIT,0)) GR_CREDIT ,
- (  SUM(IFNULL(AC_TAVDtl.GR_DEBIT,0))-SUM(IFNULL(AC_TAVDtl.GR_CREDIT,0))) AS Balance
-    ,AC_TCOA.PARENT_ID  , IFNULL(AC_TALCOA.parent_name,'') PN    , IFNULL(AC_TALCOA.code,'')  PN_Code
-    ,AC_TCOA.PARENT_ID1 , IFNULL(AC_TALCOA1.parent_name,'') PN1  , IFNULL(AC_TALCOA1.code,'') PN1_Code
-    ,AC_TCOA.PARENT_ID2 , IFNULL(AC_TALCOA2.parent_name,'') PN2  , IFNULL(AC_TALCOA2.code,'') PN2_Code
-    ,AC_TCOA.PARENT_ID3 , IFNULL(AC_TALCOA3.parent_name,'') PN3  , IFNULL(AC_TALCOA3.code,'') PN3_Code
-    ,AC_TCOA.PARENT_ID4 , IFNULL(AC_TALCOA4.parent_name,'') PN4  , IFNULL(AC_TALCOA4.code,'') PN4_Code
-    ,AC_TCOA.PARENT_ID5 , IFNULL(AC_TALCOA5.parent_name,'') PN5  , IFNULL(AC_TALCOA5.code,'') PN5_Code
-    ,AC_TCOA.PARENT_ID6 , IFNULL(AC_TALCOA6.parent_name,'') PN6  , IFNULL(AC_TALCOA6.code,'') PN6_Code
-    ,AC_TCOA.PARENT_ID7 , IFNULL(AC_TALCOA7.parent_name,'') PN7  , IFNULL(AC_TALCOA7.code,'') PN7_Code
-    ,AC_TCOA.CHILD_ID   , IFNULL(AC_TALCOA8.parent_name,'') CN   , IFNULL(AC_TALCOA8.code,'') CN_Code
+ AC_TAVDtl . BranchAutoId,
+SUM(IFNULL(AC_TAVDtl . GR_DEBIT, 0)) GR_DEBIT ,
+SUM(IFNULL(AC_TAVDtl . GR_CREDIT, 0)) GR_CREDIT ,
+ (SUM(IFNULL(AC_TAVDtl . GR_DEBIT, 0)) - SUM(IFNULL(AC_TAVDtl . GR_CREDIT, 0))) AS Balance
+    ,AC_TCOA . PARENT_ID  , IFNULL(AC_TALCOA . parent_name, '') PN    , IFNULL(AC_TALCOA . code, '')  PN_Code
+    ,AC_TCOA . PARENT_ID1 , IFNULL(AC_TALCOA1 . parent_name, '') PN1  , IFNULL(AC_TALCOA1 . code, '') PN1_Code
+    ,AC_TCOA . PARENT_ID2 , IFNULL(AC_TALCOA2 . parent_name, '') PN2  , IFNULL(AC_TALCOA2 . code, '') PN2_Code
+    ,AC_TCOA . PARENT_ID3 , IFNULL(AC_TALCOA3 . parent_name, '') PN3  , IFNULL(AC_TALCOA3 . code, '') PN3_Code
+    ,AC_TCOA . PARENT_ID4 , IFNULL(AC_TALCOA4 . parent_name, '') PN4  , IFNULL(AC_TALCOA4 . code, '') PN4_Code
+    ,AC_TCOA . PARENT_ID5 , IFNULL(AC_TALCOA5 . parent_name, '') PN5  , IFNULL(AC_TALCOA5 . code, '') PN5_Code
+    ,AC_TCOA . PARENT_ID6 , IFNULL(AC_TALCOA6 . parent_name, '') PN6  , IFNULL(AC_TALCOA6 . code, '') PN6_Code
+    ,AC_TCOA . PARENT_ID7 , IFNULL(AC_TALCOA7 . parent_name, '') PN7  , IFNULL(AC_TALCOA7 . code, '') PN7_Code
+    ,AC_TCOA . CHILD_ID   , IFNULL(AC_TALCOA8 . parent_name, '') CN   , IFNULL(AC_TALCOA8 . code, '') CN_Code
 
 FROM         ac_tb_accounts_voucherdtl  AC_TAVDtl LEFT OUTER JOIN 
- ac_accounts_vouchermst  AC_TAVMst ON AC_TAVDtl.Accounts_VoucherMst_AutoID= AC_TAVMst.Accounts_VoucherMst_AutoID  LEFT OUTER JOIN 
-ac_tb_coa  AC_TCOA ON AC_TAVDtl.CHILD_ID=AC_TCOA.CHILD_ID  LEFT OUTER JOIN 
-ac_account_ledger_coa AC_TALCOA  ON AC_TCOA.PARENT_ID  = AC_TALCOA.id LEFT OUTER JOIN 
-ac_account_ledger_coa AC_TALCOA1 ON AC_TCOA.PARENT_ID1 = AC_TALCOA1.id LEFT OUTER JOIN 
-ac_account_ledger_coa AC_TALCOA2 ON AC_TCOA.PARENT_ID2 = AC_TALCOA2.id LEFT OUTER JOIN 
-ac_account_ledger_coa AC_TALCOA3 ON AC_TCOA.PARENT_ID3 = AC_TALCOA3.id LEFT OUTER JOIN 
-ac_account_ledger_coa AC_TALCOA4 ON AC_TCOA.PARENT_ID4 = AC_TALCOA4.id LEFT OUTER JOIN 
-ac_account_ledger_coa AC_TALCOA5 ON AC_TCOA.PARENT_ID5 = AC_TALCOA5.id LEFT OUTER JOIN 
-ac_account_ledger_coa AC_TALCOA6 ON AC_TCOA.PARENT_ID6 = AC_TALCOA6.id LEFT OUTER JOIN 
-ac_account_ledger_coa AC_TALCOA7 ON AC_TCOA.PARENT_ID7 = AC_TALCOA7.id LEFT OUTER JOIN 
-ac_account_ledger_coa AC_TALCOA8 ON AC_TCOA.CHILD_ID   = AC_TALCOA8.id  
+ ac_accounts_vouchermst  AC_TAVMst ON AC_TAVDtl . Accounts_VoucherMst_AutoID = AC_TAVMst . Accounts_VoucherMst_AutoID  LEFT OUTER JOIN 
+ac_tb_coa  AC_TCOA ON AC_TAVDtl . CHILD_ID = AC_TCOA . CHILD_ID  LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA  ON AC_TCOA . PARENT_ID = AC_TALCOA . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA1 ON AC_TCOA . PARENT_ID1 = AC_TALCOA1 . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA2 ON AC_TCOA . PARENT_ID2 = AC_TALCOA2 . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA3 ON AC_TCOA . PARENT_ID3 = AC_TALCOA3 . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA4 ON AC_TCOA . PARENT_ID4 = AC_TALCOA4 . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA5 ON AC_TCOA . PARENT_ID5 = AC_TALCOA5 . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA6 ON AC_TCOA . PARENT_ID6 = AC_TALCOA6 . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA7 ON AC_TCOA . PARENT_ID7 = AC_TALCOA7 . id LEFT OUTER JOIN 
+ac_account_ledger_coa AC_TALCOA8 ON AC_TCOA . CHILD_ID = AC_TALCOA8 . id  
 
 /*WHERE   CONVERT(DATETIME, AC_TAVMst.[Accounts_Voucher_Date],103)
 BETWEEN CONVERT(DATETIME, @FDate,103) AND CONVERT(DATETIME, @TDate,103) */
-WHERE AC_TCOA.PARENT_ID IN (1,2) AND AC_TAVMst.Accounts_Voucher_Date <= '" . $end_date . "' AND AC_TAVDtl.IsActive = 1  ";
+WHERE AC_TCOA . PARENT_ID IN(1, 2) AND AC_TAVMst . Accounts_Voucher_Date <= '" . $end_date . "' AND AC_TAVDtl . IsActive = 1  ";
         if ($branch != 'all') {
-            $query .= " AND AC_TAVDtl.BranchAutoId = " . $branch;
+            $query .= " AND AC_TAVDtl . BranchAutoId = " . $branch;
         }
         $query .= "  GROUP BY  
- AC_TAVDtl.BranchAutoId,AC_TCOA.PARENT_ID  , IFNULL(AC_TALCOA.parent_name,'')     , IFNULL(AC_TALCOA.code,'')   
-,AC_TCOA.PARENT_ID1 , IFNULL(AC_TALCOA1.parent_name,'')    , IFNULL(AC_TALCOA1.code,'')  
-,AC_TCOA.PARENT_ID2 , IFNULL(AC_TALCOA2.parent_name,'')    , IFNULL(AC_TALCOA2.code,'')  
-,AC_TCOA.PARENT_ID3 , IFNULL(AC_TALCOA3.parent_name,'')    , IFNULL(AC_TALCOA3.code,'')  
-,AC_TCOA.PARENT_ID4 , IFNULL(AC_TALCOA4.parent_name,'')    , IFNULL(AC_TALCOA4.code,'')  
-,AC_TCOA.PARENT_ID5 , IFNULL(AC_TALCOA5.parent_name,'')    , IFNULL(AC_TALCOA5.code,'')  
-,AC_TCOA.PARENT_ID6 , IFNULL(AC_TALCOA6.parent_name,'')    , IFNULL(AC_TALCOA6.code,'')  
-,AC_TCOA.PARENT_ID7 , IFNULL(AC_TALCOA7.parent_name,'')    , IFNULL(AC_TALCOA7.code,'')  
-,AC_TCOA.CHILD_ID   , IFNULL(AC_TALCOA8.parent_name,'')    , IFNULL(AC_TALCOA8.code,'')  
+ AC_TAVDtl . BranchAutoId,AC_TCOA . PARENT_ID  , IFNULL(AC_TALCOA . parent_name, '')     , IFNULL(AC_TALCOA . code, '')   
+,AC_TCOA . PARENT_ID1 , IFNULL(AC_TALCOA1 . parent_name, '')    , IFNULL(AC_TALCOA1 . code, '')  
+,AC_TCOA . PARENT_ID2 , IFNULL(AC_TALCOA2 . parent_name, '')    , IFNULL(AC_TALCOA2 . code, '')  
+,AC_TCOA . PARENT_ID3 , IFNULL(AC_TALCOA3 . parent_name, '')    , IFNULL(AC_TALCOA3 . code, '')  
+,AC_TCOA . PARENT_ID4 , IFNULL(AC_TALCOA4 . parent_name, '')    , IFNULL(AC_TALCOA4 . code, '')  
+,AC_TCOA . PARENT_ID5 , IFNULL(AC_TALCOA5 . parent_name, '')    , IFNULL(AC_TALCOA5 . code, '')  
+,AC_TCOA . PARENT_ID6 , IFNULL(AC_TALCOA6 . parent_name, '')    , IFNULL(AC_TALCOA6 . code, '')  
+,AC_TCOA . PARENT_ID7 , IFNULL(AC_TALCOA7 . parent_name, '')    , IFNULL(AC_TALCOA7 . code, '')  
+,AC_TCOA . CHILD_ID   , IFNULL(AC_TALCOA8 . parent_name, '')    , IFNULL(AC_TALCOA8 . code, '')  
   
- ORDER BY  AC_TAVDtl.BranchAutoId ASC,IFNULL(AC_TALCOA.code,'')      ASC
-,IFNULL(AC_TALCOA1.code,'') ASC
-,IFNULL(AC_TALCOA2.code,'') ASC
-,IFNULL(AC_TALCOA3.code,'') ASC
-,IFNULL(AC_TALCOA4.code,'') ASC
-,IFNULL(AC_TALCOA5.code,'') ASC
-,IFNULL(AC_TALCOA6.code,'') ASC
-,IFNULL(AC_TALCOA7.code,'') ASC
-,IFNULL(AC_TALCOA8.code,'') ASC
+ ORDER BY  AC_TAVDtl . BranchAutoId ASC,IFNULL(AC_TALCOA . code, '')      ASC
+,IFNULL(AC_TALCOA1 . code, '') ASC
+,IFNULL(AC_TALCOA2 . code, '') ASC
+,IFNULL(AC_TALCOA3 . code, '') ASC
+,IFNULL(AC_TALCOA4 . code, '') ASC
+,IFNULL(AC_TALCOA5 . code, '') ASC
+,IFNULL(AC_TALCOA6 . code, '') ASC
+,IFNULL(AC_TALCOA7 . code, '') ASC
+,IFNULL(AC_TALCOA8 . code, '') ASC
 
 ) table1
-LEFT JOIN branch on branch.branch_id=table1.BranchAutoId
+LEFT JOIN branch on branch . branch_id = table1 . BranchAutoId
 
-GROUP BY table1.BranchAutoId,table1.PARENT_ID,
-table1.PN,
-table1.PN_Code,
-table1.PARENT_ID1,
-table1.PN1,
-table1.PN1_Code,
-table1.PARENT_ID2,
-table1.PN2,
-table1.PN2_Code";
+GROUP BY table1 . BranchAutoId,table1 . PARENT_ID,
+table1 . PN,
+table1 . PN_Code,
+table1 . PARENT_ID1,
+table1 . PN1,
+table1 . PN1_Code,
+table1 . PARENT_ID2,
+table1 . PN2,
+table1 . PN2_Code";
 
 
         $query = $this->db->query($query);
@@ -2690,53 +3009,53 @@ table1.PN2_Code";
             $this->db->where('acm.BranchAutoId <=', $branch);
         }
 
-        $query="SELECT
-	acd.voucher_by,
-	acm.Accounts_VoucherMst_AutoID,
-	acm.AccouVoucherType_AutoID,
-	acm.`for`,
-	acm.Accounts_Voucher_No,
-	acm.miscellaneous,
-acm.customer_id,acm.supplier_id,
-	acm.Accounts_Voucher_Date,
-	acm.BackReferenceInvoiceNo,
-	acm.BackReferenceInvoiceID,
-	acm.Narration,
-	acm.BranchAutoId,
-	act.Accounts_VoucherType,
-	branch.branch_code,
-	branch.branch_name
+        $query = "SELECT
+	acd . voucher_by,
+	acm . Accounts_VoucherMst_AutoID,
+	acm . AccouVoucherType_AutoID,
+	acm . `for`,
+	acm . Accounts_Voucher_No,
+	acm . miscellaneous,
+acm . customer_id,acm . supplier_id,
+	acm . Accounts_Voucher_Date,
+	acm . BackReferenceInvoiceNo,
+	acm . BackReferenceInvoiceID,
+	acm . Narration,
+	acm . BranchAutoId,
+	act . Accounts_VoucherType,
+	branch . branch_code,
+	branch . branch_name
 FROM
 	ac_accounts_vouchermst acm
-LEFT JOIN accounts_vouchertype_autoid act ON act.Accounts_VoucherType_AutoID = acm.AccouVoucherType_AutoID
+LEFT JOIN accounts_vouchertype_autoid act ON act . Accounts_VoucherType_AutoID = acm . AccouVoucherType_AutoID
 LEFT JOIN(
-	SELECT
-		acd.Accounts_VoucherMst_AutoID,
+        SELECT
+		acd . Accounts_VoucherMst_AutoID,
 		GROUP_CONCAT(
-			CONCAT(
-				acd.CHILD_ID,
-				'&^&',
-				coa.parent_id,
-				'&^&',
-				coa.parent_name
-			)SEPARATOR '~#*%~'
+            CONCAT(
+                acd . CHILD_ID,
+                '&^&',
+                coa . parent_id,
+                '&^&',
+                coa . parent_name
+            )SEPARATOR '~#*%~'
 		)AS voucher_by
 	FROM
 		ac_tb_accounts_voucherdtl acd
-	LEFT JOIN ac_account_ledger_coa coa ON coa.id = acd.CHILD_ID
+	LEFT JOIN ac_account_ledger_coa coa ON coa . id = acd . CHILD_ID
 	WHERE
 		1 = 1
-	AND coa.parent_id IN(33, 52)
+        AND coa . parent_id IN(33, 52)
 	GROUP BY
-		acd.Accounts_VoucherMst_AutoID
-)acd ON acd.Accounts_VoucherMst_AutoID = acm.Accounts_VoucherMst_AutoID
-LEFT JOIN branch ON branch.branch_id = acm.BranchAutoId
+		acd . Accounts_VoucherMst_AutoID
+)acd ON acd . Accounts_VoucherMst_AutoID = acm . Accounts_VoucherMst_AutoID
+LEFT JOIN branch ON branch . branch_id = acm . BranchAutoId
 WHERE
 	1 = 1
-AND acm.Accounts_Voucher_Date >= '2020-01-01'
-AND acm.Accounts_Voucher_Date <= '2020-04-02'
-AND acm.BackReferenceInvoiceID = 0";
-        $query.=" AND acm.AccouVoucherType_AutoID=".$voucherType;
+    AND acm . Accounts_Voucher_Date >= '2020-01-01'
+    AND acm . Accounts_Voucher_Date <= '2020-04-02'
+    AND acm . BackReferenceInvoiceID = 0";
+        $query .= " AND acm . AccouVoucherType_AutoID = " . $voucherType;
 
         $query = $this->db->query($query);
         $result = $query->result();

@@ -339,6 +339,12 @@ class ServerFilterController extends CI_Controller
     public function salesListLpg()
     {
 
+        $property_1=get_property_list_for_show_hide(1);
+        $property_2=get_property_list_for_show_hide(2);
+        $property_3=get_property_list_for_show_hide(3);
+        $property_4=get_property_list_for_show_hide(4);
+        $property_5=get_property_list_for_show_hide(5);
+
         $this->Filter_Model->filterData('sales_invoice_info',
             array('sales_invoice_info.invoice_date', 'sales_invoice_info.invoice_no', 'customer.customerID', 'customer.customerName', 'sales_invoice_info.narration', 'sales_invoice_info.paid_amount', 'sales_invoice_info.payment_type'),
             array('sales_invoice_info.invoice_date', 'sales_invoice_info.invoice_no', 'customer.customerID', 'customer.customerName', 'sales_invoice_info.narration', 'sales_invoice_info.paid_amount', 'sales_invoice_info.payment_type'),
@@ -362,8 +368,28 @@ class ServerFilterController extends CI_Controller
             //$row[] = $sale->name;
             $row[] = '<a title="View Customer Dashboard" href="javascript:void(0)">' . $sale->customerID . ' [ ' . $sale->customerName . ' ] ' . '</a>';
             $row[] = $payment_type;
-            $row[] = $sale->narration;
+
             $row[] = number_format((float)$sale->invoice_amount, 2, '.', ',');
+
+            if($property_1 !='dont_have_this_property'){
+                $row[]=$sale->property_1;
+            }
+            if($property_2 !='dont_have_this_property'){
+                $row[]=$sale->property_2;
+            }
+            if($property_3 !='dont_have_this_property'){
+                $row[]=$sale->property_3;
+            }
+            if($property_4 !='dont_have_this_property'){
+                $row[]=$sale->property_4;
+            }
+            if($property_5 !='dont_have_this_property'){
+                $row[]=$sale->property_5;
+            }
+
+
+
+            $row[] = $sale->narration;
             /*$row[] = number_format((float) $this->Sales_Model->getGpAmountByInvoiceId($this->dist_id, $sale->sales_invoice_id), 2, '.', ',');*/
             $row[] = '<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/viewLpgCylinder/' . $sale->sales_invoice_id) . '">
     <i class="fa fa-search-plus bigger-130"></i></a>
@@ -462,6 +488,13 @@ class ServerFilterController extends CI_Controller
     public function purchasesCylinderList()
     {
 
+        $property_1=get_property_list_for_show_hide(1);
+        $property_2=get_property_list_for_show_hide(2);
+        $property_3=get_property_list_for_show_hide(3);
+        $property_4=get_property_list_for_show_hide(4);
+        $property_5=get_property_list_for_show_hide(5);
+
+
         $this->Filter_Model->filterData('purchase_invoice_info',
             array('purchase_invoice_info.invoice_date', 'purchase_invoice_info.invoice_no', 'supplier.supID', 'supplier.supName', 'purchase_invoice_info.narration', 'purchase_invoice_info.paid_amount '),
             array('purchase_invoice_info.invoice_date', 'purchase_invoice_info.invoice_no', 'supplier.supID', 'supplier.supName', 'purchase_invoice_info.narration', 'purchase_invoice_info.paid_amount '),
@@ -477,8 +510,25 @@ class ServerFilterController extends CI_Controller
             $row[] = '<a title="view Voucher" href="' . site_url($this->project . '/viewPurchasesCylinder/' . $purchases->purchase_invoice_id) . '">' . $purchases->invoice_no . '</a></td>';
             /*$row[] = $purchases->name;*/
             $row[] = '<a title="View Supplier Dashboard" href="' . site_url($this->project . '/supplierDashboard/' . $purchases->sup_id) . '">' . $purchases->supID . ' [ ' . $purchases->supName . ' ] ' . '</a>';
-            $row[] = $purchases->narration;
+
             $row[] = number_format((float)$purchases->invoice_amount, 2, '.', ',');
+
+            if($property_1 !='dont_have_this_property'){
+                $row[]=$purchases->property_1;
+            }
+            if($property_2 !='dont_have_this_property'){
+                $row[]=$purchases->property_2;
+            }
+            if($property_3 !='dont_have_this_property'){
+                $row[]=$purchases->property_3;
+            }
+            if($property_4 !='dont_have_this_property'){
+                $row[]=$purchases->property_4;
+            }
+            if($property_5 !='dont_have_this_property'){
+                $row[]=$purchases->property_5;
+            }
+            $row[] = $purchases->narration;
             $row[] = '<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/viewPurchasesCylinder/' . $purchases->purchase_invoice_id) . '">
     <i class="fa fa-search-plus bigger-130"></i></a>
     <i class="fa fa-pencil bigger-130"></i></a>

@@ -10,31 +10,42 @@
 
 </style>
 
+<?php
+$ProductSubCategory=get_property_list_for_show_hide(6);
+$Color=get_property_list_for_show_hide(7);
+$Size=get_property_list_for_show_hide(8);
+$ProductSubCategory_Lable=$ProductSubCategory=='dont_have_this_property'?'':$ProductSubCategory;
+$Color_Lable=$Color=='dont_have_this_property'?'':$Color;
+$Size_Lable=$Size=='dont_have_this_property'?'':$Size;
+$label='Product '.$ProductSubCategory_Lable." ".$Color_Lable." ".$Size_Lable;
+
+?>
 <div class="container">
     <div class="page-header">
-        <h1>Panels with Category, Model, Color and Size tabs</h1>
+        <h1><?php echo $label?></h1>
     </div>
     <div class="row">
     	<div class="col-md-8">
             <div class="panel with-nav-tabs panel-default">
                 <div class="panel-heading">
                         <ul class="nav nav-tabs">
-                            <li class="active"><a href="#tab1default" data-toggle="tab">Sub Category</a></li>
-                            <li><a href="#tab2default" data-toggle="tab"> Model</a></li>
-                            <li><a href="#tab3default" data-toggle="tab">Color</a></li>
 
-                            <li><a href="#tab4default" data-toggle="tab">Size</a></li>
+                            <li class="active" ><a href="#modelAdd" data-toggle="tab"> Model</a></li>
+                            <li  style="<?php echo $ProductSubCategory=='dont_have_this_property'?'display: none':''?>"><a href="#ProductSubCategory" data-toggle="tab"><?php echo get_phrase($ProductSubCategory_Lable); ?></a></li>
+                            <li style="<?php echo $Color=='dont_have_this_property'?'display: none':''?>"><a href="#Color" data-toggle="tab"><?php echo get_phrase($Color_Lable); ?></a></li>
+
+                            <li style="<?php echo $Size=='dont_have_this_property'?'display: none':''?>"><a href="#Size" data-toggle="tab"><?php echo get_phrase($Size_Lable); ?></a></li>
 
 
                         </ul>
                 </div>
                 <div class="panel-body">
                     <div class="tab-content">
-                        <div class="tab-pane fade in active" id="tab1default">
-                            <h2>Sub Category form</h2>
+                        <div class="tab-pane fade " id="ProductSubCategory">
+                            <h2><?php echo get_phrase($ProductSubCategory_Lable) ." Add "; ?></h2>
                           <form action="" method="post" class="form-inline" enctype="multipart/form-data">
                             <div class="form-group">
-                              <label for="Category">Sub Category Name:</label>
+                              <label for="Category"><?php echo get_phrase($ProductSubCategory_Lable) ; ?></label>
                               <input type="text" class="form-control" id="SubCatName" placeholder="Enter Sub Category" require name="SubCatName">
                             </div>
                             <button type="submit" class="btn btn-primary">Submit</button>
@@ -44,7 +55,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Sub Category Name</th>
+                                <th><?php echo get_phrase($ProductSubCategory_Lable) ; ?></th>
                                 <th> Active/InActive</th>
                                 <th>Action</th>
                             </tr>
@@ -80,11 +91,11 @@
                         </tbody>
                     </table>
                         </div>
-                        <div class="tab-pane fade" id="tab2default">
+                        <div class="tab-pane fade in active" id="modelAdd">
                         <h2>Model form</h2>
                         <form action="<?php echo site_url($this->project . '/modelAdd/') ?>" method="post" class="form-inline" enctype="multipart/form-data">
                           <div class="form-group">
-                            <label for="Model">Model :</label>
+                            <label for="Model">Model Add :</label>
                             <input type="text" class="form-control" id="Model" placeholder="Enter Model" require name="Model">
                           </div>
                           <button type="submit" class="btn btn-primary">Submit</button>
@@ -129,11 +140,11 @@
                             <?php endforeach; ?>
                         </tbody>
                     </table></div>
-                        <div class="tab-pane fade" id="tab3default">
-                            <h2>Color form</h2>
+                        <div class="tab-pane fade" id="Color">
+                            <h2><?php echo get_phrase($Color_Lable) ; ?></h2>
                           <form action="<?php echo site_url($this->project . '/colorAdd/') ?>" method="post" class="form-inline" enctype="multipart/form-data">
                             <div class="form-group">
-                              <label for="Color">Color:</label>
+                              <label for="Color"><?php echo get_phrase($Color_Lable) ; ?>:</label>
                               <input type="text" class="form-control" id="Color" placeholder="Enter Color" require name="Color">
                             </div>
                             <button type="submit" class="btn btn-primary">Submit</button>
@@ -143,7 +154,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Color </th>
+                                <th><?php echo get_phrase($Color_Lable) ; ?> </th>
                                 <th> Active/InActive</th>
                                 <th>Action</th>
                             </tr>
@@ -179,11 +190,11 @@
                         </tbody>
                     </table>
                         </div>
-                        <div class="tab-pane fade" id="tab4default">
-                            <h2>Size form</h2>
+                        <div class="tab-pane fade" id="Size">
+                            <h2><?php echo get_phrase($Size_Lable) ; ?></h2>
                           <form action="<?php echo site_url($this->project . '/sizeAdd/') ?>" method="post" class="form-inline" enctype="multipart/form-data">
                             <div class="form-group">
-                              <label for="Size">Size:</label>
+                              <label for="Size"><?php echo get_phrase($Size_Lable) ; ?>:</label>
                               <input type="text" class="form-control" id="Size" placeholder="Enter Size" require name="Size">
                             </div>
                             <button type="submit" class="btn btn-primary">Submit</button>
@@ -193,7 +204,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Size </th>
+                                <th><?php echo get_phrase($Size_Lable) ; ?> </th>
                                 <th> Active/InActive</th>
                                 <th>Action</th>
                             </tr>

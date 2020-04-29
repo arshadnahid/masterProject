@@ -34,6 +34,7 @@ class AuthController extends CI_Controller {
             $userInfo = $this->Common_model->check_loginrequest($data);
 
 
+
             if (empty($userInfo)) {
                 $this->session->set_flashdata('msg', 'Undefined Username OR Password!');
                 redirect(site_url($project . '/login'));

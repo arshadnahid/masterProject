@@ -28,15 +28,15 @@ class InvProductProperty_Model  extends CI_Model {
 
     public function getSubCatList(){
         $this->db->select('*');
-        $this->db->from('tb_subCategory');
+        $this->db->from('tb_subcategory');
 
-        $this->db->order_by('tb_subCategory.SubCatName', 'ASC');
+        $this->db->order_by('tb_subcategory.SubCatName', 'ASC');
         $result = $this->db->get()->result();
         return $result;
     }
     public function getSingleSubCat($editId){
         $this->db->select('*');
-        $this->db->from('tb_subCategory');
+        $this->db->from('tb_subcategory');
         $this->db->where('SubCatID',$editId);
         $result = $this->db->get()->result();
         return $result;
@@ -46,14 +46,14 @@ class InvProductProperty_Model  extends CI_Model {
     public function publishedSubCat($id) {
         $this->db->set('IsActive', 1);
         $this->db->where('SubCatID', $id);
-        return $this->db->update('tb_subCategory');
+        return $this->db->update('tb_subcategory');
     }
 
     public function unpublishedSubCat($id) {
 
         $this->db->set('IsActive', 0);
         $this->db->where('SubCatID', $id);
-        return $this->db->update('tb_subCategory');
+        return $this->db->update('tb_subcategory');
     }
 
     public function getSingleModel($editId){
@@ -135,8 +135,8 @@ class InvProductProperty_Model  extends CI_Model {
 
     public function getModelList(){
         $this->db->select('*');
-        $this->db->from('tb_Model');
-        $this->db->order_by('tb_Model.Model', 'ASC');
+        $this->db->from('tb_model');
+        $this->db->order_by('tb_model.Model', 'ASC');
         $result = $this->db->get()->result();
         return $result;
     }

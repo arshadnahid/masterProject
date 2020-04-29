@@ -179,16 +179,22 @@ class InventoryReportController extends CI_Controller {
     {
 
         if (isPostBack()) {
+/*echo "<pre>";
+print_r($_POST);*/
 
+            $branch_id = $this->input->post('branch_id');
             $productCatagory = $this->input->post('category_id');
             $productBrand = $this->input->post('brandId');
             $productId = $this->input->post('productId');
+            $subcategory = $this->input->post('subcategory');
+            $color = $this->input->post('color');
+            $size = $this->input->post('size');
             $startDate = date('Y-m-d', strtotime($this->input->post('start_date')));
             $endDate = date('Y-m-d', strtotime($this->input->post('end_date')));
-            $data['stock']=$this->Inventory_Model->stock_report($productCatagory,$productBrand,$productId,$startDate,$endDate);
-           /* echo"<pre>";
-            print_r($data);exit;*/
-            $data['stockEmptyCylinder']=$this->Inventory_Model->get_empty_cylinder_with_refill_with_out_refill($productCatagory,$productBrand,$productId,$startDate,$endDate);
+            //$data['stock']=$this->Inventory_Model->stock_report($branch_id,$productCatagory,$productBrand,$productId,$startDate,$endDate);
+            $data['stockBranch']=$this->Inventory_Model->stock_reportNew($branch_id,$productCatagory,$productBrand,$productId,$startDate,$endDate,$subcategory,$color,$size);
+
+            //$data['stockEmptyCylinder']=$this->Inventory_Model->get_empty_cylinder_with_refill_with_out_refill($productCatagory,$productBrand,$productId,$startDate,$endDate);
 /*echo '<pre>';
 print_r($data['stockEmptyCylinder']);
 exit;*/
@@ -201,6 +207,13 @@ exit;*/
         $data['link_page_name'] = '';
         $data['link_page_url'] = '';
         $data['link_icon'] = "";
+
+
+
+        $data['subcategory'] = $this->db->where('IsActive', '1')->get('tb_subcategory')->result();
+        $data['model'] = $this->db->where('IsActive', '1')->get('tb_model')->result();
+        $data['color'] = $this->db->where('IsActive', '1')->get('tb_color')->result();
+        $data['size'] = $this->db->where('IsActive', '1')->get('tb_size')->result();
         /*page navbar details*/
         $data['companyInfo'] = $this->Common_model->get_single_data_by_single_column('system_config', 'dist_id', $this->dist_id);
         $data['mainContent'] = $this->load->view('distributor/inventory/report/current_stock_report', $data, true);

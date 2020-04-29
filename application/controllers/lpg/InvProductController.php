@@ -239,6 +239,14 @@ class InvProductController extends CI_Controller
                 $data['alarm_qty'] = $this->input->post('alarm_qty');
                 $data['dist_id'] = $this->dist_id;
                 $data['updated_by'] = $this->admin_id;
+
+                $data['subcategoryID'] = $this->input->post('subcategory');
+                $data['modelID'] = $this->input->post('model');
+                $data['colorID'] = $this->input->post('color');
+                $data['sizeID'] = $this->input->post('size');
+                $data['vat'] = $this->input->post('vat');
+                $data['description'] = $this->input->post('description');
+
                 $updateid = $this->Common_model->update_data('product', $data, 'product_id', $productid);
 
 
@@ -287,6 +295,14 @@ class InvProductController extends CI_Controller
                 endif;
             }
         }
+
+
+        $data['subcategory'] = $this->db->where('IsActive', '1')->get('tb_subcategory')->result();
+        $data['model'] = $this->db->where('IsActive', '1')->get('tb_model')->result();
+        $data['color'] = $this->db->where('IsActive', '1')->get('tb_color')->result();
+        $data['size'] = $this->db->where('IsActive', '1')->get('tb_size')->result();
+
+
         /*page navbar details*/
         $data['title'] = get_phrase('Update Product');
         $data['page_type'] = get_phrase($this->page_type);
@@ -543,7 +559,7 @@ class InvProductController extends CI_Controller
             if (!empty($productList)):
                 $add .= "<option value=''></option>";
                 foreach ($productList as $key => $value):
-                    $add .= "<option  ispackage='0'  categoryName='" . $value->productCat . " '  categoryId='" . $value->category_id . "' productName='" . $value->productName . " [" . $value->brandName . "]' value='" . $value->product_id . "' >$value->productName  [" . $value->brandName . "]</option>";
+                    $add .= "<option  ispackage='0'  categoryName='" . $value->productCat . " '  categoryId='" . $value->category_id . "' productName='". $value->SubCatName . $value->productName . " [" . $value->brandName . "]' value='" . $value->product_id . "' >$value->SubCatName   $value->Model  $value->Color   $value->Size  $value->productName  [" . $value->brandName . "]</option>";
                 endforeach;
                 echo $add;
                 DIE;

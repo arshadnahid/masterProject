@@ -271,20 +271,37 @@ ORDER BY b.branch_id DESC";
     }
     public function getPublicProduct($distId, $catid)
     {
-        $this->db->select('product.product_id,productcategory.title as productCat,product.brand_id,product.category_id,product.productName,product.dist_id,product.status,brand.brandName,unit.unitTtile');
+        $this->db->select('product.product_id,productcategory.title as productCat,
+        product.brand_id,product.category_id,product.productName,
+        product.dist_id,product.status,
+        brand.brandName,
+        unit.unitTtile,
+        tb_subcategory.SubCatName,
+        tb_model.Model,
+        tb_color.Color,
+        tb_size.Size');
         $this->db->from('product');
         $this->db->join('brand', 'brand.brandId = product.brand_id', 'left');
         $this->db->join('unit', 'unit.unit_id = product.unit_id', 'left');
         $this->db->join('productcategory', 'productcategory.category_id = product.category_id', 'left');
-        $this->db->group_start();
+        $this->db->join('tb_subcategory', 'tb_subcategory.SubCatID = product.subcategoryID', 'left');
+        $this->db->join('tb_model', 'tb_model.ModelID = product.modelID', 'left');
+        $this->db->join('tb_color', 'tb_color.ColorID = product.colorID', 'left');
+        $this->db->join('tb_size', 'tb_size.SizeID = product.SizeID', 'left');
+        /*$this->db->group_start();
         $this->db->where('product.dist_id', $distId);
         $this->db->or_where('product.dist_id', 1);
-        $this->db->group_end();
+        $this->db->group_end();*/
         $this->db->where('product.status', 1);
         if ($catid == 'all') {
         } else {
             $this->db->where('product.category_id', $catid);
         }
+        $this->db->order_by('tb_subcategory.SubCatName', 'ASE');
+        $this->db->order_by('tb_model.Model', 'ASE');
+
+        $this->db->order_by('tb_color.Color', 'ASE');
+        $this->db->order_by('tb_size.Size', 'ASE');
         $this->db->order_by('product.productName', 'ASE');
         $getProductList = $this->db->get()->result();
         return $getProductList;
@@ -1579,6 +1596,13 @@ WHERE
                     unit2.unitTtile AS return_product_unit,
                     brand2.brandName AS return_product_brand,
                     purchase_details.quantity,
+                    
+                    purchase_details.property_1,
+                    purchase_details.property_2,
+                    purchase_details.property_3,
+                    purchase_details.property_4,
+                    purchase_details.property_5,
+                    
                     purchase_details.package_id,
                     purchase_details.unit_price,
                     purchase_return_details.product_id AS return_product_id,
@@ -1628,6 +1652,13 @@ WHERE
                     brand2.brandName AS return_product_brand,
                     sales_details.quantity,
                     sales_details.unit_price,
+                    
+                    sales_details.property_1,
+                    sales_details.property_2,
+                    sales_details.property_3,
+                    sales_details.property_4,
+                    sales_details.property_5,
+                    
                     sales_details.returnable_quantity as tt_returnable_quantity,
                     sales_return_details.product_id AS return_product_id,
                     sales_return_details.returnable_quantity,
@@ -1729,7 +1760,7 @@ WHERE
             $query .= " AND customer.customerType =" . $type;
         }
         $query .= " ORDER BY branch.branch_name,customer.customerName,sales_invoice_info.invoice_date";
-        log_message('error', 'log query message' . print_r($query, true));
+
         $query = $this->db->query($query);
         $result = $query->result();
 

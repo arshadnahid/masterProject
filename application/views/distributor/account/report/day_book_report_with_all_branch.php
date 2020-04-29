@@ -106,7 +106,7 @@ if (isset($_GET['branch_id'])) {
     $branch_id = $_GET['branch_id'];
 
 } else {
-    $branch_id = 1;
+    $branch_id = 'all';
 }
 
 
@@ -150,7 +150,7 @@ if (isset($_GET['branch_id'])) {
                                             <select name="branch_id" class="chosen-select form-control"
                                                     id="BranchAutoId" data-placeholder="Search" required="true">
                                                 <?php
-                                                echo branch_dropdown(null, $branch_id);
+                                                echo branch_dropdown('all', $branch_id);
                                                 ?>
 
                                             </select>
@@ -300,23 +300,34 @@ WHERE
 AND AC_TCOA.CHILD_ID NOT IN(0, 105, 106)
 /*AND AC_TAVMst.Accounts_Voucher_Date >= '2020-03-07'*/
 AND AC_TAVMst.Accounts_Voucher_Date = '" . $start_date . "'
-AND AC_TAVDtl.IsActive = 1
-AND AC_TAVDtl.BranchAutoId = '" . $branch_id . "'
-GROUP BY
-	AC_TCOA.PARENT_ID,AC_TAVDtl.BranchAutoId
-) baseTable";
+AND AC_TAVDtl.IsActive = 1";
+                                                                if ($branch_id != 'all') {
+                                                                    $query .= " AND AC_TAVDtl.BranchAutoId = '" . $branch_id . "'";
+                                                                }
 
+                                                                $query .= " GROUP BY
+	AC_TCOA.PARENT_ID ";
+                                                                if ($branch_id != 'all') {
+                                                                    $query .= " ,AC_TAVDtl.BranchAutoId";
+                                                                }
+
+                                                                $query .= " ) baseTable";
                                                                 $query = $this->db->query($query);
                                                                 $result = $query->row();
 
                                                                 if ($result->profit_lose < 0) {
-                                                                    $balance = '(' . (number_format($result->profit_lose * -1, 2)) . ')';
+                                                                    $number = $result->profit_lose * -1;
+                                                                    $balance = '(' . $number . ')';
                                                                 } else {
-                                                                    $balance = (number_format($result->profit_lose * 1, 2));
+                                                                    $balance = $result->profit_lose * 1;
                                                                 }
-                                                                echo $text . " " . $balance;
+
+                                                                echo  $result->profit_lose;
+
+                                                                //exit;
+
                                                             }
-                                                            if ($value->acc_group_id == 75) {
+                                                            else if ($value->acc_group_id == 75) {
                                                                 $query = "SELECT
 	SUM(pd.quantity*pd.unit_price)  as purchase_amount
 	

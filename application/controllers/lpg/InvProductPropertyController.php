@@ -6,6 +6,7 @@
  * Time: 11:54 AM
  */
 defined('BASEPATH') OR exit('No direct script access allowed');
+
 class InvProductPropertyController extends CI_Controller
 {
     private $timestamp;
@@ -55,34 +56,35 @@ class InvProductPropertyController extends CI_Controller
     }
 
 
-    function index(){
+    function index()
+    {
         $data = array();
         // If file upload form submitted
-        if($this->input->post('fileSubmit') && !empty($_FILES['files']['name'])){
+        if ($this->input->post('fileSubmit') && !empty($_FILES['files']['name'])) {
             $filesCount = count($_FILES['files']['name']);
-            for($i = 0; $i < $filesCount; $i++){
-                $_FILES['file']['name']     = $_FILES['files']['name'][$i];
-                $_FILES['file']['type']     = $_FILES['files']['type'][$i];
+            for ($i = 0; $i < $filesCount; $i++) {
+                $_FILES['file']['name'] = $_FILES['files']['name'][$i];
+                $_FILES['file']['type'] = $_FILES['files']['type'][$i];
                 $_FILES['file']['tmp_name'] = $_FILES['files']['tmp_name'][$i];
-                $_FILES['file']['error']     = $_FILES['files']['error'][$i];
-                $_FILES['file']['size']     = $_FILES['files']['size'][$i];
+                $_FILES['file']['error'] = $_FILES['files']['error'][$i];
+                $_FILES['file']['size'] = $_FILES['files']['size'][$i];
 
                 $uploadPath = 'uploads/files/';
                 $config['upload_path'] = $uploadPath;
                 $config['allowed_types'] = 'jpg|jpeg|png|gif';
                 $this->load->library('upload', $config);
                 $this->upload->initialize($config);
-                if($this->upload->do_upload('file')){
+                if ($this->upload->do_upload('file')) {
                     $fileData = $this->upload->data();
                     $uploadData[$i]['file_name'] = $fileData['file_name'];
                     $uploadData[$i]['uploaded_on'] = date("Y-m-d H:i:s");
                     $uploadData[$i]['imageName'] = $this->input->post('imageName');
                 }
             }
-            if(!empty($uploadData)){
+            if (!empty($uploadData)) {
                 $insert = $this->InvProductProperty_Model->insert($uploadData);
-                $statusMsg = $insert?'Images Uploaded Successfully.':'Images Uploaded Fail.';
-                $this->session->set_flashdata('statusMsg',$statusMsg);
+                $statusMsg = $insert ? 'Images Uploaded Successfully.' : 'Images Uploaded Fail.';
+                $this->session->set_flashdata('statusMsg', $statusMsg);
             }
         }
         $data['files'] = $this->InvProductProperty_Model->getRows();
@@ -92,14 +94,14 @@ class InvProductPropertyController extends CI_Controller
     }
 
 
-
-
-    public function searcht(){
+    public function searcht()
+    {
         $term = $this->input->get('term');
         $this->db->like('title', $term);
         $data = $this->db->get("products")->result();
-        echo json_encode( $data);
+        echo json_encode($data);
     }
+
     public function SearchResult()
     {
         $term = $this->input->get('term');
@@ -109,7 +111,7 @@ class InvProductPropertyController extends CI_Controller
 
             $temp_array = array();
             $temp_array['value'] = $row['title'];
-            $temp_array['label'] = '<img src="<php site_url() ?>uploads/product/'.$row['picture'].'" width="100" />&nbsp;&nbsp;&nbsp;'.$row['title'].'';
+            $temp_array['label'] = '<img src="<php site_url() ?>uploads/product/' . $row['picture'] . '" width="100" />&nbsp;&nbsp;&nbsp;' . $row['title'] . '';
             $data[] = $temp_array;
         }
         echo json_encode($data);
@@ -117,7 +119,6 @@ class InvProductPropertyController extends CI_Controller
 
     public function seachdetails()
     {
-
 
 
         $data['accountHeadList'] = $this->Common_model->getAccountHeadNew();
@@ -132,11 +133,13 @@ class InvProductPropertyController extends CI_Controller
         $data['mainContent'] = $this->load->view('distributor/test/searchJq', $data, true);
         $this->load->view('distributor/masterTemplate', $data);
     }
-    public function subCategory(){
+
+    public function subCategory()
+    {
         if (isPostBack()) {
 
 
-            $this->form_validation->set_rules('SubCatName', 'SubCatName', 'required|is_unique[tb_subCategory.SubCatName]');
+            $this->form_validation->set_rules('SubCatName', 'SubCatName', 'required|is_unique[tb_subcategory.SubCatName]');
 
 
             if ($this->form_validation->run() === FALSE) {
@@ -149,7 +152,7 @@ class InvProductPropertyController extends CI_Controller
                 $data['isActive'] = 1;
                 $data['dist_id'] = $this->dist_id;
                 $data['Created_Date'] = $this->timestamp;
-                $this->db->insert('tb_subCategory', $data);
+                $this->db->insert('tb_subcategory', $data);
 
                 $this->db->trans_complete();
                 if ($this->db->trans_status() === FALSE) {
@@ -181,11 +184,12 @@ class InvProductPropertyController extends CI_Controller
 
     }
 
-    public function subCatEdit($editId){
+    public function subCatEdit($editId)
+    {
         if (isPostBack()) {
 
 
-            $this->form_validation->set_rules('SubCatName', 'SubCatName', 'required|is_unique[tb_subCategory.SubCatName]');
+            $this->form_validation->set_rules('SubCatName', 'SubCatName', 'required|is_unique[tb_subcategory.SubCatName]');
 
 
             if ($this->form_validation->run() === FALSE) {
@@ -199,7 +203,7 @@ class InvProductPropertyController extends CI_Controller
                 $data['dist_id'] = $this->dist_id;
                 $data['Changed_Date'] = $this->timestamp;
 
-                $this->Common_model->update_data('tb_subCategory', $data, 'SubCatID', $editId);
+                $this->Common_model->update_data('tb_subcategory', $data, 'SubCatID', $editId);
                 $this->db->trans_complete();
                 if ($this->db->trans_status() === FALSE) {
                     $msg = "Your data can't be Updated";
@@ -219,7 +223,7 @@ class InvProductPropertyController extends CI_Controller
         $data['title'] = get_phrase('Update Sub Category Add');
         $data['page_type'] = $this->page_type;
         $data['link_page_name'] = get_phrase('Sub Category List');
-        $data['link_page_url'] = $this->project.'/subCategory';
+        $data['link_page_url'] = $this->project . '/subCategory';
 
         $data['link_icon'] = "<i class='fa fa-list'></i>";
         /*page navbar details*/
@@ -227,9 +231,11 @@ class InvProductPropertyController extends CI_Controller
         $this->load->view('distributor/masterTemplate', $data);
 
     }
-    public function subCatDelete($deleteId){
 
-        $result =  $this->db->delete('tb_subCategory', array('SubCatID' => $deleteId));
+    public function subCatDelete($deleteId)
+    {
+
+        $result = $this->db->delete('tb_subcategory', array('SubCatID' => $deleteId));
 
         if ($result) {
             $msg = "Your data successfully Deleted From database";
@@ -243,6 +249,7 @@ class InvProductPropertyController extends CI_Controller
 
 
     }
+
     function statusSubCat($id)
     {
 
@@ -259,6 +266,7 @@ class InvProductPropertyController extends CI_Controller
             redirect(site_url($this->project . '/subCategory'));
         }
     }
+
     function statusSubCat2($id)
     {
 
@@ -275,9 +283,11 @@ class InvProductPropertyController extends CI_Controller
             redirect(site_url($this->project . '/subCategory'));
         }
     }
-    public function modelAdd(){
 
-        $this->form_validation->set_rules('Model', 'Model', 'required|is_unique[tb_Model.Model]');
+    public function modelAdd()
+    {
+
+        $this->form_validation->set_rules('Model', 'Model', 'required|is_unique[tb_model.Model]');
 
         if ($this->form_validation->run() === FALSE) {
             $msg = 'Your data cannot be Empty Or Duplicate Name';
@@ -290,7 +300,7 @@ class InvProductPropertyController extends CI_Controller
             $data['isActive'] = 1;
             $data['dist_id'] = $this->dist_id;
             $data['Created_Date'] = $this->timestamp;
-            $this->db->insert('tb_Model', $data);
+            $this->db->insert('tb_model', $data);
 
             $this->db->trans_complete();
             if ($this->db->trans_status() === FALSE) {
@@ -309,7 +319,8 @@ class InvProductPropertyController extends CI_Controller
     }
 
 
-    public function modelEdit($editId){
+    public function modelEdit($editId)
+    {
         if (isPostBack()) {
 
 
@@ -348,7 +359,7 @@ class InvProductPropertyController extends CI_Controller
         $data['title'] = get_phrase('Update Sub Category Add');
         $data['page_type'] = $this->page_type;
         $data['link_page_name'] = get_phrase('Sub Category List');
-        $data['link_page_url'] = $this->project.'/subCategory';
+        $data['link_page_url'] = $this->project . '/subCategory';
 
         $data['link_icon'] = "<i class='fa fa-list'></i>";
         /*page navbar details*/
@@ -357,9 +368,10 @@ class InvProductPropertyController extends CI_Controller
 
     }
 
-    public function modelDelete($deleteId){
+    public function modelDelete($deleteId)
+    {
 
-        $result =  $this->db->delete('tb_model', array('ModelID' => $deleteId));
+        $result = $this->db->delete('tb_model', array('ModelID' => $deleteId));
 
         if ($result) {
             $msg = "Your data successfully Deleted From database";
@@ -373,6 +385,7 @@ class InvProductPropertyController extends CI_Controller
 
 
     }
+
     function statusModel($id)
     {
 
@@ -389,6 +402,7 @@ class InvProductPropertyController extends CI_Controller
             redirect(site_url($this->project . '/subCategory#tab2default'));
         }
     }
+
     function statusModel2($id)
     {
 
@@ -406,7 +420,8 @@ class InvProductPropertyController extends CI_Controller
         }
     }
 
-    public function colorAdd(){
+    public function colorAdd()
+    {
 
         $this->form_validation->set_rules('Color', 'Color', 'required|is_unique[tb_color.Color]');
 
@@ -439,7 +454,8 @@ class InvProductPropertyController extends CI_Controller
 
     }
 
-    public function colorEdit($editId){
+    public function colorEdit($editId)
+    {
         if (isPostBack()) {
 
 
@@ -478,7 +494,7 @@ class InvProductPropertyController extends CI_Controller
         $data['title'] = get_phrase('Update Color Add');
         $data['page_type'] = $this->page_type;
         $data['link_page_name'] = get_phrase('Color List');
-        $data['link_page_url'] = $this->project.'/subCategory';
+        $data['link_page_url'] = $this->project . '/subCategory';
 
         $data['link_icon'] = "<i class='fa fa-list'></i>";
         /*page navbar details*/
@@ -486,9 +502,11 @@ class InvProductPropertyController extends CI_Controller
         $this->load->view('distributor/masterTemplate', $data);
 
     }
-    public function colorDelete($deleteId){
 
-        $result =  $this->db->delete('tb_color', array('ColorID' => $deleteId));
+    public function colorDelete($deleteId)
+    {
+
+        $result = $this->db->delete('tb_color', array('ColorID' => $deleteId));
 
         if ($result) {
             $msg = "Your data successfully Deleted From database";
@@ -519,6 +537,7 @@ class InvProductPropertyController extends CI_Controller
             redirect(site_url($this->project . '/subCategory#tab3default'));
         }
     }
+
     function statusColor2($id)
     {
 
@@ -536,9 +555,10 @@ class InvProductPropertyController extends CI_Controller
         }
     }
 
-    public function sizeAdd(){
+    public function sizeAdd()
+    {
 
-        $this->form_validation->set_rules('Size', 'Size', 'required|is_unique[tb_Size.Size]');
+        $this->form_validation->set_rules('Size', 'Size', 'required|is_unique[tb_size.Size]');
 
         if ($this->form_validation->run() === FALSE) {
             $msg = 'Your data cannot be Empty Or Duplicate Name';
@@ -551,7 +571,7 @@ class InvProductPropertyController extends CI_Controller
             $data['isActive'] = 1;
             $data['dist_id'] = $this->dist_id;
             $data['Created_Date'] = $this->timestamp;
-            $this->db->insert('tb_Size', $data);
+            $this->db->insert('tb_size', $data);
 
             $this->db->trans_complete();
             if ($this->db->trans_status() === FALSE) {
@@ -569,11 +589,12 @@ class InvProductPropertyController extends CI_Controller
 
     }
 
-    public function sizeEdit($editId){
+    public function sizeEdit($editId)
+    {
         if (isPostBack()) {
 
 
-            $this->form_validation->set_rules('Size', 'Size', 'required|is_unique[tb_Size.Size]');
+            $this->form_validation->set_rules('Size', 'Size', 'required|is_unique[tb_size.Size]');
 
 
             if ($this->form_validation->run() === FALSE) {
@@ -588,7 +609,7 @@ class InvProductPropertyController extends CI_Controller
                 $data['dist_id'] = $this->dist_id;
                 $data['Changed_Date'] = $this->timestamp;
 
-                $this->Common_model->update_data('tb_Size', $data, 'SizeID', $editId);
+                $this->Common_model->update_data('tb_size', $data, 'SizeID', $editId);
                 $this->db->trans_complete();
                 if ($this->db->trans_status() === FALSE) {
                     $msg = "Your data can't be Updated";
@@ -608,7 +629,7 @@ class InvProductPropertyController extends CI_Controller
         $data['title'] = get_phrase('Update Size Add');
         $data['page_type'] = $this->page_type;
         $data['link_page_name'] = get_phrase('Size List');
-        $data['link_page_url'] = $this->project.'/subCategory';
+        $data['link_page_url'] = $this->project . '/subCategory';
 
         $data['link_icon'] = "<i class='fa fa-list'></i>";
         /*page navbar details*/
@@ -618,9 +639,10 @@ class InvProductPropertyController extends CI_Controller
     }
 
 
-    public function sizeDelete($deleteId){
+    public function sizeDelete($deleteId)
+    {
 
-        $result =  $this->db->delete('tb_Size', array('SizeID' => $deleteId));
+        $result = $this->db->delete('tb_size', array('SizeID' => $deleteId));
 
         if ($result) {
             $msg = "Your data successfully Deleted From database";
@@ -651,6 +673,7 @@ class InvProductPropertyController extends CI_Controller
             redirect(site_url($this->project . '/subCategory#tab4default'));
         }
     }
+
     function statusSize2($id)
     {
 
@@ -668,7 +691,8 @@ class InvProductPropertyController extends CI_Controller
         }
     }
 
-    public function departmentAdd(){
+    public function departmentAdd()
+    {
         if (isPostBack()) {
 
 
@@ -715,10 +739,8 @@ class InvProductPropertyController extends CI_Controller
     }
 
 
-
-
-
-    public function departmentEdit($editId){
+    public function departmentEdit($editId)
+    {
         if (isPostBack()) {
 
 
@@ -756,7 +778,7 @@ class InvProductPropertyController extends CI_Controller
         $data['title'] = get_phrase('Department Add');
         $data['page_type'] = $this->page_type;
         $data['link_page_name'] = get_phrase('Department List');
-        $data['link_page_url'] = $this->project.'/departmentAdd';
+        $data['link_page_url'] = $this->project . '/departmentAdd';
 
         $data['link_icon'] = "<i class='fa fa-list'></i>";
         /*page navbar details*/
@@ -765,14 +787,15 @@ class InvProductPropertyController extends CI_Controller
 
     }
 
-    public function departmentList(){
+    public function departmentList()
+    {
 
 
         $data['departmentList'] = $this->InvProductProperty_Model->getDepartmentList();
         $data['title'] = get_phrase('Department List');
         $data['page_type'] = $this->page_type;
         $data['link_page_name'] = get_phrase('Department Add');
-        $data['link_page_url'] = $this->project.'/departmentAdd';
+        $data['link_page_url'] = $this->project . '/departmentAdd';
 
         $data['link_icon'] = "<i class='fa fa-list'></i>";
         /*page navbar details*/
@@ -781,15 +804,16 @@ class InvProductPropertyController extends CI_Controller
 
     }
 
-    public function departmentDelete($deleteId){
-        $checkDeparemt= $this->InvProductProperty_Model->checkDepatmentId($deleteId);
+    public function departmentDelete($deleteId)
+    {
+        $checkDeparemt = $this->InvProductProperty_Model->checkDepatmentId($deleteId);
 
 //       echo '<pre>';
 //       print_r($checkDeparemt);
 //       exit();
 
 
-        if (empty($checkDeparemt)){
+        if (empty($checkDeparemt)) {
             $Condition = array(
                 'dist_id' => $this->dist_id,
                 'DepartmentID' => $deleteId,
@@ -804,7 +828,7 @@ class InvProductPropertyController extends CI_Controller
                 $this->session->set_flashdata('error', $msg);
                 redirect(site_url($this->project . '/departmentAdd'));
             }
-        }  else {
+        } else {
             $msg = "This Department Use on Another Table";
             $this->session->set_flashdata('error', $msg);
             redirect(site_url($this->project . '/departmentAdd'));
@@ -830,6 +854,7 @@ class InvProductPropertyController extends CI_Controller
             redirect(site_url($this->project . '/departmentAdd'));
         }
     }
+
     function statusDepartment2($id)
     {
 
@@ -865,6 +890,7 @@ class InvProductPropertyController extends CI_Controller
         $data['mainContent'] = $this->load->view('distributor/setup/employee/employeeVoucher', $data, true);
         $this->load->view('distributor/masterTemplate', $data);
     }
+
     public function employeeVoucherAdd($postingId = null)
     {
         $this->load->helper('create_receive_voucher_no_helper');
@@ -910,8 +936,7 @@ class InvProductPropertyController extends CI_Controller
                 $bankCr = $this->input->post('bankCr');
 
                 /* Pay account DR */
-                if (!empty($cashCrId))
-                {
+                if (!empty($cashCrId)) {
                     $dr['Accounts_VoucherMst_AutoID'] = $general_id;
                     $dr['TypeID'] = 1;
                     $dr['CHILD_ID'] = $cashCrId;
@@ -926,8 +951,7 @@ class InvProductPropertyController extends CI_Controller
                     $this->Common_model->insert_data('ac_tb_accounts_voucherdtl', $dr);
 
                 }
-                if (!empty($bankId))
-                {
+                if (!empty($bankId)) {
                     $dr['Accounts_VoucherMst_AutoID'] = $general_id;
                     $dr['TypeID'] = 1;
                     $dr['CHILD_ID'] = $bankId;
@@ -942,7 +966,6 @@ class InvProductPropertyController extends CI_Controller
                     $this->Common_model->insert_data('ac_tb_accounts_voucherdtl', $dr);
 
                 }
-
 
 
                 $allCr = array();
@@ -997,7 +1020,7 @@ class InvProductPropertyController extends CI_Controller
         $conditionaccountHeadListByCash = array(
             'status' => '1',
             'posted' => '1',
-            'parent_id'=>'28'
+            'parent_id' => '28'
         );
 
         $data['accountHeadListByCash'] = $this->Common_model->get_data_list_by_many_columns('ac_account_ledger_coa', $conditionaccountHeadListByCash);
@@ -1005,7 +1028,7 @@ class InvProductPropertyController extends CI_Controller
         $conditionaccountHeadListByBank = array(
             'status' => '1',
             'posted' => '1',
-            'parent_id'=>'32'
+            'parent_id' => '32'
         );
 
         $data['accountHeadListByBank'] = $this->Common_model->get_data_list_by_many_columns('ac_account_ledger_coa', $conditionaccountHeadListByBank);
@@ -1037,6 +1060,7 @@ class InvProductPropertyController extends CI_Controller
         $data['mainContent'] = $this->load->view('distributor/setup/employee/employeeVoucherAdd', $data, true);
         $this->load->view('distributor/masterTemplate', $data);
     }
+
     public function employeeVoucherEdit($invoiceId)
     {
 
@@ -1079,7 +1103,7 @@ class InvProductPropertyController extends CI_Controller
 
 
                 $this->db->where('Accounts_VoucherMst_AutoID', $invoiceId);
-                $del=$this->db->delete('ac_tb_accounts_voucherdtl');
+                $del = $this->db->delete('ac_tb_accounts_voucherdtl');
 
 
                 /*   $Delete['IsActive'] = 0;
@@ -1092,8 +1116,7 @@ class InvProductPropertyController extends CI_Controller
                     'CHILD_ID' => $this->input->post('cash')
                 );
 
-                if (!empty($cashCrId))
-                {
+                if (!empty($cashCrId)) {
                     $dr['Accounts_VoucherMst_AutoID'] = $invoiceId;
                     $dr['TypeID'] = 1;
                     $dr['CHILD_ID'] = $cashCrId;
@@ -1114,8 +1137,7 @@ class InvProductPropertyController extends CI_Controller
                     'CHILD_ID' => $this->input->post('accountDr')
                 );
 
-                if (!empty($bankId))
-                {
+                if (!empty($bankId)) {
                     $dr['Accounts_VoucherMst_AutoID'] = $invoiceId;
                     $dr['TypeID'] = 1;
                     $dr['CHILD_ID'] = $bankId;
@@ -1130,7 +1152,6 @@ class InvProductPropertyController extends CI_Controller
                     $this->Common_model->save_and_check('ac_tb_accounts_voucherdtl', $dr, $bankCrCondition);
 
                 }
-
 
 
                 foreach ($acountDr as $key => $value) {
@@ -1180,8 +1201,6 @@ class InvProductPropertyController extends CI_Controller
                 }
 
 
-
-
                 $this->db->trans_complete();
                 if ($this->db->trans_status() === FALSE) {
                     $msg = $this->config->item("update_error_message");
@@ -1203,7 +1222,7 @@ class InvProductPropertyController extends CI_Controller
         $conditionaccountHeadListByCash = array(
             'status' => '1',
             'posted' => '1',
-            'parent_id'=>'28'
+            'parent_id' => '28'
         );
 
         $data['accountHeadListByCash'] = $this->Common_model->get_data_list_by_many_columns('ac_account_ledger_coa', $conditionaccountHeadListByCash);
@@ -1211,7 +1230,7 @@ class InvProductPropertyController extends CI_Controller
         $conditionaccountHeadListByBank = array(
             'status' => '1',
             'posted' => '1',
-            'parent_id'=>'32'
+            'parent_id' => '32'
         );
 
         $data['accountHeadListByBank'] = $this->Common_model->get_data_list_by_many_columns('ac_account_ledger_coa', $conditionaccountHeadListByBank);
@@ -1250,6 +1269,7 @@ class InvProductPropertyController extends CI_Controller
         $data['mainContent'] = $this->load->view('distributor/setup/employee/employeeVoucherEdit', $data, true);
         $this->load->view('distributor/masterTemplate', $data);
     }
+
     function employeeVoucherView($voucherID)
     {
 
@@ -1301,7 +1321,6 @@ class InvProductPropertyController extends CI_Controller
             $this->dist_id);
 
 
-
         $list = $this->Filter_Model->get_receive_datatables();
 
         // log_message('error', 'Hi mamun receiveList ' . print_r($list, true));
@@ -1322,9 +1341,6 @@ class InvProductPropertyController extends CI_Controller
             $row[] = $receive->Narration;
 
             $row[] = number_format((float)$receive->amount, 2, '.', ',');
-
-
-
 
 
             $row[] = '
@@ -1348,7 +1364,8 @@ class InvProductPropertyController extends CI_Controller
         echo json_encode($output);
     }
 
-    public function designationAdd(){
+    public function designationAdd()
+    {
         if (isPostBack()) {
 
 
@@ -1393,7 +1410,9 @@ class InvProductPropertyController extends CI_Controller
         $this->load->view('distributor/masterTemplate', $data);
 
     }
-    public function designationEdit($editId){
+
+    public function designationEdit($editId)
+    {
         if (isPostBack()) {
 
 
@@ -1431,7 +1450,7 @@ class InvProductPropertyController extends CI_Controller
         $data['title'] = get_phrase('Designation Add');
         $data['page_type'] = $this->page_type;
         $data['link_page_name'] = get_phrase('Designation List');
-        $data['link_page_url'] = $this->project.'/designationAdd';
+        $data['link_page_url'] = $this->project . '/designationAdd';
 
         $data['link_icon'] = "<i class='fa fa-list'></i>";
         /*page navbar details*/
@@ -1441,11 +1460,12 @@ class InvProductPropertyController extends CI_Controller
     }
 
 
-    public function designationDelete($deleteId){
+    public function designationDelete($deleteId)
+    {
 
-        $checkDesignation= $this->InvProductProperty_Model->checkDesignationId($deleteId);
+        $checkDesignation = $this->InvProductProperty_Model->checkDesignationId($deleteId);
 
-        if(empty($checkDesignation)){
+        if (empty($checkDesignation)) {
             $Condition = array(
                 'dist_id' => $this->dist_id,
                 'DesignationID' => $deleteId,
@@ -1460,8 +1480,7 @@ class InvProductPropertyController extends CI_Controller
                 $this->session->set_flashdata('error', $msg);
                 redirect(site_url($this->project . '/designationAdd'));
             }
-        }
-        else {
+        } else {
             $msg = "This Designation Use Another Table";
             $this->session->set_flashdata('error', $msg);
             redirect(site_url($this->project . '/designationAdd'));
@@ -1486,6 +1505,7 @@ class InvProductPropertyController extends CI_Controller
             redirect(site_url($this->project . '/designationAdd'));
         }
     }
+
     function statusdesignationDepartment2($id)
     {
 
@@ -1554,16 +1574,21 @@ class InvProductPropertyController extends CI_Controller
     }
 
 
-    public function checkdayBooks($id){
+    public function checkdayBooks($id)
+    {
         $this->DayBook_Model->checkdayBook($id);
 //        echo '<pre>';
 //        print_r($data);
 //        exit();
     }
-    public function checkdayBook(){
+
+    public function checkdayBook()
+    {
         $this->DayBook_Model->getalldayBook();
     }
-    public function daybookDelete($id){
+
+    public function daybookDelete($id)
+    {
 
         $result = $this->DayBook_Model->delete_daybook($id);
         if ($result) {
@@ -1573,6 +1598,59 @@ class InvProductPropertyController extends CI_Controller
             $this->session->set_flashdata('message', 'Deleted Failed');
             redirect(site_url($this->project . '/dayBookAdd'));
         }
+    }
+
+
+    function product_property_set()
+    {
+        if (isPostBack()) {
+
+
+            //set some validation for input fields
+            $this->db->trans_start();
+            $active = array();
+
+            $Delete['is_show'] = 0;
+            $this->db->update('product_property', $Delete);
+
+            for ($i = 1; $i <= 8; $i++) {
+
+                if (isset($_POST['txt' . $i])) {
+                    $Condition = array(
+                        'property_id' => $i
+                    );
+                    $active['property_id'] = $i;
+                    $active['is_show'] =1;
+                    $active['property_name_show'] = $_POST['txt' . $i];
+
+                    $this->Common_model->save_and_check('product_property', $active, $Condition);
+                    $active = array();
+                    $Condition = array();
+                }
+            }
+
+
+
+
+            $this->db->trans_complete();
+            if ($this->db->trans_status() === FALSE) {
+                $msg = $this->config->item("update_error_message");
+                $this->session->set_flashdata('error', $msg);
+                redirect(site_url($this->project . '/product_property_set'));
+            } else {
+
+                $msg = $this->config->item("update_success_message");
+                $this->session->set_flashdata('success', $msg);
+                redirect(site_url($this->project . '/product_property_set' ));
+
+            }
+
+
+        }
+        $data=array();
+
+        $data['mainContent'] = $this->load->view('distributor/inventory/product/product_property_set', $data, true);
+        $this->load->view('distributor/masterTemplate', $data);
     }
 
 }

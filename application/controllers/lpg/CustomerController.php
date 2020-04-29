@@ -299,6 +299,8 @@ class CustomerController extends CI_Controller
         $data['customerType'] = $customerType;
         $data['dist_id'] = $this->dist_id;
         $data['updated_by'] = $this->admin_id;
+        $data['credit_limit'] = isset($_POST['credit_limit'])?$this->input->post('credit_limit'):0;
+        $data['credit_days'] = isset($_POST['credit_days'])?$this->input->post('credit_days'):0;
         $insertID = $this->Common_model->insert_data('customer', $data);
 
 
@@ -375,65 +377,68 @@ class CustomerController extends CI_Controller
 
         $totalAccount = $this->Common_model->get_data_list_by_many_columns('ac_account_ledger_coa', $condition2);
 
-        if (!empty($totalAccount)):
-            $totalAccount = count($totalAccount);
-            $newCode = $ac_account_ledger_coa_info->code . ' - ' . str_pad($totalAccount + 1, 2, "0", STR_PAD_LEFT);
-        else:
-            $totalAdded = 0;
-            $newCode = $ac_account_ledger_coa_info->code . ' - ' . str_pad($totalAdded + 1, 2, "0", STR_PAD_LEFT);
-        endif;
+
+        if ($this->business_type == "LPG") {
+
+            if (!empty($totalAccount)):
+                $totalAccount = count($totalAccount);
+                $newCode = $ac_account_ledger_coa_info->code . ' - ' . str_pad($totalAccount + 1, 2, "0", STR_PAD_LEFT);
+            else:
+                $totalAdded = 0;
+                $newCode = $ac_account_ledger_coa_info->code . ' - ' . str_pad($totalAdded + 1, 2, "0", STR_PAD_LEFT);
+            endif;
 
 
-        $level_no = $ac_account_ledger_coa_info->level_no;
-        $parent_id = $ac_account_ledger_coa_info->id;
-        $dataCoa['parent_id'] = $ac_account_ledger_coa_info->id;
-        $dataCoa['code'] = $newCode;
-        $dataCoa['parent_name'] = $this->input->post('customerName') . ' [ ' . $data['customerID'] . ' ]  Empty Cylinder Due';
-        $dataCoa['status'] = 1;
-        $dataCoa['posted'] = 1;
-        $dataCoa['level_no'] = $level_no + 1;
-        $dataCoa['related_id'] = $insertID;
-        $dataCoa['related_id_for'] = 4;
-        $dataCoa['insert_by'] = $this->admin_id;
-        $dataCoa['insert_date'] = date('Y-m-d H:i:s');
-        $inserted_ledger_id = $this->Common_model->insert_data('ac_account_ledger_coa', $dataCoa);
-        unset($a);
-        for ($x = 0; $x <= 7; $x++) {
-            unset($b);
-            if ($parent_id != 0) {
-                $condtion = array(
-                    'id' => $parent_id,
-                );
-                $parentDetails = $this->Common_model->get_single_data_by_many_columns('ac_account_ledger_coa', $condtion);
-                $parent_id = $parentDetails->parent_id;
-                $b['id'] = $parentDetails->id;
-                $b['parent_name'] = $parentDetails->parent_name;
-                $a[] = $b;
+            $level_no = $ac_account_ledger_coa_info->level_no;
+            $parent_id = $ac_account_ledger_coa_info->id;
+            $dataCoa['parent_id'] = $ac_account_ledger_coa_info->id;
+            $dataCoa['code'] = $newCode;
+            $dataCoa['parent_name'] = $this->input->post('customerName') . ' [ ' . $data['customerID'] . ' ]  Empty Cylinder Due';
+            $dataCoa['status'] = 1;
+            $dataCoa['posted'] = 1;
+            $dataCoa['level_no'] = $level_no + 1;
+            $dataCoa['related_id'] = $insertID;
+            $dataCoa['related_id_for'] = 4;
+            $dataCoa['insert_by'] = $this->admin_id;
+            $dataCoa['insert_date'] = date('Y-m-d H:i:s');
+            $inserted_ledger_id = $this->Common_model->insert_data('ac_account_ledger_coa', $dataCoa);
+            unset($a);
+            for ($x = 0; $x <= 7; $x++) {
+                unset($b);
+                if ($parent_id != 0) {
+                    $condtion = array(
+                        'id' => $parent_id,
+                    );
+                    $parentDetails = $this->Common_model->get_single_data_by_many_columns('ac_account_ledger_coa', $condtion);
+                    $parent_id = $parentDetails->parent_id;
+                    $b['id'] = $parentDetails->id;
+                    $b['parent_name'] = $parentDetails->parent_name;
+                    $a[] = $b;
+                }
             }
+
+            $PARENT_ID_DATA = $this->Common_model->getAccountHeadNew2($inserted_ledger_id);
+            if ($PARENT_ID_DATA->posted != 0) {
+                $dataac_tb_coa['CHILD_ID'] = $PARENT_ID_DATA->id;
+            } else {
+                $dataac_tb_coa['CHILD_ID'] = 0;
+            }
+            $a = array_reverse($a);
+            $dataac_tb_coa['PARENT_ID'] = isset($a[0]) ? $a[0]['id'] : 0;
+            $dataac_tb_coa['PARENT_ID1'] = isset($a[1]) ? $a[1]['id'] : 0;
+            $dataac_tb_coa['PARENT_ID2'] = isset($a[2]) ? $a[2]['id'] : 0;
+            $dataac_tb_coa['PARENT_ID3'] = isset($a[3]) ? $a[3]['id'] : 0;
+            $dataac_tb_coa['PARENT_ID4'] = isset($a[4]) ? $a[4]['id'] : 0;
+            $dataac_tb_coa['PARENT_ID5'] = isset($a[5]) ? $a[5]['id'] : 0;
+            $dataac_tb_coa['PARENT_ID6'] = isset($a[6]) ? $a[6]['id'] : 0;
+            $dataac_tb_coa['PARENT_ID7'] = isset($a[7]) ? $a[7]['id'] : 0;
+            $dataac_tb_coa['TB_AccountsLedgerCOA_id'] = $inserted_ledger_id;
+            $Condition = array(
+                'TB_AccountsLedgerCOA_id' => $inserted_ledger_id
+            );
+            $this->Common_model->save_and_check('ac_tb_coa', $dataac_tb_coa, $Condition);
+
         }
-
-        $PARENT_ID_DATA = $this->Common_model->getAccountHeadNew2($inserted_ledger_id);
-        if ($PARENT_ID_DATA->posted != 0) {
-            $dataac_tb_coa['CHILD_ID'] = $PARENT_ID_DATA->id;
-        } else {
-            $dataac_tb_coa['CHILD_ID'] = 0;
-        }
-        $a = array_reverse($a);
-        $dataac_tb_coa['PARENT_ID'] = isset($a[0]) ? $a[0]['id'] : 0;
-        $dataac_tb_coa['PARENT_ID1'] = isset($a[1]) ? $a[1]['id'] : 0;
-        $dataac_tb_coa['PARENT_ID2'] = isset($a[2]) ? $a[2]['id'] : 0;
-        $dataac_tb_coa['PARENT_ID3'] = isset($a[3]) ? $a[3]['id'] : 0;
-        $dataac_tb_coa['PARENT_ID4'] = isset($a[4]) ? $a[4]['id'] : 0;
-        $dataac_tb_coa['PARENT_ID5'] = isset($a[5]) ? $a[5]['id'] : 0;
-        $dataac_tb_coa['PARENT_ID6'] = isset($a[6]) ? $a[6]['id'] : 0;
-        $dataac_tb_coa['PARENT_ID7'] = isset($a[7]) ? $a[7]['id'] : 0;
-        $dataac_tb_coa['TB_AccountsLedgerCOA_id'] = $inserted_ledger_id;
-        $Condition = array(
-            'TB_AccountsLedgerCOA_id' => $inserted_ledger_id
-        );
-        $this->Common_model->save_and_check('ac_tb_coa', $dataac_tb_coa, $Condition);
-
-
         $customerType = $this->Common_model->tableRow('customertype', 'type_id', $data['customerType'])->typeTitle;
 
         if (!empty($insertID)):

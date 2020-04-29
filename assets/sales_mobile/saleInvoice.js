@@ -154,9 +154,15 @@ function showDuePayment(paymentValue){
 
 
 function saveNewCustomer(){
+    $('#CreditLimit').val(0);
     var customerName=$("#customerName").val();
     var customerType=$("#customerType").val();
     var customerId=$("#customerId").val();
+    var credit_limit=$("#credit_limit").val();
+
+    if(isNaN(credit_limit)){
+        credit_limit=0;
+    }
     if(customerName == ''){
         alert("Customer Name Can't be empty!!");
         return false;
@@ -166,6 +172,10 @@ function saveNewCustomer(){
     }else if(customerId == ''){
         alert("Customer Id Can't be empty!!");
         return false;
+    }
+    else if(credit_limit < 0 ){
+        alert("Customer Credit Limit Can't be empty!!");
+        return false;
     }else{
         var url = baseUrl + "lpg/CustomerController/saveNewCustomer";
         $.ajax({
@@ -174,6 +184,7 @@ function saveNewCustomer(){
             data:$("#publicForm2").serializeArray(),
             success: function (data)
             {
+                $('#CreditLimit').val(parseFloat(credit_limit));
                 $('#myModal').modal('toggle');
                 $('#newCustomerHide').hide();
                 $('#customerid').chosen();

@@ -20,6 +20,7 @@ class AccountController extends CI_Controller
         $this->load->model('Finane_Model');
         $this->load->model('Accounts_model');
         $this->load->model('Inventory_Model');
+        $this->load->model('AccountsBalanceSheet_Model');
         $this->load->model('Sales_Model');
         $this->timestamp = date('Y-m-d H:i:s');
         $this->admin_id = $this->session->userdata('admin_id');
@@ -585,7 +586,33 @@ class AccountController extends CI_Controller
         $data['mainContent'] = $this->load->view('distributor/account/report/balanceSheetWithBranch', $data, true);
         $this->load->view('distributor/masterTemplate', $data);
     }
+    public function balanceSheetWithAllBranch()
+    {
+        if (isPostBack()) {
 
+            $this->load->library('Site_library', '', 'site_library');
+            if ($this->input->post('to_date')) {
+                $branch_id=isset($_POST['branch_id'])?$this->input->post('branch_id'):'all';
+                $to_date = date('Y-m-d', strtotime($this->input->post('to_date')));
+            } else {
+                $to_date = date('Y-m-d');
+            }
+            if($branch_id=='all'){
+                $data['balance_sheet_with_all_branch'] = $this->AccountsBalanceSheet_Model->balance_sheet_query_with_all_branch($to_date,$branch_id);
+
+            }else{
+                $data['balance_sheet'] = $this->AccountsBalanceSheet_Model->balance_sheet_query_with_branch($to_date,$branch_id);
+            }
+
+
+        }
+
+        $data['companyInfo'] = $this->Common_model->get_single_data_by_single_column('system_config', 'dist_id', $this->dist_id);
+        $data['pageTitle'] = 'Balance Sheet';
+        $data['title'] = 'Balance Sheet';
+        $data['mainContent'] = $this->load->view('distributor/account/report/balanceSheetWithAllBranch', $data, true);
+        $this->load->view('distributor/masterTemplate', $data);
+    }
     function incomeStetement()
     {
         $data['companyInfo'] = $this->Common_model->get_single_data_by_single_column('system_config', 'dist_id', $this->dist_id);
@@ -646,6 +673,25 @@ class AccountController extends CI_Controller
 
 
         $data['mainContent'] = $this->load->view('distributor/account/report/incomeStatementWithBranch', $data, true);
+        $this->load->view('distributor/masterTemplate', $data);
+    }
+    function incomeStatementWithAllBranch()
+    {
+        $this->load->model('AccountsIncomeStetement_Model');
+
+        $data['companyInfo'] = $this->Common_model->get_single_data_by_single_column('system_config', '1', 1);
+        $data['pageTitle'] = 'Income Statement';
+
+        $data['title'] = 'Income Statement';
+        $data['page_type'] = $this->page_type;
+        $data['link_page_name'] = '';
+        $data['link_page_url'] = '#';
+        $data['link_icon'] = "<i class='fa fa-list'></i>";
+        /*page navbar details*/
+
+
+
+        $data['mainContent'] = $this->load->view('distributor/account/report/incomeStatementWithAllBranch', $data, true);
         $this->load->view('distributor/masterTemplate', $data);
     }
 

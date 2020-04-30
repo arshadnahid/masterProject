@@ -577,6 +577,9 @@ $route['(:any)/statusSize/(:any)'] = 'lpg/InvProductPropertyController/statusSiz
 $route['(:any)/statusSize2/(:any)'] = 'lpg/InvProductPropertyController/statusSize2/$2)';
 
 
+//barcode
+$route['(:any)/ProductCatBarcode'] = 'lpg/BarcodeController/ProductCatBarcode';
+
 
 
 $route['(:any)/404_override'] = '';

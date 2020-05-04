@@ -6,7 +6,38 @@
  * Time: 10:04 AM
  */
 ?>
+<style>
 
+    /*  @media print {
+          @page {
+              margin-top: 0;
+              margin-bottom: 0;
+          }
+
+          body {
+              padding-top: 20px;
+              padding-bottom: 20px;
+          }
+
+          .noPrint {
+              display: none;
+          }
+
+          strong {
+              font-weight: normal !important;
+          }
+      }*/
+
+    .barcodea4 {
+        width: 8.25in;
+        height: 10.0in;
+        display: block;
+        border: 1px solid #CCC;
+        margin: 10px auto;
+        padding: 0.1in 0 0 0.1in;
+        page-break-after: always;
+    }
+</style>
 
 <div class="row">
     <div class="col-md-12">
@@ -47,7 +78,7 @@
                                     <tr>
                                         <td style="width: 20%">
                                             
-                                            <select class="chosen-select form-control" data-placeholder="Select Category" id="CategorySelect"
+                                            <select class="chosen-select form-control" data-placeholder="Select Category"  id="CategorySelect"
                                 onchange="getProductList(this.value)">
                             <option></option>
 
@@ -116,6 +147,75 @@
                     <i class="ace-icon fa fa-shopping-cart bigger-110"></i>
                     Returned Cylinder
                 </button>-->
+                </form>
+                <?php
+                    if (!empty($productList) && empty($selectList)):
+                        ?>
+                        <form action="" method="POST">
+                            <div class="col-md-12">
+                                <table class="table table-bordered">
+                                    <thead>
+                                    <tr>
+                                        <td>All Check</td>
+                                        <td>
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input id="checkAll" class="ace ace-checkbox-2" type="checkbox"
+                                                           value="<?php echo $eachProduct->product_id; ?>">
+                                                    <span class="lbl">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All Product</span>
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td>Sales Price</td>
+                                        <td>Barcode Quantity <br><input class="decimal" onkeyup="getval(this.value);"
+                                                                        type="number" required>
+                                            <button type="submit" class="btn btn-success">Generate Barcode</button>
+                                        </td>
+
+
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php foreach ($productList as $key => $eachProduct):
+
+                                        ?>
+
+                                        <tr>
+                                            <td>
+                                                <?php echo $key + 1; ?>
+                                            </td>
+                                            <td>
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input name="productId[]" class="ace ace-checkbox-2"
+                                                               type="checkbox"
+                                                               value="<?php echo $eachProduct->product_id; ?>">
+                                                        <?php if (empty($eachProduct->productCat)): ?>
+                                                            <span class="lbl">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $eachProduct->productName . '[' . $this->Common_model->tableRow('brand', 'brandId', $eachProduct->brand_id)->brandName . ']'; ?></span>
+                                                        <?php else: ?>
+                                                            <span class="lbl">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $eachProduct->productCat . ' - ' . $eachProduct->productName . '[' . $eachProduct->brandName . ']'; ?></span>
+                                                        <?php endif; ?>
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <?php echo $eachProduct->salesPrice?>
+                                            </td>
+                                            <td><input class="txt_name_value"
+                                                       name="quantity[<?php echo $eachProduct->product_id ?>]"
+                                                       type="number"
+                                                       value="<?php echo $eachProduct->quantity?>"
+                                                >
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </form>
+                    <?php endif; ?>
+
             </div>
         </div>
 
@@ -124,11 +224,90 @@
 
 
 
-                </form>
+                
             </div>
         </div>
     </div>
 </div>
+
+
+<?php
+if (count($selectList) >= 1):
+    $parrowCode = 4;
+    $parPageRow = 5;
+    $numberOfBarcode = $numberOfBarcode;
+    
+    $numberOfPage = ceil($numberOfBarcode / 21);
+    $pageNo=1;
+    
+    $c = 0;
+    //for ($i = 0; $i < $numberOfPage; $i++) :
+
+        ?>
+        <div class="barcodea4">
+            <?php
+            foreach ($barcodes as $key => $productInfo) {
+                $c = 1 + $c;
+                ?>
+                <div id="printableArea" style="padding:2px 10px; border:1px solid #efebeb;;min-width:100px; float:left; font-size:2px;text-align:center;margin:10px;">
+                                        <b style="font-size:10px;"><span><?php echo $productInfo->productName ; ?>
+                                        </b></br>
+                                        <span style="font-size:12px;margin-top:-10px">
+                                                        <?php echo $productInfo->brandName;?>
+                                                    </span>
+                                        </br>
+                                        <img src="<?php echo base_url(); ?>/barcode/html/image.php?filetype=PNG&dpi=92&scale=1&rotation=0&font_family=Arial.ttf&font_size=10&text=<?php echo $productInfo->product_code; ?>&thickness=45&checksum=&code=BCGcode39"/>
+                                        <br>
+                                        <strong><span style="font-size:12px; margin-right:10px"><?php if($productInfo->salesPrice!='') echo 'MRP : '. $productInfo->salesPrice ?>/-</span></strong>
+                                    </div>
+
+                <?php
+                if ($c%21==0) {
+                    echo '</div><div class="clearfix"></div>';
+                    $pageNo = $pageNo+1;
+                }
+                 if ($pageNo>1 && $c%21==0 && ($c!= count($barcodes))) {
+                    
+                     
+                    echo '<div class="barcodea4">';
+                   // $c = 0;
+                }
+               
+            }
+
+
+            ?>
+        </div>
+        <?php
+   // endfor;
+
+    ?>
+<?php endif; ?>
+
+<script>
+    $("#checkAll").change(function () {
+        $("input:checkbox").prop('checked', $(this).prop("checked"));
+    });
+
+    ///////
+
+    $("#amount").change(function () {
+        alert($("#amount").val());
+
+    });
+
+    //////
+    function printDiv(divName) {
+        var printContents = document.getElementById(divName).innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+
+        window.print();
+
+        document.body.innerHTML = originalContents;
+    }
+</script>
 
 <script>
     $(document).ready(function () {

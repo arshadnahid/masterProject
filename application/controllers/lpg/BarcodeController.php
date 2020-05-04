@@ -109,38 +109,36 @@ class BarcodeController extends CI_Controller {
     public function ProductCatBarcode()
     {
 
-        // if (isPostBack()) {
-        //     /*  echo '<pre>';
-        //       print_r($_POST);
-        //       exit;*/
-        //     $category = $this->input->post('category');
-        //     $productid = $this->input->post('productID');
-        //     /*By Mamun*/
-        //     $quantity = $this->input->post('quantity');
-
-
-        //     if ($category == 'all' && $productid == 'all') {
-        //         $data['productList'] = $this->Common_model->getPublicProductWithoutCat($this->dist_id);
-        //     } elseif ($category != 'all' && $productid == 'all') {
-        //         $data['productList'] = $this->Common_model->getProductListByCategory($category, $this->dist_id);
-        //     } else {
-        //         $data['productList'] = $this->Common_model->get_data_list_by_single_column('product', 'product_id', $productid);
-        //     }
-        //     $productSelectList = $this->input->post('productID');
-        //     $numberOfBarcode = 0;
-        //     foreach ($productSelectList as $key => $eachProduct) {
-        //         $numberOfBarcode = $numberOfBarcode + $quantity[$productInfo->product_id];
-        //         $productInfo = $this->Common_model->getProductInfo($eachProduct);
-        //         for ($i = 0; $i < $quantity[$productInfo->product_id]; $i++) {
-        //             $barcodes[] = $productInfo;
-        //         }
-        //     }
-        //     if (!empty($productSelectList)) {
-        //         $data['selectList'] = $productSelectList;
-        //         $data['barcodes'] = $barcodes;
-        //         $data['numberOfBarcode'] = $numberOfBarcode;
-        //     }
-        // }
+        if (isPostBack()) {
+              // echo '<pre>';
+              // print_r($_POST);
+              // exit;
+            $category = $this->input->post('productCatID')[0];
+            $productid = $this->input->post('productID')[0];
+            /*By Mamun*/
+            $quantity = $this->input->post('quantity')[0];
+            if ($category == 'all' && $productid == 'all') {
+                $data['productList'] = $this->Common_model->getPublicProductWithoutCat($this->dist_id);
+            } elseif ($category != 'all' && $productid == 'all') {
+                $data['productList'] = $this->Common_model->getProductListByCategory($category, $this->dist_id);
+            } else {
+                $data['productList'] = $this->Common_model->get_data_list_by_single_column('product', 'product_id', $productid);
+            }
+            $productSelectList = $this->input->post('productId');
+            $numberOfBarcode = 0;
+            foreach ($productSelectList as $key => $eachProduct) {
+                $numberOfBarcode = $numberOfBarcode + $quantity[$productInfo->product_id];
+                $productInfo = $this->Common_model->getProductInfo($eachProduct);
+                for ($i = 0; $i < $quantity[$productInfo->product_id]; $i++) {
+                    $barcodes[] = $productInfo;
+                }
+            }
+            if (!empty($productSelectList)) {
+                $data['selectList'] = $productSelectList;
+                $data['barcodes'] = $barcodes;
+                $data['numberOfBarcode'] = $numberOfBarcode;
+            }
+        }
 
         /* page navbar details */
         $data['title'] = get_phrase('BarCode Add');

@@ -27,6 +27,11 @@ class SalesLpgController extends CI_Controller
     public $folder;
     public $folderSub;
 
+    public $db_hostname;
+    public $db_username;
+    public $db_password;
+    public $db_name;
+
     public function __construct()
     {
         parent::__construct();
@@ -65,24 +70,23 @@ class SalesLpgController extends CI_Controller
         } else if ($this->project == 'rftraders') {
             $this->salesEmptyCylinderWithRefill = 508;
             $this->CostOfEmptyCylinderWithRefill = 509;
-        }else if ($this->project == 'tuhinEnterprise') {
-            $this->discountOnSales=338;
-        }else if ($this->project == 'msak_enterprise') {
-            $this->discountOnSales=478;
-        }else if ($this->project == 'rajTraders') {
-            $this->discountOnSales=762;
+        } else if ($this->project == 'tuhinEnterprise') {
+            $this->discountOnSales = 338;
+        } else if ($this->project == 'msak_enterprise') {
+            $this->discountOnSales = 478;
+        } else if ($this->project == 'rajTraders') {
+            $this->discountOnSales = 762;
         } else {
             $this->salesEmptyCylinderWithRefill = $this->config->item("salesEmptyCylinderWithRefill");
             $this->CostOfEmptyCylinderWithRefill = $this->config->item("CostOfEmptyCylinderWithRefill");
         }
 
 
-
-        if ($this->business_type == "MOBILE") {
+        if ($this->business_type != "LPG") {
             $this->folder = 'distributor/masterTemplateSmeMobile';
 
             //$this->folderSub = 'distributor/inventory/product_mobile/';
-        }else{
+        } else {
             $this->folder = 'distributor/masterTemplate';
         }
 
@@ -98,6 +102,20 @@ class SalesLpgController extends CI_Controller
         if (isPostBack()) {
 
 
+            $query = $this->db->field_exists('cash_ledger_id', 'sales_invoice_info');
+            if ($query != TRUE) {
+                $this->load->dbforge();
+                $fields = array(
+                    'cash_ledger_id' => array(
+                        'type' => 'INT',
+                        'null' => TRUE,
+                        'default' => '0',
+                        )
+                );
+                $this->dbforge->add_column('sales_invoice_info', $fields);
+            }
+
+
             $this->form_validation->set_rules('netTotal', 'Net Total', 'required');
             $this->form_validation->set_rules('customer_id', 'Customer ID', 'required');
             $this->form_validation->set_rules('voucherid', 'Voucehr ID', 'required');
@@ -110,8 +128,8 @@ class SalesLpgController extends CI_Controller
                 redirect(site_url($this->project . '/salesLpgInvoice_add/' . $this->invoice_id));
             } else {
 
-                $totalGR_DEBIT=0;
-                $totalGR_CREDIT=0;
+                $totalGR_DEBIT = 0;
+                $totalGR_CREDIT = 0;
 
 
                 $bankName = $this->input->post('bankName');
@@ -158,12 +176,18 @@ class SalesLpgController extends CI_Controller
                 $sales_inv['invoice_for'] = 2;
                 $sales_inv['is_active'] = 'Y';
                 $sales_inv['is_delete'] = 'N';
+
                 if ($payType == 3) {
                     $sales_inv['bank_id'] = $bankName;
                     //$sales_inv['bank_branch_id'] = $branchName = $this->input->post('branchName');
                     $sales_inv['check_date'] = $checkDate = $this->input->post('checkDate') != '' ? date('Y-m-d', strtotime($this->input->post('checkDate'))) : '';
                     $sales_inv['check_no'] = $checkNo = $this->input->post('checkNo');
                 }
+                $cash_ledger_id=0;
+                if($payType == 4){
+                    $cash_ledger_id= $this->input->post('accountCrPartial');
+                }
+                $sales_inv['cash_ledger_id'] = $cash_ledger_id;
                 $this->invoice_id = $this->Common_model->insert_data('sales_invoice_info', $sales_inv);
                 if ($payType == 2) {
                     //for due invoice  Journal Voucher
@@ -175,6 +199,21 @@ class SalesLpgController extends CI_Controller
                     $voucher_no = create_receive_voucher_no();
                     $AccouVoucherType_AutoID = 1;
                 }
+
+                $query = $this->db->field_exists('due_collection_details_id', 'ac_accounts_vouchermst');
+                if ($query != TRUE) {
+                    $this->load->dbforge();
+                    $fields = array(
+                        'for' => array(
+                            'type' => 'INT',
+                            'null' => TRUE,
+                            'default' => '0',
+                            //'unsigned' => TRUE,
+                            'after' => 'for')
+                    );
+                    $this->dbforge->add_column('ac_accounts_vouchermst', $fields);
+                }
+
                 $accountingMasterTable['AccouVoucherType_AutoID'] = $AccouVoucherType_AutoID;
                 $accountingMasterTable['Accounts_Voucher_No'] = $voucher_no;
                 $accountingMasterTable['Accounts_Voucher_Date'] = $saleDate;
@@ -206,6 +245,7 @@ class SalesLpgController extends CI_Controller
                     $emptyCylindet = array();
                     $otherProduct = array();
                     $lastPurchasepriceArray = $this->db->where('product_id', $_POST['product_id_' . $value])
+                        ->where('branch_id', $branch_id)
                         ->order_by('purchase_details_id', "desc")
                         ->limit(1)
                         ->get('purchase_details')
@@ -235,11 +275,11 @@ class SalesLpgController extends CI_Controller
                     $stock['insert_by'] = $this->admin_id;
                     $stock['insert_date'] = $this->timestamp;
                     $stock['branch_id'] = $branch_id;
-                    $stock['property_1'] =$_POST['property_1_' . $value];
-                    $stock['property_2'] =$_POST['property_2_' . $value];
-                    $stock['property_3'] =$_POST['property_3_' . $value];
-                    $stock['property_4'] =$_POST['property_4_' . $value];
-                    $stock['property_5'] =$_POST['property_5_' . $value];
+                    $stock['property_1'] = $_POST['property_1_' . $value];
+                    $stock['property_2'] = $_POST['property_2_' . $value];
+                    $stock['property_3'] = $_POST['property_3_' . $value];
+                    $stock['property_4'] = $_POST['property_4_' . $value];
+                    $stock['property_5'] = $_POST['property_5_' . $value];
                     $sales_details_id = $this->Common_model->insert_data('sales_details', $stock);
 
 
@@ -248,53 +288,49 @@ class SalesLpgController extends CI_Controller
 
                     $totalProductCost += ($_POST['quantity_' . $value] * $productCost);
                     $category_id = $this->Common_model->tableRow('product', 'product_id', $product_id)->category_id;
-                    $packageEmptyProductId=0;
+                    $packageEmptyProductId = 0;
                     if ($category_id == 2 && $_POST['is_package_' . $value] == 0) {
                         $packageEmptyProductId = $this->getPackageEmptyProductId($_POST['product_id_' . $value]);
                     }
-                    $stockNewTable['parent_stock_id']=0;
-                    $stockNewTable['invoice_id']=$this->invoice_id;
-                    $stockNewTable['form_id']=3;
-                    $stockNewTable['Accounts_VoucherMst_AutoID']=$accountingVoucherId;
-                    $stockNewTable['Accounts_VoucherDtl_AutoID']=0;
-                    $stockNewTable['customer_id']=$customer_id;
-                    $stockNewTable['supplier_id']=0;
-                    $stockNewTable['branch_id']=$branch_id;
-                    $stockNewTable['invoice_date']=$saleDate;
-                    $stockNewTable['category_id']=$category_id;
-                    $stockNewTable['product_id']=$_POST['product_id_' . $value];
-                    $stockNewTable['empty_cylinder_id']=$packageEmptyProductId;
-                    $stockNewTable['is_package']=$_POST['is_package_' . $value];
-                    $stockNewTable['show_in_invoice']=1;
-                    $stockNewTable['unit']=getProductUnit($_POST['product_id_' . $value]);
-                    $stockNewTable['type']=2;
-                    $stockNewTable['quantity']=$_POST['quantity_' . $value];
-                    $stockNewTable['quantity_out']=$_POST['quantity_' . $value];
-                    $stockNewTable['quantity_in']=0;
-                    $stockNewTable['returnable_quantity']=$returnable_quantity;
-                    $stockNewTable['return_quentity']=$return_quentity;
-                    $stockNewTable['due_quentity']=$supplier_due;
-                    $stockNewTable['advance_quantity']=$supplier_advance;
-                    $stockNewTable['price']=$_POST['rate_' . $value];
-                    $stockNewTable['price_in']=0;
-                    $stockNewTable['price_out']=$_POST['rate_' . $value];
-                    $stockNewTable['last_purchase_price']=$lastPurchaseprice;
-                    $stockNewTable['product_details']="";
-                    $stockNewTable['property_1'] =$_POST['property_1_' . $value];
-                    $stockNewTable['property_2'] =$_POST['property_2_' . $value];
-                    $stockNewTable['property_3'] =$_POST['property_3_' . $value];
-                    $stockNewTable['property_4'] =$_POST['property_4_' . $value];
-                    $stockNewTable['property_5'] =$_POST['property_5_' . $value];
-                    $stockNewTable['openingStatus']=0;
+                    $stockNewTable['parent_stock_id'] = 0;
+                    $stockNewTable['invoice_id'] = $this->invoice_id;
+                    $stockNewTable['form_id'] = 3;
+                    $stockNewTable['Accounts_VoucherMst_AutoID'] = $accountingVoucherId;
+                    $stockNewTable['Accounts_VoucherDtl_AutoID'] = 0;
+                    $stockNewTable['customer_id'] = $customer_id;
+                    $stockNewTable['supplier_id'] = 0;
+                    $stockNewTable['branch_id'] = $branch_id;
+                    $stockNewTable['invoice_date'] = $saleDate;
+                    $stockNewTable['category_id'] = $category_id;
+                    $stockNewTable['product_id'] = $_POST['product_id_' . $value];
+                    $stockNewTable['empty_cylinder_id'] = $packageEmptyProductId;
+                    $stockNewTable['is_package'] = $_POST['is_package_' . $value];
+                    $stockNewTable['show_in_invoice'] = 1;
+                    $stockNewTable['unit'] = getProductUnit($_POST['product_id_' . $value]);
+                    $stockNewTable['type'] = 2;
+                    $stockNewTable['quantity'] = $_POST['quantity_' . $value];
+                    $stockNewTable['quantity_out'] = $_POST['quantity_' . $value];
+                    $stockNewTable['quantity_in'] = 0;
+                    $stockNewTable['returnable_quantity'] = $returnable_quantity;
+                    $stockNewTable['return_quentity'] = $return_quentity;
+                    $stockNewTable['due_quentity'] = $supplier_due;
+                    $stockNewTable['advance_quantity'] = $supplier_advance;
+                    $stockNewTable['price'] = $_POST['rate_' . $value];
+                    $stockNewTable['price_in'] = 0;
+                    $stockNewTable['price_out'] = $_POST['rate_' . $value];
+                    $stockNewTable['last_purchase_price'] = $lastPurchaseprice;
+                    $stockNewTable['product_details'] = "";
+                    $stockNewTable['property_1'] = $_POST['property_1_' . $value];
+                    $stockNewTable['property_2'] = $_POST['property_2_' . $value];
+                    $stockNewTable['property_3'] = $_POST['property_3_' . $value];
+                    $stockNewTable['property_4'] = $_POST['property_4_' . $value];
+                    $stockNewTable['property_5'] = $_POST['property_5_' . $value];
+                    $stockNewTable['openingStatus'] = 0;
                     $stockNewTable['insert_by'] = $this->admin_id;
                     $stockNewTable['insert_date'] = $this->timestamp;
-                    $stockNewTable['update_by']='';
-                    $stockNewTable['update_date']='';
+                    $stockNewTable['update_by'] = '';
+                    $stockNewTable['update_date'] = '';
                     $stock_id = $this->Common_model->insert_data('stock', $stockNewTable);
-
-
-
-
 
 
                     if ($category_id == 1) {
@@ -339,14 +375,12 @@ class SalesLpgController extends CI_Controller
                         //log_message('error','allEmptyCylinderWithRefillArray '.print_r($this->db->last_query(),true));
                         $allEmptyCylinderWithRefillPrice += ($_POST['quantity_' . $value] * $productCost);
                         $lastPurchasepriceArray = $this->db->where('product_id', $packageEmptyProductId)
+                            ->where('branch_id', $branch_id)
                             ->order_by('purchase_details_id', "desc")
                             ->limit(1)
                             ->get('purchase_details')
                             ->row();
                         $lastPurchaseprice = !empty($lastPurchasepriceArray) ? $lastPurchasepriceArray->unit_price : 0;
-
-
-
 
 
                         unset($stock);
@@ -368,52 +402,46 @@ class SalesLpgController extends CI_Controller
                         $this->Common_model->insert_data('sales_details', $stock);
 
 
-                        $stockNewTable=array();
-                        $stockNewTable['parent_stock_id']=0;
-                        $stockNewTable['invoice_id']=$this->invoice_id;
-                        $stockNewTable['form_id']=3;
-                        $stockNewTable['Accounts_VoucherMst_AutoID']=$accountingVoucherId;
-                        $stockNewTable['Accounts_VoucherDtl_AutoID']=0;
-                        $stockNewTable['customer_id']=$customer_id;
-                        $stockNewTable['supplier_id']=0;
-                        $stockNewTable['branch_id']=$branch_id;
-                        $stockNewTable['invoice_date']=$saleDate;
-                        $stockNewTable['category_id']=1;
-                        $stockNewTable['product_id']=$packageEmptyProductId;
-                        $stockNewTable['empty_cylinder_id']=$packageEmptyProductId;
-                        $stockNewTable['is_package']=0;
-                        $stockNewTable['show_in_invoice']=0;
-                        $stockNewTable['unit']=getProductUnit($packageEmptyProductId);
-                        $stockNewTable['type']=2;
-                        $stockNewTable['quantity']=$_POST['quantity_' . $value];
-                        $stockNewTable['quantity_out']=$_POST['quantity_' . $value];
-                        $stockNewTable['quantity_in']=0;
-                        $stockNewTable['returnable_quantity']=0;
-                        $stockNewTable['return_quentity']=0;
-                        $stockNewTable['due_quentity']=0;
-                        $stockNewTable['advance_quantity']=0;
-                        $stockNewTable['price']=$productCost;
-                        $stockNewTable['price_in']=0;
-                        $stockNewTable['price_out']=$productCost;
-                        $stockNewTable['last_purchase_price']=$lastPurchaseprice;
-                        $stockNewTable['product_details']="";
-                        $stockNewTable['property_1'] ='';
-                        $stockNewTable['property_2'] ="";
-                        $stockNewTable['property_3'] ="";
-                        $stockNewTable['property_4'] ="";
-                        $stockNewTable['property_5'] ="";
-                        $stockNewTable['openingStatus']=0;
+                        $stockNewTable = array();
+                        $stockNewTable['parent_stock_id'] = 0;
+                        $stockNewTable['invoice_id'] = $this->invoice_id;
+                        $stockNewTable['form_id'] = 3;
+                        $stockNewTable['Accounts_VoucherMst_AutoID'] = $accountingVoucherId;
+                        $stockNewTable['Accounts_VoucherDtl_AutoID'] = 0;
+                        $stockNewTable['customer_id'] = $customer_id;
+                        $stockNewTable['supplier_id'] = 0;
+                        $stockNewTable['branch_id'] = $branch_id;
+                        $stockNewTable['invoice_date'] = $saleDate;
+                        $stockNewTable['category_id'] = 1;
+                        $stockNewTable['product_id'] = $packageEmptyProductId;
+                        $stockNewTable['empty_cylinder_id'] = $packageEmptyProductId;
+                        $stockNewTable['is_package'] = 0;
+                        $stockNewTable['show_in_invoice'] = 0;
+                        $stockNewTable['unit'] = getProductUnit($packageEmptyProductId);
+                        $stockNewTable['type'] = 2;
+                        $stockNewTable['quantity'] = $_POST['quantity_' . $value];
+                        $stockNewTable['quantity_out'] = $_POST['quantity_' . $value];
+                        $stockNewTable['quantity_in'] = 0;
+                        $stockNewTable['returnable_quantity'] = 0;
+                        $stockNewTable['return_quentity'] = 0;
+                        $stockNewTable['due_quentity'] = 0;
+                        $stockNewTable['advance_quantity'] = 0;
+                        $stockNewTable['price'] = $productCost;
+                        $stockNewTable['price_in'] = 0;
+                        $stockNewTable['price_out'] = $productCost;
+                        $stockNewTable['last_purchase_price'] = $lastPurchaseprice;
+                        $stockNewTable['product_details'] = "";
+                        $stockNewTable['property_1'] = '';
+                        $stockNewTable['property_2'] = "";
+                        $stockNewTable['property_3'] = "";
+                        $stockNewTable['property_4'] = "";
+                        $stockNewTable['property_5'] = "";
+                        $stockNewTable['openingStatus'] = 0;
                         $stockNewTable['insert_by'] = $this->admin_id;
                         $stockNewTable['insert_date'] = $this->timestamp;
-                        $stockNewTable['update_by']='';
-                        $stockNewTable['update_date']='';
+                        $stockNewTable['update_by'] = '';
+                        $stockNewTable['update_date'] = '';
                         $stock_id_empty_cylinder_out_with_refill = $this->Common_model->insert_data('stock', $stockNewTable);
-
-
-
-
-
-
 
 
                         $emptyCylindetWithRefill['product_id'] = $packageEmptyProductId;
@@ -433,50 +461,46 @@ class SalesLpgController extends CI_Controller
 
                             //$emptyCylindetReturn['price'] = $product_last_purchase_price * $_POST['returnedQuantity_' . $value][$key1];
 
-                            $stockNewTable=array();
-                            $stockNewTable['parent_stock_id']=$stock_id;
-                            $stockNewTable['invoice_id']=$this->invoice_id;
-                            $stockNewTable['form_id']=3;
-                            $stockNewTable['Accounts_VoucherMst_AutoID']=$accountingVoucherId;
-                            $stockNewTable['Accounts_VoucherDtl_AutoID']=0;
-                            $stockNewTable['customer_id']=$customer_id;
-                            $stockNewTable['supplier_id']=0;
-                            $stockNewTable['branch_id']=$branch_id;
-                            $stockNewTable['invoice_date']=$saleDate;
-                            $stockNewTable['category_id']=1;
-                            $stockNewTable['product_id']=$value1;
-                            $stockNewTable['empty_cylinder_id']=$value1;
-                            $stockNewTable['is_package']=0;
-                            $stockNewTable['show_in_invoice']=1;
-                            $stockNewTable['unit']=getProductUnit($value1);
-                            $stockNewTable['type']=2;
-                            $stockNewTable['quantity']=$_POST['returnedQuantity_' . $value][$key1];
-                            $stockNewTable['quantity_out']=0;
-                            $stockNewTable['quantity_in']=$_POST['returnedQuantity_' . $value][$key1];
-                            $stockNewTable['returnable_quantity']=0;
-                            $stockNewTable['return_quentity']=0;
-                            $stockNewTable['due_quentity']=0;
-                            $stockNewTable['advance_quantity']=0;
-                            $stockNewTable['price']=$productCost;
-                            $stockNewTable['price_in']=0;
-                            $stockNewTable['price_out']=$productCost;
-                            $stockNewTable['last_purchase_price']=$lastPurchaseprice;
-                            $stockNewTable['product_details']="";
-                            $stockNewTable['property_1'] ='';
-                            $stockNewTable['property_2'] ="";
-                            $stockNewTable['property_3'] ="";
-                            $stockNewTable['property_4'] ="";
-                            $stockNewTable['property_5'] ="";
-                            $stockNewTable['openingStatus']=0;
+                            $stockNewTable = array();
+                            $stockNewTable['parent_stock_id'] = $stock_id;
+                            $stockNewTable['invoice_id'] = $this->invoice_id;
+                            $stockNewTable['form_id'] = 3;
+                            $stockNewTable['Accounts_VoucherMst_AutoID'] = $accountingVoucherId;
+                            $stockNewTable['Accounts_VoucherDtl_AutoID'] = 0;
+                            $stockNewTable['customer_id'] = $customer_id;
+                            $stockNewTable['supplier_id'] = 0;
+                            $stockNewTable['branch_id'] = $branch_id;
+                            $stockNewTable['invoice_date'] = $saleDate;
+                            $stockNewTable['category_id'] = 1;
+                            $stockNewTable['product_id'] = $value1;
+                            $stockNewTable['empty_cylinder_id'] = $value1;
+                            $stockNewTable['is_package'] = 0;
+                            $stockNewTable['show_in_invoice'] = 1;
+                            $stockNewTable['unit'] = getProductUnit($value1);
+                            $stockNewTable['type'] = 1;
+                            $stockNewTable['quantity'] = $_POST['returnedQuantity_' . $value][$key1];
+                            $stockNewTable['quantity_out'] = 0;
+                            $stockNewTable['quantity_in'] = $_POST['returnedQuantity_' . $value][$key1];
+                            $stockNewTable['returnable_quantity'] = 0;
+                            $stockNewTable['return_quentity'] = 0;
+                            $stockNewTable['due_quentity'] = 0;
+                            $stockNewTable['advance_quantity'] = 0;
+                            $stockNewTable['price'] = $productCost;
+                            $stockNewTable['price_in'] = 0;
+                            $stockNewTable['price_out'] = $productCost;
+                            $stockNewTable['last_purchase_price'] = $lastPurchaseprice;
+                            $stockNewTable['product_details'] = "";
+                            $stockNewTable['property_1'] = '';
+                            $stockNewTable['property_2'] = "";
+                            $stockNewTable['property_3'] = "";
+                            $stockNewTable['property_4'] = "";
+                            $stockNewTable['property_5'] = "";
+                            $stockNewTable['openingStatus'] = 0;
                             $stockNewTable['insert_by'] = $this->admin_id;
                             $stockNewTable['insert_date'] = $this->timestamp;
-                            $stockNewTable['update_by']='';
-                            $stockNewTable['update_date']='';
+                            $stockNewTable['update_by'] = '';
+                            $stockNewTable['update_date'] = '';
                             $stock_id_empty_cylinder_out_with_refill = $this->Common_model->insert_data('stock', $stockNewTable);
-
-
-
-
 
 
                             $emptyCylindetReturn['product_id'] = $value1;
@@ -528,8 +552,8 @@ class SalesLpgController extends CI_Controller
                                 $accountingDetailsTableCustomerReceivable['date'] = $saleDate;
                                 $finalDetailsArray[] = $accountingDetailsTableCustomerReceivable;
 
-                                $totalGR_DEBIT=$totalGR_DEBIT+$GR_DEBIT;
-                                $totalGR_CREDIT=$totalGR_CREDIT+$GR_CREDIT;
+                                $totalGR_DEBIT = $totalGR_DEBIT + $GR_DEBIT;
+                                $totalGR_CREDIT = $totalGR_CREDIT + $GR_CREDIT;
 
                                 $accountingDetailsTableCustomerReceivable = array();
                                 $condtion = array(
@@ -552,8 +576,8 @@ class SalesLpgController extends CI_Controller
                                 $finalDetailsArray[] = $accountingDetailsTableCustomerReceivable;
                                 $accountingDetailsTableCustomerReceivable = array();
 
-                                $totalGR_DEBIT=$totalGR_DEBIT+$GR_CREDIT;
-                                $totalGR_CREDIT=$totalGR_CREDIT+$GR_DEBIT;
+                                $totalGR_DEBIT = $totalGR_DEBIT + $GR_CREDIT;
+                                $totalGR_CREDIT = $totalGR_CREDIT + $GR_DEBIT;
                             }
 
                         }
@@ -583,8 +607,8 @@ class SalesLpgController extends CI_Controller
                 $accountingDetailsTableSales['date'] = $saleDate;
                 $finalDetailsArray[] = $accountingDetailsTableSales;
 
-                $totalGR_DEBIT=$totalGR_DEBIT+0;
-                $totalGR_CREDIT=$totalGR_CREDIT+array_sum($this->input->post('price'));
+                $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                $totalGR_CREDIT = $totalGR_CREDIT + array_sum($this->input->post('price'));
 
                 $accountingDetailsTableSales = array();
                 if ($customerReceivableForEmptyCylinderTotal > 0) {
@@ -600,8 +624,8 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableSales['BranchAutoId'] = $branch_id;
                     $accountingDetailsTableSales['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableSales;
-                    $totalGR_DEBIT=$totalGR_DEBIT+0;
-                    $totalGR_CREDIT=$totalGR_CREDIT+$customerReceivableForEmptyCylinderTotal;
+                    $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                    $totalGR_CREDIT = $totalGR_CREDIT + $customerReceivableForEmptyCylinderTotal;
 
                     $accountingDetailsTableSales = array();
                 }
@@ -624,8 +648,8 @@ class SalesLpgController extends CI_Controller
                 $accountingDetailsTableCustomerReceivable['BranchAutoId'] = $branch_id;
                 $accountingDetailsTableCustomerReceivable['date'] = $saleDate;
                 $finalDetailsArray[] = $accountingDetailsTableCustomerReceivable;
-                $totalGR_DEBIT=$totalGR_DEBIT+$this->input->post('netTotal');
-                $totalGR_CREDIT=$totalGR_CREDIT+0;
+                $totalGR_DEBIT = $totalGR_DEBIT + $this->input->post('netTotal');
+                $totalGR_CREDIT = $totalGR_CREDIT + 0;
                 $salesPriceForRefillCylinder = $salesPriceForRefillCylinder + $this->input->post('netTotal');
                 $accountingDetailsTableCustomerReceivable = array();
                 if ($customerReceivableForEmptyCylinderTotal > 0) {
@@ -648,8 +672,8 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableCustomerReceivable['BranchAutoId'] = $branch_id;
                     $accountingDetailsTableCustomerReceivable['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableCustomerReceivable;
-                    $totalGR_DEBIT=$totalGR_DEBIT+$customerReceivableForEmptyCylinderTotal;
-                    $totalGR_CREDIT=$totalGR_CREDIT+0;
+                    $totalGR_DEBIT = $totalGR_DEBIT + $customerReceivableForEmptyCylinderTotal;
+                    $totalGR_CREDIT = $totalGR_CREDIT + 0;
 
                     $accountingDetailsTableCustomerReceivable = array();
                 }
@@ -669,8 +693,8 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableDiscount['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableDiscount;
 
-                    $totalGR_DEBIT=$totalGR_DEBIT+$this->input->post('discount');
-                    $totalGR_CREDIT=$totalGR_CREDIT+0;
+                    $totalGR_DEBIT = $totalGR_DEBIT + $this->input->post('discount');
+                    $totalGR_CREDIT = $totalGR_CREDIT + 0;
                     $accountingDetailsTableDiscount = array();
                     /*Customer Receivable   =>>25*/
                 }
@@ -688,8 +712,8 @@ class SalesLpgController extends CI_Controller
                 $accountingDetailsTableCostofGoodsProduct['date'] = $saleDate;
                 $finalDetailsArray[] = $accountingDetailsTableCostofGoodsProduct;
 
-                $totalGR_DEBIT=$totalGR_DEBIT+$totalProductCost;
-                $totalGR_CREDIT=$totalGR_CREDIT+0;
+                $totalGR_DEBIT = $totalGR_DEBIT + $totalProductCost;
+                $totalGR_CREDIT = $totalGR_CREDIT + 0;
                 $accountingDetailsTableCostofGoodsProduct = array();
                 if ($allEmptyCylinderWithRefillPrice > 0) {
                     $accountingDetailsTableCostofGoodsProduct['Accounts_VoucherMst_AutoID'] = $accountingVoucherId;
@@ -705,8 +729,8 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableCostofGoodsProduct['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableCostofGoodsProduct;
                     $accountingDetailsTableCostofGoodsProduct = array();
-                    $totalGR_DEBIT=$totalGR_DEBIT+$allEmptyCylinderWithRefillPrice;
-                    $totalGR_CREDIT=$totalGR_CREDIT+0;
+                    $totalGR_DEBIT = $totalGR_DEBIT + $allEmptyCylinderWithRefillPrice;
+                    $totalGR_CREDIT = $totalGR_CREDIT + 0;
                 }
 
                 if (!empty($allEmptyCylinderSalesArray)) {
@@ -722,7 +746,7 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableNewCylinderStock['CHILD_ID'] = $ac_account_ledger_coa_info->id;//$this->config->item("New_Cylinder_Stock");//'22';
                         $accountingDetailsTableNewCylinderStock['GR_DEBIT'] = '0.00';
                         $accountingDetailsTableNewCylinderStock['GR_CREDIT'] = $valueEmpCly['price'];
-                        $accountingDetailsTableNewCylinderStock['Reference'] = 'New Cylinder Sales Stock Out ('.$valueEmpCly['quantity'] .'*'.$valueEmpCly['unit_price'].')';
+                        $accountingDetailsTableNewCylinderStock['Reference'] = 'New Cylinder Sales Stock Out (' . $valueEmpCly['quantity'] . '*' . $valueEmpCly['unit_price'] . ')';
                         $accountingDetailsTableNewCylinderStock['IsActive'] = 1;
                         $accountingDetailsTableNewCylinderStock['Created_By'] = $this->admin_id;
                         $accountingDetailsTableNewCylinderStock['Created_Date'] = $this->timestamp;
@@ -736,10 +760,9 @@ class SalesLpgController extends CI_Controller
                         $this->Common_model->update_data('stock', $data, 'stock_id', $valueEmpCly['stock_id']);
 
 
-
                         $accountingDetailsTableNewCylinderStock = array();
-                        $totalGR_DEBIT=$totalGR_DEBIT+0;
-                        $totalGR_CREDIT=$totalGR_CREDIT+$valueEmpCly['price'];
+                        $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                        $totalGR_CREDIT = $totalGR_CREDIT + $valueEmpCly['price'];
                     }
                 }
                 if (!empty($allRefillCylinderArray)) {
@@ -757,7 +780,7 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableRefill['CHILD_ID'] = $ac_account_ledger_coa_info->id;//$this->config->item("Refill");//'95';
                         $accountingDetailsTableRefill['GR_DEBIT'] = '0.00';
                         $accountingDetailsTableRefill['GR_CREDIT'] = $valueRefill['price'];
-                        $accountingDetailsTableRefill['Reference'] = 'Refill  Cylinder Sales(Stock Out)('.$valueRefill['quantity'] .'*'.$valueRefill['unit_price'].')';;
+                        $accountingDetailsTableRefill['Reference'] = 'Refill  Cylinder Sales(Stock Out)(' . $valueRefill['quantity'] . '*' . $valueRefill['unit_price'] . ')';;
                         $accountingDetailsTableRefill['IsActive'] = 1;
                         $accountingDetailsTableRefill['Created_By'] = $this->admin_id;
                         $accountingDetailsTableRefill['Created_Date'] = $this->timestamp;
@@ -770,10 +793,9 @@ class SalesLpgController extends CI_Controller
                         $this->Common_model->update_data('stock', $data, 'stock_id', $valueRefill['stock_id']);
 
 
-
                         $accountingDetailsTable = array();
-                        $totalGR_DEBIT=$totalGR_DEBIT+0;
-                        $totalGR_CREDIT=$totalGR_CREDIT+$valueRefill['price'];
+                        $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                        $totalGR_CREDIT = $totalGR_CREDIT + $valueRefill['price'];
                     }
                 }
                 $EmptyCylinderWithRefillStockOutPrice = 0;
@@ -792,7 +814,7 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableRefill['CHILD_ID'] = $ac_account_ledger_coa_info->id;//$this->config->item("Refill");//'95';
                         $accountingDetailsTableRefill['GR_DEBIT'] = '0.00';
                         $accountingDetailsTableRefill['GR_CREDIT'] = $valueEmptyWithRefill['price'];
-                        $accountingDetailsTableRefill['Reference'] = 'Empty Cylinder With Refill Cylinder Sales(Stock Out)('.$valueEmptyWithRefill['quantity'] .'*'.$valueEmptyWithRefill['unit_price'].')';
+                        $accountingDetailsTableRefill['Reference'] = 'Empty Cylinder With Refill Cylinder Sales(Stock Out)(' . $valueEmptyWithRefill['quantity'] . '*' . $valueEmptyWithRefill['unit_price'] . ')';
                         $accountingDetailsTableRefill['IsActive'] = 1;
                         $accountingDetailsTableRefill['Created_By'] = $this->admin_id;
                         $accountingDetailsTableRefill['Created_Date'] = $this->timestamp;
@@ -805,8 +827,8 @@ class SalesLpgController extends CI_Controller
 
                         $data['Accounts_VoucherDtl_AutoID'] = $ac_tb_accounts_voucherdtl_id;
                         $this->Common_model->update_data('stock', $data, 'stock_id', $valueEmptyWithRefill['stock_id']);
-                        $totalGR_DEBIT=$totalGR_DEBIT+0;
-                        $totalGR_CREDIT=$totalGR_CREDIT+$valueEmptyWithRefill['price'];
+                        $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                        $totalGR_CREDIT = $totalGR_CREDIT + $valueEmptyWithRefill['price'];
                         $accountingDetailsTable = array();
                         $EmptyCylinderWithRefillStockOutPrice = $EmptyCylinderWithRefillStockOutPrice + $valueEmptyWithRefill['price'];
                     }
@@ -836,8 +858,8 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableRefill['BranchAutoId'] = $branch_id;
                         $accountingDetailsTableRefill['date'] = $saleDate;
                         $finalDetailsArray[] = $accountingDetailsTableRefill;
-                        $totalGR_DEBIT=$totalGR_DEBIT+$valueEmptyWithRefillReturn['price'];
-                        $totalGR_CREDIT=$totalGR_CREDIT+0;
+                        $totalGR_DEBIT = $totalGR_DEBIT + $valueEmptyWithRefillReturn['price'];
+                        $totalGR_CREDIT = $totalGR_CREDIT + 0;
                         $EmptyCylinderReturnStockIn = $valueEmptyWithRefillReturn['price'] + $EmptyCylinderReturnStockIn;
                         $accountingDetailsTable = array();
                         $condtion = array(
@@ -860,8 +882,8 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableRefill['date'] = $saleDate;
                         $finalDetailsArray[] = $accountingDetailsTableRefill;
                         $accountingDetailsTable = array();
-                        $totalGR_DEBIT=$totalGR_DEBIT+0;
-                        $totalGR_CREDIT=$totalGR_CREDIT+$valueEmptyWithRefillReturn['price'];
+                        $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                        $totalGR_CREDIT = $totalGR_CREDIT + $valueEmptyWithRefillReturn['price'];
                         $returnEmptyCylinderPriceTotal = $returnEmptyCylinderPriceTotal + $valueEmptyWithRefillReturn['price'];
                     }
                 }
@@ -881,7 +903,7 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableOtherProductCost['CHILD_ID'] = $ac_account_ledger_coa_info->id;// $this->config->item("Inventory_Stock");//'20';
                         $accountingDetailsTableOtherProductCost['GR_DEBIT'] = '0.00';
                         $accountingDetailsTableOtherProductCost['GR_CREDIT'] = $valueOtherProduct['price'];// $OtherProductCost;
-                        $accountingDetailsTableOtherProductCost['Reference'] = 'Inventory stock Out Of ' . $ac_account_ledger_coa_info->parent_name.' ('.$valueEmpCly['quantity'] .'*'.$valueEmpCly['unit_price'].')';
+                        $accountingDetailsTableOtherProductCost['Reference'] = 'Inventory stock Out Of ' . $ac_account_ledger_coa_info->parent_name . ' (' . $valueEmpCly['quantity'] . '*' . $valueEmpCly['unit_price'] . ')';
                         $accountingDetailsTableOtherProductCost['IsActive'] = 1;
                         $accountingDetailsTableOtherProductCost['Created_By'] = $this->admin_id;
                         $accountingDetailsTableOtherProductCost['Created_Date'] = $this->timestamp;
@@ -895,8 +917,8 @@ class SalesLpgController extends CI_Controller
                         $this->Common_model->update_data('stock', $data, 'stock_id', $valueOtherProduct['stock_id']);
 
                         $accountingDetailsTable = array();
-                        $totalGR_DEBIT=$totalGR_DEBIT+0;
-                        $totalGR_CREDIT=$totalGR_CREDIT+$valueOtherProduct['price'];
+                        $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                        $totalGR_CREDIT = $totalGR_CREDIT + $valueOtherProduct['price'];
                     }
                 }
                 /*Sales=>37*/
@@ -915,8 +937,8 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableloaderAmount['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableloaderAmount;
                     $accountingDetailsTableloaderAmount = array();
-                    $totalGR_DEBIT=$totalGR_DEBIT+0;
-                    $totalGR_CREDIT=$totalGR_CREDIT+$this->input->post('loaderAmount');
+                    $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                    $totalGR_CREDIT = $totalGR_CREDIT + $this->input->post('loaderAmount');
                 }
                 /*Loading and wages*/
                 /*Transportation*/
@@ -934,8 +956,8 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableTransportationAmount['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableTransportationAmount;
                     $accountingDetailsTableTransportationAmount = array();
-                    $totalGR_DEBIT=$totalGR_DEBIT+0;
-                    $totalGR_CREDIT=$totalGR_CREDIT+$this->input->post('transportationAmount');
+                    $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                    $totalGR_CREDIT = $totalGR_CREDIT + $this->input->post('transportationAmount');
                 }
                 /*Transportation*/
                 if ($payType == 4) {
@@ -961,8 +983,8 @@ class SalesLpgController extends CI_Controller
 
 
                     //$finalDetailsArray[] = $accountingDetailsTableCustomerReceivable;
-                    $totalGR_DEBIT=$totalGR_DEBIT+0;
-                    $totalGR_CREDIT=$totalGR_CREDIT+$this->input->post('partialPayment');
+                    $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                    $totalGR_CREDIT = $totalGR_CREDIT + $this->input->post('partialPayment');
                     $accountingDetailsTableCustomerReceivable = array();
                     //account Receiveable
                     /*Cash in hand*/
@@ -978,11 +1000,10 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableCashinhand['BranchAutoId'] = $branch_id;
                     $accountingDetailsTableCashinhand['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableCashinhand;
-                    $totalGR_DEBIT=$totalGR_DEBIT+$this->input->post('partialPayment');
-                    $totalGR_CREDIT=$totalGR_CREDIT+0;
+                    $totalGR_DEBIT = $totalGR_DEBIT + $this->input->post('partialPayment');
+                    $totalGR_CREDIT = $totalGR_CREDIT + 0;
                     $accountingDetailsTableCashinhand = array();
                 }
-
 
 
                 $totalGR_DEBIT = number_format($totalGR_DEBIT, 2, '.', '');
@@ -990,10 +1011,9 @@ class SalesLpgController extends CI_Controller
                 $totalGR_CREDIT = number_format($totalGR_CREDIT, 2, '.', '');
 
 
-
-                if($totalGR_DEBIT!=$totalGR_CREDIT){
+                if ($totalGR_DEBIT != $totalGR_CREDIT) {
                     $this->db->trans_rollback();
-                    $msg = 'Sales Invoice ' . ' ' . $this->config->item("save_error_message").' There is something wrong please try again .contact with Customer Care';
+                    $msg = 'Sales Invoice ' . ' ' . $this->config->item("save_error_message") . ' There is something wrong please try again .contact with Customer Care';
                     $this->session->set_flashdata('error', $msg);
                     redirect(site_url($this->project . '/salesLpgInvoice_add'));
                 }
@@ -1003,44 +1023,12 @@ class SalesLpgController extends CI_Controller
                     $this->Common_model->insert_batch_save('ac_tb_accounts_voucherdtl', $finalDetailsArray);
                 }
                 /*client_vendor_ledger table data insert*/
-                $supp = array(
-                    'ledger_type' => 1,
-                    'history_id' => $accountingVoucherId,
-                    'trans_type' => $invoice_no,
-                    'client_vendor_id' => $this->input->post('customer_id'),
-                    'invoice_id' => $this->invoice_id,
-                    'invoice_type' => '2',
-                    'Accounts_VoucherType_AutoID' => '6',
-                    'updated_by' => $this->admin_id,
-                    'dist_id' => $this->dist_id,
-                    'amount' => $this->input->post('netTotal'),
-                    'dr' => $this->input->post('netTotal'),
-                    'date' => $saleDate,
-                    'BranchAutoId' => $branch_id,
-                    'paymentType' => 'Sales Voucher'
-                );
-                $this->db->insert('client_vendor_ledger', $supp);
+
                 if ($payType == 4) {
-                    $supp1 = array(
-                        'ledger_type' => 1,
-                        'dist_id' => $this->dist_id,
-                        'trans_type' => $invoice_no,
-                        'client_vendor_id' => $this->input->post('customer_id'),
-                        'amount' => $this->input->post('partialPayment'),
-                        'cr' => $this->input->post('partialPayment'),
-                        'invoice_id' => $this->invoice_id,
-                        'invoice_type' => '2',
-                        'Accounts_VoucherType_AutoID' => '6',
-                        'date' => $saleDate,
-                        'updated_by' => $this->admin_id,
-                        'history_id' => $accountingVoucherId,
-                        'BranchAutoId' => $branch_id,
-                        'paymentType' => 'Customer Payment',
-                    );
-                    $this->db->insert('client_vendor_ledger', $supp1);
+
                     $mrCondition = array(
-                        'dist_id' => $this->dist_id,
-                        'receiveType' => 2,
+
+                        'receiveType' => 1,
                     );
                     $totalMoneyReceite = $this->Common_model->get_data_list_by_many_columns('moneyreceit', $mrCondition);
                     $mrid = "CMR" . date('y') . date('m') . str_pad(count($totalMoneyReceite) + 1, 4, "0", STR_PAD_LEFT);
@@ -1049,7 +1037,7 @@ class SalesLpgController extends CI_Controller
                         'invoiceID' => $this->invoice_id,
                         'totalPayment' => $this->input->post('partialPayment'),
                         'receitID' => $mrid,
-                        'mainInvoiceId' => $accountingVoucherId,
+                        'mainInvoiceId' =>  $this->invoice_id,
                         'Accounts_VoucherMst_AutoID' => $accountingVoucherId,
                         'customerid' => $this->input->post('customer_id'),
                         'narration' => $this->input->post('narration'),
@@ -1068,7 +1056,7 @@ class SalesLpgController extends CI_Controller
                 if ($payType == 3) {
                     //check payment
                     $mrCondition = array(
-                        'dist_id' => $this->dist_id,
+
                         'receiveType' => 1,
                     );
                     $totalMoneyReceite = $this->Common_model->get_data_list_by_many_columns('moneyreceit', $mrCondition);
@@ -1138,20 +1126,27 @@ class SalesLpgController extends CI_Controller
         $data['vehicleList'] = $this->Common_model->get_data_list_by_many_columns('vehicle', $condition);
         $data['voucherID'] = create_sales_invoice_no();
         /*this invoice no is comming  from sales_invoice_no_helper*/
-        
 
 
-        if ($this->business_type == "MOBILE") {
+        if ($this->business_type != "LPG") {
             $data['mainContent'] = $this->load->view('distributor/sales/salesInvoiceMobile/sale_add', $data, true);
-        }else{
+        } else {
             $data['mainContent'] = $this->load->view('distributor/sales/salesInvoiceLpg/sale_add', $data, true);
         }
 
 
         $this->load->view($this->folder, $data);
     }
+
     public function salesInvoice_edit($invoiceId = null)
     {
+
+
+
+
+
+
+
         /* check Invoice id valid ? or not */
         if (is_numeric($invoiceId)) {
             //is invoice id is valid
@@ -1180,8 +1175,8 @@ class SalesLpgController extends CI_Controller
                 redirect(site_url($this->project . '/salesLpgInvoice_add/' . $this->invoice_id));
             } else {
 
-                $totalGR_DEBIT=0;
-                $totalGR_CREDIT=0;
+                $totalGR_DEBIT = 0;
+                $totalGR_CREDIT = 0;
 
                 $bankName = $this->input->post('bankName');
                 $this->db->trans_start();
@@ -1195,7 +1190,7 @@ class SalesLpgController extends CI_Controller
                 $newCylinderProductCost = 0;
                 $otherProductCost = 0;
 
-                $invoice_no=$this->input->post('voucherid');
+                $invoice_no = $this->input->post('voucherid');
                 /*this invoice no is comming  from sales_invoice_no_helper*/
 
                 $sales_inv['customer_invoice_no'] = $this->input->post('userInvoiceId');
@@ -1238,7 +1233,7 @@ class SalesLpgController extends CI_Controller
                 );
 
                 $this->Common_model->save_and_check('sales_invoice_info', $sales_inv, $sales_invUpdateCondition);
-                $this->invoice_id=$invoiceId;
+                $this->invoice_id = $invoiceId;
                 $DeleteCondition = array(
                     'sales_invoice_id' => $invoiceId
                 );
@@ -1251,7 +1246,7 @@ class SalesLpgController extends CI_Controller
                 );
 
 
-                $checkArray = $this->Common_model->get_single_data_by_many_columns('ac_accounts_vouchermst',$UpdateAccountsMasterCondition);
+                $checkArray = $this->Common_model->get_single_data_by_many_columns('ac_accounts_vouchermst', $UpdateAccountsMasterCondition);
 
                 if ($payType == 2) {
                     //for due invoice  Journal Voucher
@@ -1273,7 +1268,7 @@ class SalesLpgController extends CI_Controller
                 $accountingMasterTable['for'] = 2;
                 $accountingMasterTable['Changed_By'] = $this->admin_id;
                 $accountingMasterTable['Changed_Date'] = $this->timestamp;
-                $this->Common_model->save_and_check('ac_accounts_vouchermst', $accountingMasterTable,$UpdateAccountsMasterCondition);
+                $this->Common_model->save_and_check('ac_accounts_vouchermst', $accountingMasterTable, $UpdateAccountsMasterCondition);
 
                 $DeleteAccountDetailsCondition = array(
                     'Accounts_VoucherMst_AutoID' => $checkArray->Accounts_VoucherMst_AutoID,
@@ -1282,11 +1277,7 @@ class SalesLpgController extends CI_Controller
                 $this->Common_model->delete_data_with_condition('ac_tb_accounts_voucherdtl', $DeleteAccountDetailsCondition);
 
 
-
-
-
-                $accountingVoucherId=$checkArray->Accounts_VoucherMst_AutoID;
-
+                $accountingVoucherId = $checkArray->Accounts_VoucherMst_AutoID;
 
 
                 $EmptyCylinderProductCost = 0;
@@ -1336,15 +1327,6 @@ class SalesLpgController extends CI_Controller
                     $stock['insert_date'] = $this->timestamp;
                     $stock['branch_id'] = $branch_id;
                     $sales_details_id = $this->Common_model->insert_data('sales_details', $stock);
-
-
-
-
-
-
-
-
-
 
 
                     $productCost = $this->Sales_Model->productCostNew($product_id, $branch_id);
@@ -1467,8 +1449,8 @@ class SalesLpgController extends CI_Controller
                                 $accountingDetailsTableCustomerReceivable['date'] = $saleDate;
                                 $finalDetailsArray[] = $accountingDetailsTableCustomerReceivable;
 
-                                $totalGR_DEBIT=$totalGR_DEBIT+$GR_DEBIT;
-                                $totalGR_CREDIT=$totalGR_CREDIT+$GR_CREDIT;
+                                $totalGR_DEBIT = $totalGR_DEBIT + $GR_DEBIT;
+                                $totalGR_CREDIT = $totalGR_CREDIT + $GR_CREDIT;
 
                                 $accountingDetailsTableCustomerReceivable = array();
                                 $condtion = array(
@@ -1493,8 +1475,8 @@ class SalesLpgController extends CI_Controller
                                 $finalDetailsArray[] = $accountingDetailsTableCustomerReceivable;
                                 $accountingDetailsTableCustomerReceivable = array();
 
-                                $totalGR_DEBIT=$totalGR_DEBIT+$GR_CREDIT;
-                                $totalGR_CREDIT=$totalGR_CREDIT+$GR_DEBIT;
+                                $totalGR_DEBIT = $totalGR_DEBIT + $GR_CREDIT;
+                                $totalGR_CREDIT = $totalGR_CREDIT + $GR_DEBIT;
                             }
 
                         }
@@ -1521,8 +1503,8 @@ class SalesLpgController extends CI_Controller
                 $accountingDetailsTableSales['BranchAutoId'] = $branch_id;
                 $accountingDetailsTableSales['date'] = $saleDate;
                 $finalDetailsArray[] = $accountingDetailsTableSales;
-                $totalGR_DEBIT=$totalGR_DEBIT+0;
-                $totalGR_CREDIT=$totalGR_CREDIT+array_sum($this->input->post('price'));
+                $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                $totalGR_CREDIT = $totalGR_CREDIT + array_sum($this->input->post('price'));
 
                 $accountingDetailsTableSales = array();
 
@@ -1542,8 +1524,8 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableSales['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableSales;
                     $accountingDetailsTableSales = array();
-                    $totalGR_DEBIT=$totalGR_DEBIT+0;
-                    $totalGR_CREDIT=$totalGR_CREDIT+$customerReceivableForEmptyCylinderTotal;
+                    $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                    $totalGR_CREDIT = $totalGR_CREDIT + $customerReceivableForEmptyCylinderTotal;
                 }
                 $condtion = array(
                     'related_id' => $customer_id,
@@ -1566,8 +1548,8 @@ class SalesLpgController extends CI_Controller
                 $accountingDetailsTableCustomerReceivable['BranchAutoId'] = $branch_id;
                 $accountingDetailsTableCustomerReceivable['date'] = $saleDate;
                 $finalDetailsArray[] = $accountingDetailsTableCustomerReceivable;
-                $totalGR_DEBIT=$totalGR_DEBIT+$this->input->post('netTotal');
-                $totalGR_CREDIT=$totalGR_CREDIT+0;
+                $totalGR_DEBIT = $totalGR_DEBIT + $this->input->post('netTotal');
+                $totalGR_CREDIT = $totalGR_CREDIT + 0;
                 $salesPriceForRefillCylinder = $salesPriceForRefillCylinder + $this->input->post('netTotal');
                 $accountingDetailsTableCustomerReceivable = array();
                 if ($customerReceivableForEmptyCylinderTotal > 0) {
@@ -1593,8 +1575,8 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableCustomerReceivable['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableCustomerReceivable;
                     $accountingDetailsTableCustomerReceivable = array();
-                    $totalGR_DEBIT=$totalGR_DEBIT+$customerReceivableForEmptyCylinderTotal;
-                    $totalGR_CREDIT=$totalGR_CREDIT+0;
+                    $totalGR_DEBIT = $totalGR_DEBIT + $customerReceivableForEmptyCylinderTotal;
+                    $totalGR_CREDIT = $totalGR_CREDIT + 0;
                 }
                 /*Customer Receivable   =>>25*/
                 if ($this->input->post('discount') > 0) {
@@ -1614,8 +1596,8 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableDiscount['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableDiscount;
                     $accountingDetailsTableDiscount = array();
-                    $totalGR_DEBIT=$totalGR_DEBIT+$this->input->post('discount');
-                    $totalGR_CREDIT=$totalGR_CREDIT+0;
+                    $totalGR_DEBIT = $totalGR_DEBIT + $this->input->post('discount');
+                    $totalGR_CREDIT = $totalGR_CREDIT + 0;
                     /*Customer Receivable   =>>25*/
                 }
                 /*Cost of Goods Product =>>45*/
@@ -1634,8 +1616,8 @@ class SalesLpgController extends CI_Controller
                 $accountingDetailsTableCostofGoodsProduct['date'] = $saleDate;
                 $finalDetailsArray[] = $accountingDetailsTableCostofGoodsProduct;
                 $accountingDetailsTableCostofGoodsProduct = array();
-                $totalGR_DEBIT=$totalGR_DEBIT+$totalProductCost;
-                $totalGR_CREDIT=$totalGR_CREDIT+0;
+                $totalGR_DEBIT = $totalGR_DEBIT + $totalProductCost;
+                $totalGR_CREDIT = $totalGR_CREDIT + 0;
                 if ($allEmptyCylinderWithRefillPrice > 0) {
                     $accountingDetailsTableCostofGoodsProduct['Accounts_VoucherMst_AutoID'] = $accountingVoucherId;
                     $accountingDetailsTableCostofGoodsProduct['TypeID'] = $this->TypeDR;//'1';//Dr
@@ -1652,8 +1634,8 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableCostofGoodsProduct['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableCostofGoodsProduct;
                     $accountingDetailsTableCostofGoodsProduct = array();
-                    $totalGR_DEBIT=$totalGR_DEBIT+$allEmptyCylinderWithRefillPrice;
-                    $totalGR_CREDIT=$totalGR_CREDIT+0;
+                    $totalGR_DEBIT = $totalGR_DEBIT + $allEmptyCylinderWithRefillPrice;
+                    $totalGR_CREDIT = $totalGR_CREDIT + 0;
                 }
 
                 if (!empty($allEmptyCylinderSalesArray)) {
@@ -1679,8 +1661,8 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableNewCylinderStock['date'] = $saleDate;
                         $finalDetailsArray[] = $accountingDetailsTableNewCylinderStock;
                         $accountingDetailsTableNewCylinderStock = array();
-                        $totalGR_DEBIT=$totalGR_DEBIT+0;
-                        $totalGR_CREDIT=$totalGR_CREDIT+$valueEmpCly['price'];
+                        $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                        $totalGR_CREDIT = $totalGR_CREDIT + $valueEmpCly['price'];
                     }
                 }
                 if (!empty($allRefillCylinderArray)) {
@@ -1708,8 +1690,8 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableRefill['date'] = $saleDate;
                         $finalDetailsArray[] = $accountingDetailsTableRefill;
                         $accountingDetailsTable = array();
-                        $totalGR_DEBIT=$totalGR_DEBIT+0;
-                        $totalGR_CREDIT=$totalGR_CREDIT+$valueRefill['price'];
+                        $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                        $totalGR_CREDIT = $totalGR_CREDIT + $valueRefill['price'];
                     }
                 }
                 $EmptyCylinderWithRefillStockOutPrice = 0;
@@ -1737,8 +1719,8 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableRefill['BranchAutoId'] = $branch_id;
                         $accountingDetailsTableRefill['date'] = $saleDate;
                         $finalDetailsArray[] = $accountingDetailsTableRefill;
-                        $totalGR_DEBIT=$totalGR_DEBIT+0;
-                        $totalGR_CREDIT=$totalGR_CREDIT+$valueEmptyWithRefill['price'];
+                        $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                        $totalGR_CREDIT = $totalGR_CREDIT + $valueEmptyWithRefill['price'];
                         $accountingDetailsTable = array();
                         $EmptyCylinderWithRefillStockOutPrice = $EmptyCylinderWithRefillStockOutPrice + $valueEmptyWithRefill['price'];
                     }
@@ -1770,8 +1752,8 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableRefill['BranchAutoId'] = $branch_id;
                         $accountingDetailsTableRefill['date'] = $saleDate;
                         $finalDetailsArray[] = $accountingDetailsTableRefill;
-                        $totalGR_DEBIT=$totalGR_DEBIT+$valueEmptyWithRefillReturn['price'];
-                        $totalGR_CREDIT=$totalGR_CREDIT+0;
+                        $totalGR_DEBIT = $totalGR_DEBIT + $valueEmptyWithRefillReturn['price'];
+                        $totalGR_CREDIT = $totalGR_CREDIT + 0;
                         $EmptyCylinderReturnStockIn = $valueEmptyWithRefillReturn['price'] + $EmptyCylinderReturnStockIn;
                         $accountingDetailsTable = array();
                         $condtion = array(
@@ -1796,8 +1778,8 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableRefill['date'] = $saleDate;
                         $finalDetailsArray[] = $accountingDetailsTableRefill;
                         $accountingDetailsTable = array();
-                        $totalGR_DEBIT=$totalGR_DEBIT+0;
-                        $totalGR_CREDIT=$totalGR_CREDIT+$valueEmptyWithRefillReturn['price'];
+                        $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                        $totalGR_CREDIT = $totalGR_CREDIT + $valueEmptyWithRefillReturn['price'];
                         $returnEmptyCylinderPriceTotal = $returnEmptyCylinderPriceTotal + $valueEmptyWithRefillReturn['price'];
                     }
                 }
@@ -1827,8 +1809,8 @@ class SalesLpgController extends CI_Controller
                         $accountingDetailsTableOtherProductCost['date'] = $saleDate;
                         $finalDetailsArray[] = $accountingDetailsTableOtherProductCost;
                         $accountingDetailsTable = array();
-                        $totalGR_DEBIT=$totalGR_DEBIT+0;
-                        $totalGR_CREDIT=$totalGR_CREDIT+$valueOtherProduct['price'];
+                        $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                        $totalGR_CREDIT = $totalGR_CREDIT + $valueOtherProduct['price'];
                     }
                 }
                 /*Sales=>37*/
@@ -1849,8 +1831,8 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableloaderAmount['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableloaderAmount;
                     $accountingDetailsTableloaderAmount = array();
-                    $totalGR_DEBIT=$totalGR_DEBIT+0;
-                    $totalGR_CREDIT=$totalGR_CREDIT+$this->input->post('loaderAmount');
+                    $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                    $totalGR_CREDIT = $totalGR_CREDIT + $this->input->post('loaderAmount');
                 }
                 /*Loading and wages*/
                 /*Transportation*/
@@ -1870,8 +1852,8 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableTransportationAmount['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableTransportationAmount;
                     $accountingDetailsTableTransportationAmount = array();
-                    $totalGR_DEBIT=$totalGR_DEBIT+0;
-                    $totalGR_CREDIT=$totalGR_CREDIT+$this->input->post('transportationAmount');
+                    $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                    $totalGR_CREDIT = $totalGR_CREDIT + $this->input->post('transportationAmount');
                 }
                 /*Transportation*/
                 if ($payType == 4) {
@@ -1892,8 +1874,8 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableCustomerReceivable['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableCustomerReceivable;
 
-                    $totalGR_DEBIT=$totalGR_DEBIT+0;
-                    $totalGR_CREDIT=$totalGR_CREDIT+$this->input->post('partialPayment');
+                    $totalGR_DEBIT = $totalGR_DEBIT + 0;
+                    $totalGR_CREDIT = $totalGR_CREDIT + $this->input->post('partialPayment');
 
                     $accountingDetailsTableCustomerReceivable = array();
                     //account Receiveable
@@ -1913,8 +1895,8 @@ class SalesLpgController extends CI_Controller
                     $accountingDetailsTableCashinhand['date'] = $saleDate;
                     $finalDetailsArray[] = $accountingDetailsTableCashinhand;
 
-                    $totalGR_DEBIT=$totalGR_DEBIT+$this->input->post('partialPayment');
-                    $totalGR_CREDIT=$totalGR_CREDIT+0;
+                    $totalGR_DEBIT = $totalGR_DEBIT + $this->input->post('partialPayment');
+                    $totalGR_CREDIT = $totalGR_CREDIT + 0;
 
                     $accountingDetailsTableCashinhand = array();
 
@@ -1924,9 +1906,9 @@ class SalesLpgController extends CI_Controller
 
                 $totalGR_CREDIT = number_format($totalGR_CREDIT, 2, '.', '');
 
-                if($totalGR_DEBIT!=$totalGR_CREDIT){
+                if ($totalGR_DEBIT != $totalGR_CREDIT) {
                     $this->db->trans_rollback();
-                    $msg = 'Sales Invoice ' . ' ' . $this->config->item("save_error_message").' There is something wrong please try again .contact with Customer Care';
+                    $msg = 'Sales Invoice ' . ' ' . $this->config->item("save_error_message") . ' There is something wrong please try again .contact with Customer Care';
                     $this->session->set_flashdata('error', $msg);
                     redirect(site_url($this->project . '/salesLpgInvoice_add'));
                 }
@@ -2031,7 +2013,7 @@ class SalesLpgController extends CI_Controller
                 if ($this->db->trans_status() === FALSE) {
                     $msg = 'sales Invoice ' . ' ' . $this->config->item("update_error_message");
                     $this->session->set_flashdata('error', $msg);
-                    redirect(site_url($this->project . '/salesInvoice_edit/'.$invoiceId));
+                    redirect(site_url($this->project . '/salesInvoice_edit/' . $invoiceId));
                 } else {
                     $msg = 'sales Invoice ' . ' ' . $this->config->item("update_success_message");
                     $this->session->set_flashdata('success', $msg);
@@ -2046,10 +2028,10 @@ class SalesLpgController extends CI_Controller
         $data['link_page_url'] = 'salesInvoice_add';
         $data['link_icon'] = "<i class='fa fa-plus'></i>";
         $data['second_link_page_name'] = get_phrase('Invoice_List');
-        $data['second_link_page_url'] = $this->project.'/salesInvoiceLpg';
+        $data['second_link_page_url'] = $this->project . '/salesInvoiceLpg';
         $data['second_link_icon'] = $this->link_icon_list;
         $data['third_link_page_name'] = get_phrase('Sale Invoice View');
-        $data['third_link_page_url'] = $this->project.'/viewLpgCylinder/' . $invoiceId;
+        $data['third_link_page_url'] = $this->project . '/viewLpgCylinder/' . $invoiceId;
         $data['third_link_icon'] = $this->link_icon_edit;
         /*page navbar details*/
         $data['editInvoice'] = $this->Common_model->get_single_data_by_single_column('sales_invoice_info', 'sales_invoice_id', $invoiceId);
@@ -2129,13 +2111,13 @@ class SalesLpgController extends CI_Controller
  acm.for = 2
      AND acm.BackReferenceInvoiceID = 39 */
 
-        if($data['editInvoice']==4){
+        if ($data['editInvoice'] == 4) {
             $condition2 = array(
                 'dist_id' => $this->dist_id,
                 'is_active' => 'Y',
                 'is_delete' => 'N',
             );
-            $cashLedger=$this->Common_model->get_data_list_by_many_columns('bank_info', $condition2);
+            $cashLedger = $this->Common_model->get_data_list_by_many_columns('bank_info', $condition2);
 
         }
 
@@ -2208,13 +2190,104 @@ class SalesLpgController extends CI_Controller
         );
         $data['employeeList'] = $this->Common_model->get_data_list_by_many_columns('employee', $condition);
         $data['vehicleList'] = $this->Common_model->get_data_list_by_many_columns('vehicle', $condition);
-       // $data['accountId'] = $this->Sales_Model->getAccountId($paymentInfo->generals_id);
+        // $data['accountId'] = $this->Sales_Model->getAccountId($paymentInfo->generals_id);
 
         $data['mainContent'] = $this->load->view('distributor/sales/salesInvoiceLpg/editInvoiceNew', $data, true);
         $this->load->view('distributor/masterTemplate', $data);
     }
 
     public function salesInvoice_view($salesID)
+    {
+        /*if (is_numeric($salesID)) {
+            //is invoice id is valid
+            $validInvoiecId = $this->Sales_Model->checkInvoiceIdAndDistributor($this->dist_id, $salesID);
+            if ($validInvoiecId === FALSE) {
+                exception("Sorry invoice id is invalid!!");
+                redirect(site_url('salesInvoice'));
+            }
+        } else {
+            exception("Sorry invoice id is invalid!!");
+            redirect(site_url('salesInvoice'));
+        }*/
+        /*page navbar details*/
+        $data['title'] = get_phrase('Sale Invoice View');
+        $data['page_type'] = get_phrase($this->page_type);
+        $data['link_page_name'] = get_phrase('New_Sale_Invoice');
+        $data['link_page_url'] = $this->project . '/salesLpgInvoice_add';
+        $data['link_icon'] = $this->link_icon_add;
+        $data['second_link_page_name'] = get_phrase('Invoice List');
+        $data['second_link_page_url'] = $this->project . '/salesInvoiceLpg';
+        $data['second_link_icon'] = $this->link_icon_list;
+        $data['therd_link_icon'] = '<i class="fa fa-list"></i>';
+        $data['third_link_page_name'] = get_phrase('Sale_Invoice_Edit');
+        $data['third_link_page_url'] =  $this->project . '/salesInvoice_edit/' . $salesID;
+        $data['third_link_icon'] = '<i class="fa fa-edit"></i>';
+        /*page navbar details*/
+        $data['saleslist'] = $this->Common_model->get_single_data_by_single_column('sales_invoice_info', 'sales_invoice_id', $salesID);
+        $data['companyInfo'] = $this->Common_model->get_single_data_by_single_column('system_config', 'dist_id', $this->dist_id);
+        /* echo '<pre>';
+         print_r($data['saleslist']);
+         exit;*/
+        $data['customerInfo'] = $this->Common_model->get_single_data_by_single_column('customer', 'customer_id', $data['saleslist']->customer_id);
+        //$data['customerDue'] = $this->Sales_Model->getCustomerBalance($this->dist_id, $data['saleslist']->customer_id);
+        $related_id = $data['saleslist']->customer_id;
+        $for = 3;
+        $ledger_id = get_customer_supplier_product_ledger_id($related_id, $for);
+        $this->db->select('(sum(GR_DEBIT) -sum(GR_CREDIT)) as totalbalance');
+        $this->db->where('CHILD_ID', $ledger_id->id);
+        $this->db->where('IsActive', 1);
+        $data['customerDue'] = $this->db->get('ac_tb_accounts_voucherdtl')->row();
+        $stockList = $this->Common_model->get_sales_product_detaild2($salesID);
+        foreach ($stockList as $ind => $element) {
+            $result[$element->sales_invoice_id][$element->sales_details_id]['sales_invoice_id'] = $element->sales_invoice_id;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['sales_details_id'] = $element->sales_details_id;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['is_package'] = $element->is_package;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['product_id'] = $element->product_id;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['productName'] = $element->productName;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['product_code'] = $element->product_code;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['title'] = $element->title;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['unitTtile'] = $element->unitTtile;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['brandName'] = $element->brandName;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['quantity'] = $element->quantity;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['unit_price'] = $element->unit_price;
+
+
+            $result[$element->sales_invoice_id][$element->sales_details_id]['property_1'] = $element->property_1;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['property_2'] = $element->property_2;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['property_3'] = $element->property_3;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['property_4'] = $element->property_4;
+            $result[$element->sales_invoice_id][$element->sales_details_id]['property_5'] = $element->property_5;
+
+
+            //$result[$element->sales_invoice_id][$element->sales_details_id]['unit_price'] = $element->unit_price;
+            if ($element->returnable_quantity > 0) {
+                $result[$element->sales_invoice_id][$element->sales_details_id]['return'][$element->sales_details_id][] = array('return_product_name' => $element->return_product_name,
+                    'return_product_id' => $element->return_product_id,
+                    'return_product_cat' => $element->return_product_cat,
+                    'return_product_name' => $element->return_product_name,
+                    'return_product_unit' => $element->return_product_unit,
+                    'return_product_brand' => $element->return_product_brand,
+                    'returnable_quantity' => $element->returnable_quantity,
+                );
+            } else {
+                $result[$element->sales_invoice_id][$element->sales_details_id]['return'][$element->sales_details_id] = '';
+            }
+        }
+        $data['stockList'] = $result;
+        /*echo '<pre>';
+        print_r( $data['stockList']);exit;*/
+        if ($this->business_type == "LPG") {
+            $data['mainContent'] = $this->load->view('distributor/sales/salesInvoiceLpg/sales_view_final', $data, true);
+
+            //$this->folderSub = 'distributor/inventory/product_mobile/';
+        } else {
+            $data['mainContent'] = $this->load->view('distributor/sales/salesInvoiceMobile/sales_view_final', $data, true);
+        }
+
+
+        $this->load->view('distributor/masterTemplate', $data);
+    }
+    public function viewLpgCylinder_pdf($salesID)
     {
         /*if (is_numeric($salesID)) {
             //is invoice id is valid
@@ -2270,7 +2343,6 @@ class SalesLpgController extends CI_Controller
             $result[$element->sales_invoice_id][$element->sales_details_id]['unit_price'] = $element->unit_price;
 
 
-
             $result[$element->sales_invoice_id][$element->sales_details_id]['property_1'] = $element->property_1;
             $result[$element->sales_invoice_id][$element->sales_details_id]['property_2'] = $element->property_2;
             $result[$element->sales_invoice_id][$element->sales_details_id]['property_3'] = $element->property_3;
@@ -2295,16 +2367,16 @@ class SalesLpgController extends CI_Controller
         $data['stockList'] = $result;
         /*echo '<pre>';
         print_r( $data['stockList']);exit;*/
-        if ($this->business_type == "LPG") {
-            $data['mainContent'] = $this->load->view('distributor/sales/salesInvoiceLpg/sales_view_final', $data, true);
+        $this->load->library('tec_mpdf', '', 'pdf');
+        $footer ='';
+        $output_type = '';
+        $header = '';
+        $content = $this->load->view('distributor/sales/salesInvoiceMobile/sales_view_final', $data, true);
 
-            //$this->folderSub = 'distributor/inventory/product_mobile/';
-        }else{
-            $data['mainContent'] = $this->load->view('distributor/sales/salesInvoiceMobile/sales_view_final', $data, true);
-        }
+        $this->pdf->generate($content, $name = 'download.pdf', $output_type, $footer, $margin_bottom = null, $header, $margin_top = '45', $orientation = 'l');
 
 
-        $this->load->view('distributor/masterTemplate', $data);
+
     }
 
     public function salesInvoice_view2($salesID)
@@ -2523,7 +2595,6 @@ class SalesLpgController extends CI_Controller
     }
 
 
-
     public function customer_due_collection($start_date = '', $end_date = '')
     {
         if (isPostBack()) {
@@ -2714,246 +2785,7 @@ class SalesLpgController extends CI_Controller
         $this->load->view('distributor/masterTemplate', $data);
     }
 
-    public function customerPaymentAdd()
-    {
-        if (isPostBack()) {
 
-
-
-
-
-            $this->form_validation->set_rules('customerid', 'Customer ID', 'required');
-            $this->form_validation->set_rules('paymentDate', 'Payment Date', 'required');
-            $this->form_validation->set_rules('receiptId', 'Money Receit ID', 'required');
-            $this->form_validation->set_rules('payType', 'Payment Type', 'required');
-            $this->form_validation->set_rules('ttl_amount', 'Total Payment Amount', 'required');
-            if ($this->form_validation->run() == FALSE) {
-                exception("Required field can't be empty.");
-                redirect(site_url('referenceAdd'));
-            } else {
-                /*echo "<pre>";
-                print_r($_POST);
-                exit;*/
-                $updated_by = $this->admin_id;
-                $created_at = date('Y-m-d H:i:s');
-                $voucher = $this->input->post('voucher');
-                $paymentType = $this->input->post('payType');
-                $accountDr = $this->input->post('accountDr');
-                $branch_id = $this->input->post('branch_id');
-                $voucherID = 0;
-                $this->db->trans_start();
-                if (!empty($voucher)) {
-                    $moneyReceitNo = $this->db->where(array('dist_id' => $this->dist_id))->count_all_results('cus_due_collection_info') + 1;
-                    $ReceitVoucher = "CDR" . date("y") . date("m") . str_pad($moneyReceitNo, 4, "0", STR_PAD_LEFT);
-                    $due_collection_info['total_paid_amount'] = $this->input->post('paid_amount');
-                    $due_collection_info['customer_id'] = $this->input->post('customerid');
-                    $due_collection_info['cus_due_coll_no'] = $ReceitVoucher;
-                    $due_collection_info['payment_type'] = $this->input->post('payType');
-                    $due_collection_info['bank_name'] = $this->input->post('bankName');
-                    $due_collection_info['branch_name'] = $this->input->post('branchName');
-                    $due_collection_info['check_no'] = $this->input->post('checkNo');
-                    $due_collection_info['check_date'] = date('Y-m-d', strtotime($this->input->post('date')));
-                    $due_collection_info['date'] = date('Y-m-d', strtotime($this->input->post('paymentDate')));
-                    $due_collection_info['dist_id'] = $this->dist_id;
-                    $due_collection_info['insert_date'] = $this->timestamp;
-                    $due_collection_info['insert_by'] = $this->admin_id;
-                    $due_collection_info['is_active'] = 'Y';
-                    $due_collection_info['is_delete'] = 'N';
-                    $due_collection_info['narration'] = $this->input->post('narration');
-                    $cus_due_collection_info_id = $this->Common_model->insert_data('cus_due_collection_info', $due_collection_info);
-
-
-                    $for = 3;
-                    $ledger_id = get_customer_supplier_product_ledger_id($this->input->post('customerid'), $for);
-                    if ($paymentType == 1) {
-//when payment type cash than transaction here.
-//check account head empty or not
-                        /* if (empty($accountCr)) {
-                             notification("Account Head must be selected!!");
-                             redirect(site_url($this->project . '/customerPaymentAdd'));
-                         }*/
-                        $totalAmount = 0;
-                        foreach ($voucher as $a => $b) {
-                            $amount = $this->input->post('amount[' . $a . ']');
-                            if (!empty($amount)) {
-                                $totalAmount += $amount;
-                                $this->load->helper('create_receive_voucher_no_helper');
-                                $reciveVoucherNo = create_receive_voucher_no();
-                                $dataMaster['Accounts_Voucher_Date'] = date('Y-m-d', strtotime($this->input->post('date')));
-                                $dataMaster['Accounts_Voucher_No'] = $reciveVoucherNo;
-                                $dataMaster['CompanyId'] = $this->dist_id;
-                                $dataMaster['BranchAutoId'] = $branch_id;
-                                $dataMaster['Reference'] = 0;
-                                $dataMaster['AccouVoucherType_AutoID'] = 1;
-                                $dataMaster['IsActive'] = 1;
-                                $dataMaster['for'] = 5;
-                                $dataMaster['Created_By'] = $this->admin_id;
-                                $dataMaster['Created_Date'] = $this->timestamp;
-                                $dataMaster['customer_id'] = $this->input->post('customerid');
-                                $dataMaster['BackReferenceInvoiceNo'] = $this->input->post('voucher[' . $a . ']');
-                                $dataMaster['BackReferenceInvoiceID'] = $this->input->post('invoiceID[' . $a . ']');
-                                $dataMaster['Narration'] = $this->input->post('narration');
-                                $accounting_vouchaer_id = $this->Common_model->insert_data('ac_accounts_vouchermst', $dataMaster);
-                                /*Customer Receivable  /account Receiveable  =>>25*/
-                                //account Receiveable
-
-                                $due_collection['sales_invoice_id'] = $this->input->post('invoiceID[' . $a . ']');
-                                $due_collection['due_collection_info_id'] = $cus_due_collection_info_id;
-                                $due_collection['customer_id'] = $this->input->post('customerid');
-                                $due_collection['payment_type'] = $paymentType;
-                                $due_collection['paid_amount'] = $this->input->post('amount[' . $a . ']');
-                                $due_collection['insert_date'] = $this->timestamp;
-                                $due_collection['date'] = date('Y-m-d', strtotime($this->input->post('paymentDate')));
-                                $due_collection['insert_by'] = $this->admin_id;
-                                $due_collection['is_active'] = 'Y';
-                                $due_collection['is_delete'] = 'N';
-                                $cus_due_collection_details_id = $this->Common_model->insert_data('cus_due_collection_details', $due_collection);
-                                $due_collection=array();
-
-
-
-                                $accountingDetailsTableCustomerReceivable['Accounts_VoucherMst_AutoID'] = $accounting_vouchaer_id;
-                                $accountingDetailsTableCustomerReceivable['TypeID'] = '2';//Cr
-                                $accountingDetailsTableCustomerReceivable['CHILD_ID'] = $ledger_id->id;//;$this->config->item("Customer_Receivable");//'25';
-                                $accountingDetailsTableCustomerReceivable['GR_DEBIT'] = '0.00';
-                                $accountingDetailsTableCustomerReceivable['GR_CREDIT'] = $this->input->post('amount[' . $a . ']');
-                                $accountingDetailsTableCustomerReceivable['Reference'] = 'Customer paid amount';
-                                $accountingDetailsTableCustomerReceivable['cus_due_collection_details_id'] = $cus_due_collection_details_id;
-                                $accountingDetailsTableCustomerReceivable['for'] = 5;
-                                $accountingDetailsTableCustomerReceivable['invoice_id'] = $this->input->post('invoiceID[' . $a . ']');
-                                $accountingDetailsTableCustomerReceivable['invoice_no'] = $this->input->post('voucher[' . $a . ']');
-                                $accountingDetailsTableCustomerReceivable['IsActive'] = 1;
-                                $accountingDetailsTableCustomerReceivable['Created_By'] = $this->admin_id;
-                                $accountingDetailsTableCustomerReceivable['Created_Date'] = $this->timestamp;
-                                $accountingDetailsTableCustomerReceivable['BranchAutoId'] = $branch_id;
-                                $accountingDetailsTableCustomerReceivable['date'] = date('Y-m-d', strtotime($this->input->post('date')));;
-                                $finalDetailsArray[] = $accountingDetailsTableCustomerReceivable;
-                                $accountingDetailsTableCustomerReceivable = array();
-                                //account Receiveable
-                                /*Cash in hand*/
-                                $accountingDetailsTableCashinhand['Accounts_VoucherMst_AutoID'] = $accounting_vouchaer_id;
-                                $accountingDetailsTableCashinhand['TypeID'] = '1';//Dr
-                                $accountingDetailsTableCashinhand['CHILD_ID'] = $this->input->post('accountDr');
-                                $accountingDetailsTableCashinhand['GR_DEBIT'] = $this->input->post('amount[' . $a . ']');
-                                $accountingDetailsTableCashinhand['GR_CREDIT'] = '0.00';
-                                $accountingDetailsTableCashinhand['Reference'] = '';
-                                $accountingDetailsTableCashinhand['cus_due_collection_details_id'] = $cus_due_collection_details_id;
-                                $accountingDetailsTableCashinhand['for'] = 5;
-                                $accountingDetailsTableCashinhand['invoice_id'] = $this->input->post('invoiceID[' . $a . ']');
-                                $accountingDetailsTableCashinhand['invoice_no'] = $this->input->post('voucher[' . $a . ']');
-                                $accountingDetailsTableCashinhand['IsActive'] = 1;
-                                $accountingDetailsTableCashinhand['Created_By'] = $this->admin_id;
-                                $accountingDetailsTableCashinhand['Created_Date'] = $this->timestamp;
-                                $accountingDetailsTableCashinhand['BranchAutoId'] = $branch_id;
-                                $accountingDetailsTableCashinhand['date'] = date('Y-m-d', strtotime($this->input->post('date')));;
-                                $finalDetailsArray[] = $accountingDetailsTableCashinhand;
-                                $accountingDetailsTableCashinhand = array();
-                                if (!empty($finalDetailsArray)) {
-                                    $this->Common_model->insert_batch_save('ac_tb_accounts_voucherdtl', $finalDetailsArray);
-                                }
-                                $finalDetailsArray=array();
-
-
-
-                                $postedInvoiceNo[] = $this->input->post('invoiceID[' . $a . ']');;
-                            }
-                        }
-                    } else {
-                        $totalAmount = 0;
-                        foreach ($voucher as $a => $b) {
-                            $amount = $this->input->post('amount[' . $a . ']');
-                            if (!empty($amount)) {
-                                $totalAmount += $amount;
-                                $due_collection['sales_invoice_id'] = $this->input->post('invoiceID[' . $a . ']');
-                                $due_collection['due_collection_info_id'] = $cus_due_collection_info_id;
-                                $due_collection['customer_id'] = $this->input->post('customerid');
-                                $due_collection['payment_type'] = $paymentType;
-                                $due_collection['paid_amount'] = $this->input->post('amount[' . $a . ']');
-                                $due_collection['insert_date'] = $this->timestamp;
-                                $due_collection['date'] = date('Y-m-d', strtotime($this->input->post('paymentDate')));
-                                $due_collection['insert_by'] = $this->admin_id;
-                                $due_collection['is_active'] = 'Y';
-                                $due_collection['is_delete'] = 'N';
-                                $allStock[] = $due_collection;
-                                $postedInvoiceNo[] = $this->input->post('invoiceID[' . $a . ']');;
-                            }
-                        }
-                    }
-                    $mrCondition = array(
-                        'dist_id' => $this->dist_id,
-                        'receiveType' => 2,
-                    );
-                    $totalMoneyReceite = $this->Common_model->get_data_list_by_many_columns('moneyreceit', $mrCondition);
-                    $mrid = "CMR" . date('y') . date('m') . str_pad(count($totalMoneyReceite) + 1, 4, "0", STR_PAD_LEFT);
-                    $bankName = $this->input->post('bankName');
-                    $checkNo = $this->input->post('checkNo');
-                    $checkDate = $this->input->post('date');
-                    $branchName = $this->input->post('branchName');
-                    $mreceit = array(
-                        'date' => date('Y-m-d', strtotime($this->input->post('paymentDate'))),
-                        'due_collection_info_id' => json_encode($cus_due_collection_info_id),
-                        'Accounts_VoucherMst_AutoID' => $voucherID,
-                        'totalPayment' => $totalAmount,
-                        'receitID' => $mrid,
-                        'customerid' => $this->input->post('customerid'),
-                        'narration' => $this->input->post('narration'),
-                        'updated_by' => $this->admin_id,
-                        'dist_id' => $this->dist_id,
-                        'receiveType' => 1,
-                        'paymentType' => $this->input->post('payType'),
-                        'bankName' => isset($bankName) ? $bankName : '0',
-                        'checkNo' => isset($checkNo) ? $checkNo : '0',
-                        'checkDate' => date('Y-m-d', strtotime($this->input->post('date'))),
-                        'BranchAutoId' => $branch_id,//purchase
-                        'branchName' => isset($branchName) ? $branchName : '0'
-                    );
-                    $this->db->insert('moneyreceit', $mreceit);
-                    if (!empty($allStock)) {
-                        $this->db->insert_batch('cus_due_collection_details', $allStock);
-                    }
-                    if (!empty($postedInvoiceNo)) {
-                        $cus_due_collection_info['ref_invoice_ids'] = implode(",", $postedInvoiceNo);
-                        $this->Common_model->update_data('cus_due_collection_info', $cus_due_collection_info, 'id', $cus_due_collection_info_id);
-                    }
-                }
-                $this->db->trans_complete();
-                if ($this->db->trans_status() === FALSE) {
-                    $msg = 'Customer Payment ' . ' ' . $this->config->item("save_error_message");
-                    $this->session->set_flashdata('error', $msg);
-                    redirect(site_url($this->project . '/customerPayment'));
-                } else {
-                    $msg = 'Customer Payment ' . ' ' . $this->config->item("save_success_message");
-                    $this->session->set_flashdata('success', $msg);
-                    //message("Your data successfully inserted into database.");
-                    redirect(site_url($this->project . '/customerPayment'));
-                }
-            }
-        }
-        $condition2 = array(
-            'dist_id' => $this->dist_id,
-            'is_active' => 'Y',
-            'is_delete' => 'N',
-        );
-        $data['bankList'] = $this->Common_model->get_data_list_by_many_columns('bank_info', $condition2);
-        $data['accountHeadList'] = $this->Common_model->getAccountHeadNew();
-        $moneyReceitNo = $this->db->where(array('dist_id' => $this->dist_id, 'receiveType' => 1))->count_all_results('moneyreceit') + 1;
-        $data['moneyReceitVoucher'] = "CMR" . date("y") . date("m") . str_pad($moneyReceitNo, 4, "0", STR_PAD_LEFT);
-        $condition = array(
-            'dist_id' => $this->dist_id,
-            'status' => 1,
-        );
-        $data['title'] = 'Customer Payment Receive';
-        /*page navbar details*/
-        $data['title'] = get_phrase('Customer Payment Add');
-        $data['page_type'] = get_phrase($this->page_type);
-        $data['link_page_name'] = get_phrase('Customer Payment List');
-        $data['link_page_url'] = $this->project . '/customerPayment';
-        $data['link_icon'] = "<i class='fa fa-list'></i>";
-        /*page navbar details*/
-        $data['customerList'] = $this->Inventory_Model->getPaymentDueSupplierCustomer($this->dist_id, 1);
-        $data['mainContent'] = $this->load->view('distributor/sales/report/customerPayment', $data, true);
-        $this->load->view('distributor/masterTemplate', $data);
-    }
 
     function productWiseSalesReport()
     {
@@ -3115,11 +2947,14 @@ class SalesLpgController extends CI_Controller
         $product_last_sales_price = get_product_purchase_price($packageEmptyProductId);
         echo $product_last_sales_price;
     }
-    public  function  load_account_ledgers(){
+
+    public function load_account_ledgers()
+    {
         $ledgerId = $this->input->post('ledgerId');
         $data['accountHeadList'] = $this->Common_model->getAccountHeadUpdate();
         return $this->load->view('distributor/ajax/load_account_ledgers', $data);
     }
+
     function getPackageEmptyProductId($RefillproductId)
     {
         $this->db->select("package_products.*");

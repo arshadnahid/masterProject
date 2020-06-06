@@ -1,29 +1,7 @@
 
 <div class="main-content">
     <div class="main-content-inner">
-        <!--<div class="breadcrumbs ace-save-state noPrint" id="breadcrumbs">
-            <ul class="breadcrumb">
-                <li>
-                    <i class="ace-icon fa fa-home home-icon"></i>
-                    <a href="#">Sales</a>
-                </li>
-                <li>Sales Return</li>
-                <li class="active">Sales Return View</li>
-            </ul>
-            <ul class="breadcrumb pull-right">
 
-                <li>
-                    <a  href="<?php /*echo site_url($this->project . '/salesReturn'); */?>">
-                        <i class="ace-icon fa fa-search-plus"></i>
-                        List
-                    </a>
-                </li>
-
-
-
-
-            </ul>
-        </div>-->
         <div class="page-content">
             <div class="row">
                 <div class="col-sm-10 col-sm-offset-1">
@@ -35,12 +13,7 @@
                                 <i class="ace-icon fa fa-file-invoice green"></i>
                                 Sales Return Voucher
                             </h3>
-                            <!--                            <div class="widget-toolbar no-border invoice-info">
-                                                            <span class="invoice-info-label"></span>
-                                                           <a  onclick="window.print();" style="cursor:pointer;">
-                                                                <i class="ace-icon fa fa-print"></i>Money Receipt
-                                                            </a>
-                                                        </div>-->
+
 
 
 
@@ -98,7 +71,7 @@
                                                     Customer : <?php echo $saleReturnInfo->customerName; ?>
                                                 </li>
                                                 <li>
-                                                    Date : <?php echo $saleReturnInfo->date; ?>
+                                                    Date : <?php echo $saleReturnInfo->return_date; ?>
                                                 </li>
                                                 <li>
                                                     Invoice : <?php echo $saleReturnInfo->voucher_no; ?>
@@ -146,8 +119,8 @@
                                                     <td><?php echo $each_info->productName; ?></td>
                                                     <td class="text-right"><?php echo $each_info->return_quantity; ?></td>
                                                     <td class="text-right"><?php echo $each_info->unit; ?></td>
-                                                    <td class="text-right"><?php echo $each_info->unit_price; ?></td>
-                                                    <td class="text-right"><?php echo $each_info->unit_price * $each_info->return_quantity; ?></td>
+                                                    <td class="text-right"><?php echo $each_info->quantity; ?></td>
+                                                    <td class="text-right"><?php echo $each_info->price * $each_info->quantity; ?></td>
 
 
                                                 </tr>

@@ -23,6 +23,7 @@ $priviousDateEnrtyBlockAccount = 2202;
 
 $purchasePriceBlock = 3001;
 $salesPriceBlock = 3002;
+$salesInvoiceCreditLimitBlock = 4000;
 
 ?>
 <div class="row">
@@ -266,6 +267,11 @@ $salesPriceBlock = 3002;
                                 'navigation_id' => $salesPriceBlock//'2112',
                             );
                             $salesPriceBlockPermition = $this->Common_model->get_single_data_by_many_columns('admin_role', $conditionSalesPriceBlock);
+                            $conditionsalesInvoiceCreditLimitBlock = array(
+                                'user_role' => $user_id,
+                                'navigation_id' => $salesInvoiceCreditLimitBlock//'2112',
+                            );
+                            $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by_many_columns('admin_role', $conditionsalesInvoiceCreditLimitBlock);
                             ?>
                             <tr>
                                 <th><input type="checkbox" <?php
@@ -306,6 +312,14 @@ $salesPriceBlock = 3002;
                                         echo 'checked';
                                     }
                                     ?> value="<?php echo $salesPriceBlock ?>" name="navigation[]"/>&nbsp;&nbsp;&nbsp;&nbsp;Sales Price Block
+                                </th>
+                            </tr>
+                            <tr>
+                                <th><input type="checkbox" <?php
+                                    if (!empty($salesInvoiceCreditLimitBlockPermition)) {
+                                        echo 'checked';
+                                    }
+                                    ?> value="<?php echo $salesInvoiceCreditLimitBlock ?>" name="navigation[]"/>&nbsp;&nbsp;&nbsp;&nbsp;Customer Credit Limit Block
                                 </th>
                             </tr>
                         </table>

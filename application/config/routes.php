@@ -46,7 +46,7 @@ $route['(:any)/salesInvoice_view/(:any)'] = 'lpg/SalesController/salesInvoice_vi
 $route['(:any)/getCustomerCurrentBalance'] = 'lpg/SalesController/getCustomerCurrentBalance';
 $route['(:any)/customerPayment'] = 'lpg/SalesController/customerPayment';
 //$route['(:any)/cusPayListServerFilter'] = 'lpg/ServerFilterController/cusPayList';
-$route['(:any)/customerPaymentAdd'] = 'lpg/SalesLpgController/customerPaymentAdd';
+$route['(:any)/customerPaymentAdd'] = 'customerPaymentController/customerPaymentAdd';
 $route['(:any)/viewMoneryReceipt/(:any)'] = 'lpg/SalesController/viewMoneryReceipt/$2';
 
 //$route['(:any)/getbankbranchList'] = 'lpg/SalesController/getbankbranchList';
@@ -377,6 +377,7 @@ $route['(:any)/openigInventoryImport'] = 'lpg/OpeningController/openigInventoryI
 $route['(:any)/setupImport'] = 'lpg/ImportController/setupImport';
 
 $route['(:any)/productImport'] = 'lpg/ImportController/productImport';
+$route['(:any)/productImport_motorcycle'] = 'lpg/ImportController/productImport_motorcycle';
 $route['(:any)/saveImportProduct'] = 'lpg/ImportController/saveImportProduct';
 $route['(:any)/viewMoneryReceiptSup/(:any)'] = 'lpg/InventoryController/viewMoneryReceiptSup/$2';
 $route['(:any)/viewMoneryReceiptSup/(:any)/(:any)'] = 'lpg/InventoryController/viewMoneryReceiptSup/$2/$2'; 
@@ -432,8 +433,9 @@ $route['(:any)/purchases_lpg_edit/(:any)'] = 'lpg/PurchaseLpgController/purchase
 
 
 $route['(:any)/salesLpgInvoice_add'] = 'lpg/SalesLpgController/salesLpgInvoice_add';
-$route['(:any)/salesInvoice_edit/(:any)'] = 'lpg/SalesLpgController/salesInvoice_edit/$2';
+$route['(:any)/salesInvoice_edit/(:any)'] = 'lpg/SalesInvoiceEditController/salesInvoice_edit/$2';
 $route['(:any)/viewLpgCylinder/(:any)'] = 'lpg/SalesLpgController/salesInvoice_view/$2';
+$route['(:any)/viewLpgCylinder_pdf/(:any)'] = 'lpg/SalesLpgController/viewLpgCylinder_pdf/$2';
 $route['(:any)/viewLpgCylinder2/(:any)'] = 'lpg/SalesLpgController/salesInvoice_view2/$2';
 $route['(:any)/salesInvoiceLpg'] = 'lpg/SalesLpgController/salesInvoice';
 
@@ -532,7 +534,13 @@ $route['(:any)/statusSize2/(:any)'] = 'lpg/InvProductPropertyController/statusSi
 $route['(:any)/product_property_set'] = 'lpg/InvProductPropertyController/product_property_set';
 
 
+$route['(:any)/warranty_claim_voucher'] = 'lpg/WarrantyManagementController/warranty_claim_voucher';
+$route['(:any)/warranty_claim_voucher_list'] = 'lpg/WarrantyManagementController/warranty_claim_voucher_list';
+$route['(:any)/warranty_claim_voucher_view/(:any)'] = 'lpg/WarrantyManagementController/warranty_claim_voucher_view/$2';
 
+$route['(:any)/warranty_receipt_voucher'] = 'lpg/WarrantyManagementController/warranty_receipt_voucher';
+$route['(:any)/warranty_receipt_voucher_list'] = 'lpg/WarrantyManagementController/warranty_receipt_voucher_list';
+$route['(:any)/warranty_receipt_voucher_view/(:any)'] = 'lpg/WarrantyManagementController/warranty_receipt_voucher_view/$2';
 
 $route['(:any)/404_override'] = '';
 $route['(:any)/translate_uri_dashes'] = FALSE;

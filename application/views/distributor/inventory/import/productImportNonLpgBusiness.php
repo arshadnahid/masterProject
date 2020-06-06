@@ -29,11 +29,9 @@
                                         Reset
                                     </button>
                                     <a type="button" class="btn btn-xs btn-info"
-                                       href="<?php echo base_url() ?>excelfiles/product.csv"><i
-                                                class="fa fa-cloud-download"></i> &nbsp; Download CSV Format</a>
-                                    <a class="btn green"
                                        href="<?php echo site_url('lpg/ImportController/getImportProductCSVFile') ?>"><i
-                                                class="fa fa-cloud-download"></i> &nbsp; Download Excl Format </a>
+                                                class="fa fa-cloud-download"></i> &nbsp; Download CSV Format</a>
+
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -76,6 +74,10 @@
                             <th><strong>Purchases Price</strong></th>
                             <th><strong>Retail Price(MRP)</strong></th>
                             <th><strong>Whole Price</strong></th>
+                            <th><strong>Model</strong></th>
+                            <th><strong>Color </strong></th>
+                            <th><strong>Engine No </strong></th>
+                            <th><strong>Chesis No </strong></th>
                             <th><strong>Action</strong></th>
                         </tr>
                         </thead>
@@ -102,20 +104,49 @@
                                         echo $value->brandName;
                                     }
                                     ?></td>
-                                <td><?php
+                                <td>
+                                    <?php
                                     if ($value->unitId == 0) {
                                         $condition = 'ERROR';
                                         echo "<span style='color:red;'>Not Match</span>";
                                     } else {
                                         echo $value->unitName;
                                     }
-                                    ?></td>
+                                    ?>
+                                </td>
                                 <td><?php echo $value->productName; ?></td>
                                 <td><?php echo $value->purchasesPrice; ?></td>
                                 <td><?php //echo $value->purchasesPrice;
-                                    ?></td>
+                                    ?>
+                                </td>
                                 <td><?php //echo $value->purchasesPrice;
-                                    ?></td>
+                                    ?>
+                                </td>
+
+                                <td>
+                                    <?php
+                                    if ($value->ModelID == 0) {
+                                        $condition = 'ERROR';
+                                        echo "<span style='color:red;'>Not Match</span>";
+                                    } else {
+                                        echo $value->Model;
+                                    }
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    if ($value->ColorID == 0) {
+                                        $condition = 'ERROR';
+                                        echo "<span style='color:red;'>Not Match</span>";
+                                    } else {
+                                        echo $value->Color;
+                                    }
+                                    ?>
+                                </td>
+
+                                <td><?php echo $value->property_1; ?></td>
+                                <td><?php echo $value->property_2; ?></td>
+
                                 <td>
                                     <div class="hidden-sm hidden-xs action-buttons">
                                         <a href="#" data-toggle="modal" data-target="#myModal" class="blue"
@@ -141,7 +172,7 @@
                                 } else if (!empty($productList)) {
                                     ?>
                                     <a
-                                            href="<?php echo site_url('ImportController/saveImportProduct'); ?>"
+                                            href="<?php echo site_url('lpg/ImportController/saveImportProduct_motorcycle'); ?>"
                                             id="showSaveBtn"
                                             class="btn btn-xs btn-success"><i class="fa fa-check"></i> Save</a>
                                     <?php

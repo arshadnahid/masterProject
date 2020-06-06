@@ -191,7 +191,7 @@
             <?php
 
 
-            if ($this->session->userdata('business_type') == "MOBILE") {
+            if ($this->session->userdata('business_type') != "LPG") {
                 include 'include/moduleHeaderSmeMobile.php';
 
                 //$this->folderSub = 'distributor/inventory/product_mobile/';

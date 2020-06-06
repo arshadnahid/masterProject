@@ -204,42 +204,7 @@
         }
 
 
-        if (payType == '') {
 
-            swal("Select Receive From!", "Validation Error!", "error");
-
-
-        } else if (BranchAutoId == null) {
-            swal("Select Branch !", "Validation Error!", "error");
-        } else if (paymentDate == '') {
-
-            swal("Select Payment Date!", "Validation Error!", "error");
-
-        } else if (payType == 1 && miscellaneous == '') {
-
-            swal("Please Type Account Name", "Validation Error!", "error");
-
-        } else if (payType == 2 && customerId == '') {
-
-            swal("Select Customer Name", "Validation Error!", "error");
-
-        } else if (payType == 3 && supplierId == '') {
-
-            swal("Please Select Supplier!", "Validation Error!", "error");
-
-        } else if (payForm == '' || payForm == null) {
-
-            swal("Please Select Deposit Account", "Validation Error!", "error");
-
-        } else if (totalPrice == '') {
-
-            swal("Please Select Account Head!", "Validation Error!", "error");
-
-        } else if (totalPrice == '') {
-
-            swal("Please Select Account Head!", "Validation Error!", "error");
-
-        } else {
 
             swal({
 
@@ -280,7 +245,7 @@
                 });
 
 
-        }
+
 
 
     }

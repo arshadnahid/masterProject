@@ -37,7 +37,7 @@ class InvProductController extends CI_Controller
         $this->db_name = $this->session->userdata('db_name');
         $this->business_type = $this->session->userdata('business_type');
 
-        if ($this->business_type == "MOBILE") {
+        if ($this->business_type != "LPG") {
             $this->folder = 'distributor/masterTemplateSmeMobile';
             $this->folderSub = 'distributor/inventory/product_mobile/';
         }
@@ -66,15 +66,24 @@ class InvProductController extends CI_Controller
                         ->count_all_results('product') + 1;
                 $productid = "PID" . date('y') . date('m') . str_pad($productOrgId, 4, "0", STR_PAD_LEFT);
                 $this->db->trans_start();
+                $brand_id=$this->input->post('brand');
+                $brand_info = $this->Common_model->get_single_data_by_single_column('brand', 'brandId', $brand_id);
                 $data['category_id'] = $this->input->post('category_id');
                 $data['unit_id'] = $this->input->post('unit');
                 // $data['product_code'] = $this->input->post('product_code');$productid
                 $data['product_code'] = $productid;
-                $data['productName'] = $this->input->post('productName');
+                if($this->business_type=="MOTORCYCLE"){
+                    $product_model_info = $this->Common_model->get_single_data_by_single_column('tb_model', 'ModelID', $this->input->post('model'))->Model;
+                    $product_coler_info = $this->Common_model->get_single_data_by_single_column('tb_color', 'ColorID', $this->input->post('model'))->Color;
+                    $productNameP =  $brand_info->brandName . ' ' . $product_model_info . ' ' . $product_coler_info . '  E.NO  :' . $this->input->post('property_1'). ' Ch.NO  :' .$this->input->post('property_2');
+                }else{
+                    $productNameP=$this->input->post('productName');
+                }
+                $data['productName'] =$productNameP;
                 $data['purchases_price'] = $this->input->post('purchases_price');
                 $data['salesPrice'] = $this->input->post('salesPrice');
                 $data['retailPrice'] = $this->input->post('retailPrice');
-                $data['brand_id'] = $this->input->post('brand');
+                $data['brand_id'] = $brand_id;
                 $data['alarm_qty'] = $this->input->post('alarm_qty');
                 $data['product_type_id'] = $this->input->post('product_type_id');
                 $data['dist_id'] = $this->dist_id;
@@ -87,6 +96,13 @@ class InvProductController extends CI_Controller
                 $data['sizeID'] = $this->input->post('size');
                 $data['vat'] = $this->input->post('vat');
                 $data['description'] = $this->input->post('description');
+
+                $data['property_1'] = $this->input->post('property_1');
+                $data['property_2'] = $this->input->post('property_2');
+                $data['property_3'] = $this->input->post('property_3');
+                $data['property_4'] = $this->input->post('property_4');
+                $data['property_5'] = $this->input->post('property_5');
+
 
 
                 $insertid = $this->Common_model->insert_data('product', $data);
@@ -114,9 +130,19 @@ class InvProductController extends CI_Controller
                 }
                 $for = 1;
                 $productcategory_info = $this->Common_model->get_single_data_by_single_column('productcategory', 'category_id', $category_id);
+
+
                 $brand_info = $this->Common_model->get_single_data_by_single_column('brand', 'brandId', $brand_id);
                 $unit_info = $this->Common_model->get_single_data_by_single_column('unit', 'unit_id', $this->input->post('unit'));
-                $productName = $productcategory_info->title . ' ' . $this->input->post('productName') . ' ' . $unit_info->unitTtile . ' ' . $brand_info->brandName;
+                if($this->business_type=="MOTORCYCLE"){
+                    $product_model_info = $this->Common_model->get_single_data_by_single_column('tb_model', 'ModelID', $this->input->post('model'))->Model;
+                    $product_coler_info = $this->Common_model->get_single_data_by_single_column('tb_color', 'ColorID', $this->input->post('model'))->Color;
+                    $productName =  $brand_info->brandName . ' ' . $product_model_info . ' ' . $product_coler_info . '  E.NO  :' . $this->input->post('property_1'). '  Ch.NO  :' .$this->input->post('property_2');
+                }else{
+
+                    $productName = $productcategory_info->title . ' ' . $this->input->post('productName') . ' ' . $unit_info->unitTtile . ' ' . $brand_info->brandName;
+                }
+
                 create_ledger_cus_sup_product($insertid, $productName, $ledger_parent_id, $for, $this->admin_id);
                 if ($category_id == 1) {
                     $ledger_parent_id = $this->config->item("Empty_Cylinder_Transfer");
@@ -273,7 +299,16 @@ class InvProductController extends CI_Controller
                 $for = 1;
                 $productcategory_info = $this->Common_model->get_single_data_by_single_column('productcategory', 'category_id', $category_id);
                 $brand_info = $this->Common_model->get_single_data_by_single_column('brand', 'brandId', $brand_id);
-                $productName = $productcategory_info->title . ' ' . $this->input->post('productName') . ' ' . $brand_info->brandName;
+
+                if($this->business_type=="MOTORCYCLE"){
+                    $product_model_info = $this->Common_model->get_single_data_by_single_column('tb_model', 'ModelID', $this->input->post('model'))->Model;
+                    $product_coler_info = $this->Common_model->get_single_data_by_single_column('tb_color', 'ColorID', $this->input->post('model'))->Color;
+                    $productName =  $brand_info->brandName . ' ' . $product_model_info . ' ' . $product_coler_info . 'E.NO  :' . $this->input->post('property_1'). 'Ch.NO  :' .$this->input->post('property_2');
+                }else{
+
+                    $productName = $productcategory_info->title . ' ' . $this->input->post('productName')  . ' ' . $brand_info->brandName;
+                }
+                //$productName = $productcategory_info->title . ' ' . $this->input->post('productName') . ' ' . $brand_info->brandName;
                 //create_ledger_cus_sup_product($updateid, $productName, $ledger_parent_id, $for,$this->admin_id);
                 update_ledger_cus_sup_product($updateid, $productName, $ledger_parent_id, $for, $this->admin_id);
                 if ($category_id == 1) {
@@ -559,7 +594,7 @@ class InvProductController extends CI_Controller
             if (!empty($productList)):
                 $add .= "<option value=''></option>";
                 foreach ($productList as $key => $value):
-                    $add .= "<option  ispackage='0'  categoryName='" . $value->productCat . " '  categoryId='" . $value->category_id . "' productName='". $value->SubCatName . $value->productName . " [" . $value->brandName . "]' value='" . $value->product_id . "' >$value->SubCatName   $value->Model  $value->Color   $value->Size  $value->productName  [" . $value->brandName . "]</option>";
+                    $add .= "<option  ispackage='0' property_1='" . $value->property_1 . " ' property_2='" . $value->property_2 . " '  categoryName='" . $value->productCat . " '  categoryId='" . $value->category_id . "' productName='". $value->SubCatName . $value->productName . " [" . $value->brandName . "]' value='" . $value->product_id . "' >$value->SubCatName   $value->Model  $value->Color   $value->Size  $value->productName  [" . $value->brandName . "]</option>";
                 endforeach;
                 echo $add;
                 DIE;

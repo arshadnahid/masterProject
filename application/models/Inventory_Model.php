@@ -958,13 +958,18 @@ ORDER BY
 
     function getPaymentDueSupplierCustomer($distId, $supCus) {
         if ($supCus == 1) {
-            $this->db->select("sum(dr - cr) as totalDue,customer.customer_id,customer.customerID,customer.customerName");
+           /* $this->db->select("sum(dr - cr) as totalDue,customer.customer_id,customer.customerID,customer.customerName");
             $this->db->from("client_vendor_ledger");
             $this->db->join('customer', 'customer.customer_id=client_vendor_ledger.client_vendor_id', 'left');
             $this->db->where('client_vendor_ledger.dist_id', $distId);
             $this->db->where('client_vendor_ledger.ledger_type', $supCus);
             $this->db->group_by('customer.customer_id');
-            $this->db->having('sum(dr - cr) > ', 0);
+            $this->db->having('sum(dr - cr) > ', 0);*/
+
+            $this->db->select("*");
+            $this->db->from("customer");
+            
+            
             $ledgerReport = $this->db->get()->result();
             return $ledgerReport;
         } else {

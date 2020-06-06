@@ -266,7 +266,7 @@ class InventoryAdjustmentController extends CI_Controller
                             $stockNewTable['branch_id']=$branch_id;
                             $stockNewTable['invoice_date']=$date;
                             $stockNewTable['category_id']=$category_id;
-                            $stockNewTable['product_id']=0;
+                            $stockNewTable['product_id']=$value;
                             $stockNewTable['empty_cylinder_id']=0;
                             $stockNewTable['is_package']=0;
                             $stockNewTable['show_in_invoice']=1;
@@ -320,7 +320,7 @@ class InventoryAdjustmentController extends CI_Controller
                         $jv['IsActive'] = 1;
                         $jv['Created_By'] = $this->dist_id;
                         $jv['Created_Date'] = $this->timestamp;
-                        $jv['BranchAutoId'] = $this->input->post('BranchAutoId');
+                        $jv['BranchAutoId'] = $branch_id;
                         $jv['date'] = $date;
                         $finalDetailsArray[] = $jv;
                     }
@@ -344,7 +344,7 @@ class InventoryAdjustmentController extends CI_Controller
                         $jv['IsActive'] = 1;
                         $jv['Created_By'] = $this->dist_id;
                         $jv['Created_Date'] = $this->timestamp;
-                        $jv['BranchAutoId'] = $this->input->post('BranchAutoId');
+                        $jv['BranchAutoId'] = $branch_id;
                         $jv['date'] = $date;
                         $finalDetailsArray[] = $jv;
                     }

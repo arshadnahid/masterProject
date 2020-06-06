@@ -1973,7 +1973,7 @@
         if (isNaN(total_cr_out)) {
             total_cr_out = 0;
         }
-        total_inventory_out_amount = total_inventory_out_price + (total_cr_out - total_dr_out);
+        total_inventory_out_amount = total_inventory_out_price + (total_dr_out-total_cr_out  );
 
         console.log('total_inventory_out_price');
         console.log(total_inventory_out_price);

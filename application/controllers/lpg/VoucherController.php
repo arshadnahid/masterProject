@@ -321,6 +321,8 @@ class VoucherController extends CI_Controller
                 exception("Required field can't be empty.");
                 redirect(site_url($this->project . '/receiveVoucherAdd'));
             } else {
+
+                $this->_save_data_to_accounting_history_table($invoiceId, 'edit', 'Receive Voucher', 'receiveVoucherEdit');
                 $this->db->trans_start();
 
                 $data['AccouVoucherType_AutoID'] = 1;
@@ -369,12 +371,12 @@ class VoucherController extends CI_Controller
                 $allDatainsert = array();
 
 
-                $Delete['Changed_By'] = $this->admin_id;
+                /*$Delete['Changed_By'] = $this->admin_id;
                 $this->db->where('Accounts_VoucherMst_AutoID', $invoiceId);
                 $this->db->update('ac_tb_accounts_voucherdtl', $Delete);
 
                 $this->db->where('Accounts_VoucherMst_AutoID', $invoiceId);
-                $del = $this->db->delete('ac_tb_accounts_voucherdtl');
+                $del = $this->db->delete('ac_tb_accounts_voucherdtl');*/
 
 
                 $paymentCrCondition = array(
@@ -443,50 +445,6 @@ class VoucherController extends CI_Controller
                 if (!empty($allDatainsert)) {
                     $this->db->insert_batch('ac_tb_accounts_voucherdtl', $allDatainsert);
                 }
-
-                if (!empty($supid)):
-                    $supLedger = array(
-                        'ledger_type' => 2,
-                        'history_id' => $invoiceId,
-                        'paymentType' => 'Receive Voucher supplier payment',
-                        'trans_type' => $this->input->post('voucherid'),
-                        'client_vendor_id' => $this->input->post('supplier_id'),
-                        'amount' => array_sum($this->input->post('amountCr')),
-                        'cr' => 0,
-                        'dr' => array_sum($this->input->post('amountCr')),
-                        'date' => date('Y-m-d', strtotime($this->input->post('date'))),
-                        'dist_id' => $this->dist_id,
-                        'Accounts_VoucherType_AutoID' => 1,
-                        'BranchAutoId' => $this->input->post('BranchAutoId')
-                    );
-                    $this->db->where('Accounts_VoucherType_AutoID', 1);
-                    $this->db->where('history_id', $invoiceId);
-                    $this->db->update('client_vendor_ledger', $supLedger);
-                    /*$this->Common_model->update_data('client_vendor_ledger', $supLedger, 'history_id', $invoiceId);*/
-                endif;
-
-
-                if (!empty($cust)):
-                    $custLedger = array(
-                        'ledger_type' => 1,
-                        'paymentType' => 'Receive Voucher',
-                        'history_id' => $invoiceId,
-                        'trans_type' => $this->input->post('voucherid'),
-                        'client_vendor_id' => $this->input->post('customer_id'),
-                        'amount' => array_sum($this->input->post('amountCr')),
-                        'dr' => 0,
-                        'cr' => array_sum($this->input->post('amountCr')),
-                        'date' => date('Y-m-d', strtotime($this->input->post('date'))),
-                        'dist_id' => $this->dist_id,
-                        'Accounts_VoucherType_AutoID' => 1,
-                        'BranchAutoId' => $this->input->post('BranchAutoId')
-                    );
-                    $this->db->where('Accounts_VoucherType_AutoID', 1);
-                    $this->db->where('history_id', $invoiceId);
-                    $this->db->update('client_vendor_ledger', $custLedger);
-                    //$this->Common_model->update_data('client_vendor_ledger', $custLedger, 'history_id', $invoiceId);
-
-                endif;
 
 
                 $this->db->trans_complete();
@@ -687,14 +645,6 @@ class VoucherController extends CI_Controller
         $data['accountHeadList'] = $this->Common_model->getAccountHeadUpdate();
 
 
-
-
-
-
-
-
-
-
         /*page navbar details*/
         $data['title'] = get_phrase('Add Payment Voucher');
         $data['page_type'] = $this->page_type;
@@ -784,6 +734,7 @@ class VoucherController extends CI_Controller
                 exception("Required field can't be empty.");
                 redirect(site_url($this->project . '/paymentVoucherAdd'));
             } else {
+                $this->_save_data_to_accounting_history_table($invoiceId, 'edit', 'Payment  Voucher', 'paymentVoucherEdit');
 
                 $this->db->trans_start();
                 $data['AccouVoucherType_AutoID'] = 2;
@@ -826,13 +777,13 @@ class VoucherController extends CI_Controller
                 $allDataUpdate = array();
                 $allDatainsert = array();
 
-                $Delete['Changed_By'] = $this->admin_id;
+               /* $Delete['Changed_By'] = $this->admin_id;
                 $this->db->where('Accounts_VoucherMst_AutoID', $invoiceId);
                 $this->db->update('ac_tb_accounts_voucherdtl', $Delete);
 
 
                 $this->db->where('Accounts_VoucherMst_AutoID', $invoiceId);
-                $this->db->delete('ac_tb_accounts_voucherdtl');
+                $this->db->delete('ac_tb_accounts_voucherdtl');*/
 
 
                 /*$Delete['IsActive'] = 0;
@@ -1346,7 +1297,7 @@ class VoucherController extends CI_Controller
                    echo '<pre>';
                    print_r($data);
                    exit();*/
-
+                $this->_save_data_to_accounting_history_table($invoiceId, 'edit', 'Journal Voucher', 'journalVoucherEdit');
                 $this->db->trans_start();
                 $data['AccouVoucherType_AutoID'] = 3;
                 $data['Accounts_Voucher_Date'] = date('Y-m-d', strtotime($this->input->post('date')));
@@ -1363,12 +1314,12 @@ class VoucherController extends CI_Controller
                 $test = $this->Common_model->update_data('ac_accounts_vouchermst', $data, 'Accounts_VoucherMst_AutoID', $invoiceId);
 
 
-                $Delete['Changed_By'] = $this->admin_id;
+                /*$Delete['Changed_By'] = $this->admin_id;
                 $this->db->where('Accounts_VoucherMst_AutoID', $invoiceId);
                 $this->db->update('ac_tb_accounts_voucherdtl', $Delete);
 
                 $this->db->where('Accounts_VoucherMst_AutoID', $invoiceId);
-                $del = $this->db->delete('ac_tb_accounts_voucherdtl');
+                $del = $this->db->delete('ac_tb_accounts_voucherdtl');*/
 
 
                 /* Pay account credit */
@@ -1483,56 +1434,156 @@ class VoucherController extends CI_Controller
         $this->load->view('distributor/masterTemplate', $data);
     }
 
-    public  function  load_account_ledgers(){
+    public function load_account_ledgers()
+    {
         $ledgerFor = $this->input->post('ledgerFor');
         $group = $this->input->post('group');
         $ledgerId = $this->input->post('ledgerId');
 
-        $data['ledgerFor']=$ledgerFor;
+        $data['ledgerFor'] = $ledgerFor;
 
-        $data['accountHeadList'] = $this->Common_model->getAccountHeadUpdateWithCondition($group,$ledgerId);
+        $data['accountHeadList'] = $this->Common_model->getAccountHeadUpdateWithCondition($group, $ledgerId);
         return $this->load->view('distributor/ajax/load_account_ledgers', $data);
     }
 
-    public  function  delete_voucher(){
+    public function delete_voucher()
+    {
         $voucherType = $this->input->post('voucherType');
+        $voucherName = $this->input->post('voucherName');
         $Accounts_VoucherMst_AutoID = $this->input->post('id');
 
+        $error_mes = $voucherName."  ".$this->config->item("delete_error_message");
+        $success_mes = $voucherName."  ". $this->config->item("delete_success_message");
+
         $this->db->trans_start();
-
-
-
-        $data['IsActive'] = 2;
+        $data['IsActive'] = 0;
+        $data['CompanyId'] = $this->dist_id;
         $data['Changed_By'] = $this->admin_id;
-        $data['Changed_Date'] = date('Y-m-d');
+        $data['Changed_Date'] = $this->timestamp;
+        $this->Common_model->update_data('ac_accounts_vouchermst', $data, 'Accounts_VoucherMst_AutoID', $Accounts_VoucherMst_AutoID);
 
-
-        $test = $this->Common_model->update_data('ac_accounts_vouchermst', $data, 'Accounts_VoucherMst_AutoID', $Accounts_VoucherMst_AutoID);
-
-
-        $Delete['Changed_By'] = $this->admin_id;
-        $this->db->where('Accounts_VoucherMst_AutoID', $Accounts_VoucherMst_AutoID);
-        //$this->db->where('AccouVoucherType_AutoID', $voucherType);
-        $this->db->update('ac_tb_accounts_voucherdtl', $Delete);
-
-        $this->db->where('Accounts_VoucherMst_AutoID', $Accounts_VoucherMst_AutoID);
-        //$this->db->where('AccouVoucherType_AutoID', $voucherType);
-        $del = $this->db->delete('ac_tb_accounts_voucherdtl');
+        $this->_save_data_to_accounting_history_table($Accounts_VoucherMst_AutoID, 'delete', $voucherName, $voucherType);;
         $this->db->trans_complete();
 
         if ($this->db->trans_status() === FALSE) {
 
-            $msg = 'Your data can not be Updated.';
+            $msg = $error_mes;
             $this->session->set_flashdata('error', $msg);
             echo 1;
 
         } else {
-            $msg = 'Your data successfully updated into database.';
+            $msg = $success_mes;
             $this->session->set_flashdata('success', $msg);
             echo 1;
 
         }
 
+    }
+
+    private function _save_data_to_accounting_history_table($Accounts_VoucherMst_AutoID, $action = array('edit', 'delete'), $voucher_name = array('Payment Voucher', "Receive Voucher", 'Journal Voucher'), $redrict_page,$invoice_id='null')
+    {
+
+        if ($action == "edit") {
+            $error_mes = $this->config->item("update_error_message");
+            $success_mes = $this->config->item("update_success_message");
+        } else {
+            $error_mes = $this->config->item("delete_error_message");
+            $success_mes = $this->config->item("delete_success_message");
+        }
+
+
+        $this->db->trans_begin();
+        $ac_accounts_vouchermst_audit = "create table IF NOT EXISTS ac_accounts_vouchermst_audit(ac_accounts_vouchermst_audit_id int not null auto_increment, PRIMARY KEY (ac_accounts_vouchermst_audit_id)) as select * from ac_accounts_vouchermst where 1=3";
+        $this->db->query($ac_accounts_vouchermst_audit);
+        $ac_tb_accounts_voucherdtl_audit = "create table IF NOT EXISTS ac_tb_accounts_voucherdtl_audit(ac_accounts_vouchermst_audit_id int not null ) as select * from ac_tb_accounts_voucherdtl where 1=3";
+        $this->db->query($ac_tb_accounts_voucherdtl_audit);
+
+        $query = $this->db->field_exists('is_active', 'ac_accounts_vouchermst_audit');
+        if ($query != TRUE) {
+            $query_ac_accounts_vouchermst_audit = "ALTER TABLE `ac_accounts_vouchermst_audit` ADD `is_active` ENUM('Y','N') NULL , ADD `is_delete` ENUM('Y','N') NULL , ADD `update_by` INT(11) NULL , ADD `update_date` DATETIME NULL , ADD `delete_by` INT(11) NULL , ADD `delete_date` DATETIME NULL ";
+            $this->db->query($query_ac_accounts_vouchermst_audit);
+            $ac_tb_accounts_voucherdtl_audit = "ALTER TABLE `ac_tb_accounts_voucherdtl_audit` ADD `is_active` ENUM('Y','N') NULL , ADD `is_delete` ENUM('Y','N') NULL , ADD `update_by` INT(11) NULL , ADD `update_date` DATETIME NULL , ADD `delete_by` INT(11) NULL , ADD `delete_date` DATETIME NULL ";
+            $this->db->query($ac_tb_accounts_voucherdtl_audit);
+        }
+
+        $ac_accounts_vouchermst_old_array = array();
+        $stock_old_old_condition = array(
+            'Accounts_VoucherMst_AutoID' => $Accounts_VoucherMst_AutoID,
+
+        );
+        $ac_accounts_vouchermst_old_array = $this->Common_model->get_data_list_by_many_columns_array('ac_accounts_vouchermst', $stock_old_old_condition);
+        foreach ($ac_accounts_vouchermst_old_array as $key => $csm) {
+            if ($action == 'edit') {
+                $ac_accounts_vouchermst_old_array[$key]['is_active'] = 'Y';
+                $ac_accounts_vouchermst_old_array[$key]['is_delete'] = 'N';
+                $ac_accounts_vouchermst_old_array[$key]['update_by'] = $this->admin_id;
+                $ac_accounts_vouchermst_old_array[$key]['update_date'] = $this->timestamp;;
+                $ac_accounts_vouchermst_old_array[$key]['delete_by'] = '';
+                $ac_accounts_vouchermst_old_array[$key]['delete_date'] = NULL;
+            } elseif ($action == 'delete') {
+                $ac_accounts_vouchermst_old_array[$key]['is_active'] = 'N';
+                $ac_accounts_vouchermst_old_array[$key]['is_delete'] = 'Y';
+                $ac_accounts_vouchermst_old_array[$key]['update_by'] = "";
+                $ac_accounts_vouchermst_old_array[$key]['update_date'] = NULL;
+                $ac_accounts_vouchermst_old_array[$key]['delete_by'] = $this->admin_id;
+                $ac_accounts_vouchermst_old_array[$key]['delete_date'] = $this->timestamp;
+            }
+        }
+        $ac_accounts_vouchermst_audit_id = $this->Common_model->insert_data('ac_accounts_vouchermst_audit', $ac_accounts_vouchermst_old_array[0]);
+
+        $ac_tb_accounts_voucherdtl_old_array = array();
+        $ac_tb_accounts_voucherdtl_old_condition = array(
+            'Accounts_VoucherMst_AutoID' => $Accounts_VoucherMst_AutoID,
+        );
+        $ac_tb_accounts_voucherdtl_old_array = $this->Common_model->get_data_list_by_many_columns_array('ac_tb_accounts_voucherdtl', $ac_tb_accounts_voucherdtl_old_condition);
+        foreach ($ac_tb_accounts_voucherdtl_old_array as $key => $csm) {
+            if ($action == 'edit') {
+                $ac_tb_accounts_voucherdtl_old_array[$key]['ac_accounts_vouchermst_audit_id'] = $ac_accounts_vouchermst_audit_id;
+                $ac_tb_accounts_voucherdtl_old_array[$key]['is_active'] = 'Y';
+                $ac_tb_accounts_voucherdtl_old_array[$key]['is_delete'] = 'N';
+                $ac_tb_accounts_voucherdtl_old_array[$key]['update_by'] = $this->admin_id;
+                $ac_tb_accounts_voucherdtl_old_array[$key]['update_date'] = $this->timestamp;;
+                $ac_tb_accounts_voucherdtl_old_array[$key]['delete_by'] = '';
+                $ac_tb_accounts_voucherdtl_old_array[$key]['delete_date'] = NULL;
+            } elseif ($action == 'delete') {
+                $ac_tb_accounts_voucherdtl_old_array[$key]['ac_accounts_vouchermst_audit_id'] = $ac_accounts_vouchermst_audit_id;
+                $ac_tb_accounts_voucherdtl_old_array[$key]['is_active'] = 'N';
+                $ac_tb_accounts_voucherdtl_old_array[$key]['is_delete'] = 'Y';
+                $ac_tb_accounts_voucherdtl_old_array[$key]['update_by'] = "";
+                $ac_tb_accounts_voucherdtl_old_array[$key]['update_date'] = NULL;
+                $ac_tb_accounts_voucherdtl_old_array[$key]['delete_by'] = $this->admin_id;
+                $ac_tb_accounts_voucherdtl_old_array[$key]['delete_date'] = $this->timestamp;
+            }
+        }
+        $this->Common_model->insert_batch_save('ac_tb_accounts_voucherdtl_audit', $ac_tb_accounts_voucherdtl_old_array);
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            $msg = $voucher_name . ' ' . $error_mes;
+            $this->session->set_flashdata('error', $msg);
+            redirect(site_url($this->project . '/' . $redrict_page . '/' . $Accounts_VoucherMst_AutoID));
+        } else {
+            $this->db->trans_commit();
+            // $msg = $voucher_name . ' ' . $success_mes;
+            // $this->session->set_flashdata('success', $msg);
+            // redirect(site_url($this->project . '/'.$redrict_page.'/' . $Accounts_VoucherMst_AutoID));
+        }
+
+        $this->db->trans_begin();
+        $DeleteCondition = array(
+            'Accounts_VoucherMst_AutoID' => $Accounts_VoucherMst_AutoID
+        );
+        $this->Common_model->delete_data_with_condition('ac_tb_accounts_voucherdtl', $DeleteCondition);
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            $msg = $voucher_name . ' ' . $error_mes;
+            $this->session->set_flashdata('error', $msg);
+            redirect(site_url($this->project . '/' . $redrict_page . '/' . $Accounts_VoucherMst_AutoID));
+        } else {
+            $this->db->trans_commit();
+            // $msg = $voucher_name . ' ' . $success_mes;
+            // $this->session->set_flashdata('success', $msg);
+            // redirect(site_url($this->project . '/'.$redrict_page.'/' . $Accounts_VoucherMst_AutoID));
+        }
     }
 
 }

@@ -109,7 +109,46 @@
 
     });
 
+    function deleteVoucher(voucherType,id){
 
+        swal({
+                title: "Are you sure ?",
+                text: "You won't be able to revert this!",
+                showCancelButton: true,
+                confirmButtonColor: '#73AE28',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes',
+                cancelButtonText: "No",
+                closeOnConfirm: true,
+                closeOnCancel: true,
+                type: 'warning'
+            },
+            function (isConfirm) {
+                if (isConfirm) {
+                    // var base_u = $('#baseUrl').val();
+                    var main_url = baseUrl + "lpg/VoucherController/delete_voucher";
+                    $.ajax({
+                        url: main_url,
+                        type: 'post',
+                        data: {
+                            'voucherName':'Receive Voucher',
+                            'voucherType':'receiveVoucher',
+                            'id': id,
+                        },
+                        success: function(data) {
+                            if(data == 1){
+                                setTimeout(function(){
+                                    window.location.reload(1);
+                                }, 100);
+                                //window.location.replace('<?php echo site_url(); ?>'+'customerList');
+                            }
+                        }
+                    });
+                }else{
+                    return false;
+                }
+            });
+    }
 
 </script>
 

@@ -6,190 +6,7 @@ $property_4=get_property_list_for_show_hide(4);
 $property_5=get_property_list_for_show_hide(5);
 
 ?>
-<style >
-    .page {
-        height: 210mm;
-        width: 148mm;
-        padding: 20mm;
-        margin: 10mm auto;
-        border: 1px black solid;
-        border-radius: 5px;
-        background: white;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    }
-    .subpage {
-        padding: 1cm;
-        border: 5px black solid;
-        height: 210mm;
-        width: 148mm;
-        outline: 2cm #FFEAEA solid;
-        margin-top: 20px;
-    }
 
-    @page {
-        size: A5 !important;
-        size: portrait !important;
-        margin: 0;
-
-
-
-
-    }
-    @media print {
-        html, body {
-            margin:0 !important;
-            padding:0 !important;
-            zoom:76% !important;
-            size: A5 !important;
-            size: portrait !important;
-
-        }
-
-
-        .page .subpage .col-md-12,.col-lg-12, .col-xl-12{
-            float:left;
-            height: 210mm !important;
-            width: 148mm !important;
-
-        }
-        .page .subpage {
-            padding: 1cm;
-            border: 5px black solid;
-            height: 210mm;
-            width: 148mm;
-            outline: 2cm #FFEAEA solid;
-            position:absolute;
-        }
-        .page {
-            visibility: visible;
-
-
-        }
-
-    }
-</style><style >
-    .page {
-        height: 210mm;
-        width: 148mm;
-        padding: 20mm;
-        margin: 10mm auto;
-        border: 1px black solid;
-        border-radius: 5px;
-        background: white;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    }
-    .subpage {
-        padding: 1cm;
-        border: 5px black solid;
-        height: 210mm;
-        width: 148mm;
-        outline: 2cm #FFEAEA solid;
-        margin-top: 20px;
-    }
-
-    @page {
-        size: A5 !important;
-        size: portrait !important;
-        margin: 0;
-
-
-
-
-    }
-    @media print {
-        html, body {
-            margin:0 !important;
-            padding:0 !important;
-            zoom:76% !important;
-            size: A5 !important;
-            size: portrait !important;
-
-        }
-
-
-        .page .subpage .col-md-12,.col-lg-12, .col-xl-12{
-            float:left;
-            height: 210mm !important;
-            width: 148mm !important;
-
-        }
-        .page .subpage {
-            padding: 1cm;
-            border: 5px black solid;
-            height: 210mm;
-            width: 148mm;
-            outline: 2cm #FFEAEA solid;
-            position:absolute;
-        }
-        .page {
-            visibility: visible;
-
-
-        }
-
-    }
-</style><style >
-    .page {
-        height: 210mm;
-        width: 148mm;
-        padding: 20mm;
-        margin: 10mm auto;
-        border: 1px black solid;
-        border-radius: 5px;
-        background: white;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    }
-    .subpage {
-        padding: 1cm;
-        border: 5px black solid;
-        height: 210mm;
-        width: 148mm;
-        outline: 2cm #FFEAEA solid;
-        margin-top: 20px;
-    }
-
-    @page {
-        size: A5 !important;
-        size: portrait !important;
-        margin: 0;
-
-
-
-
-    }
-    @media print {
-        html, body {
-            margin:0 !important;
-            padding:0 !important;
-            zoom:76% !important;
-            size: A5 !important;
-            size: portrait !important;
-
-        }
-
-
-        .page .subpage .col-md-12,.col-lg-12, .col-xl-12{
-            float:left;
-            height: 210mm !important;
-            width: 148mm !important;
-
-        }
-        .page .subpage {
-            padding: 1cm;
-            border: 5px black solid;
-            height: 210mm;
-            width: 148mm;
-            outline: 2cm #FFEAEA solid;
-            position:absolute;
-        }
-        .page {
-            visibility: visible;
-
-
-        }
-
-    }
-</style>
 <div class="row">
     <div class="col-sm-10 col-sm-offset-1">
         <!-- Begin: life time stats -->
@@ -278,34 +95,34 @@ $property_5=get_property_list_for_show_hide(5);
                                                 </ul>
                                             </div>
                                             <div class="col-xs-4">
-                                                <h3><?php echo get_phrase('Customer_Info') ?></h3>
-                                                <ul class="list-unstyled ">
+                                                <h3><?php echo get_phrase('Supplier_Info') ?></h3>
+                                                <ul class="list-unstyled  spaced">
                                                     <li>
-                                                        <i></i><?php echo get_phrase('Name') ?>
-                                                        : <?php echo $customerInfo->customerID . '[' . $customerInfo->customerName . ']' ?>
+                                                        <?php echo get_phrase('Name') ?>
+                                                        : <?php echo $supplierInfo->supID . '[' . $supplierInfo->supName . ']' ?>
                                                     </li>
                                                     <li>
-                                                        <i></i><?php echo get_phrase('Email') ?>: <?php
-                                                        if (!empty($customerInfo->customerEmail)) {
-                                                            echo $customerInfo->customerEmail;
+                                                        <?php echo get_phrase('Email') ?>
+                                                        : <?php echo $supplierInfo->supEmail; ?>
+                                                    </li>
+
+
+                                                    <li>
+                                                        <i></i><?php echo get_phrase('Phone') ?>
+                                                        : <?php echo $supplierInfo->supPhone; ?>: <?php
+                                                        if (!empty($supplierInfo->supPhone)) {
+                                                            echo $supplierInfo->supPhone;
                                                         } else {
                                                             echo get_phrase("N_A");
                                                         }
                                                         ?>
                                                     </li>
+
                                                     <li>
-                                                        <i></i><?php echo get_phrase('Phone') ?>: <?php
-                                                        if (!empty($customerInfo->customerPhone)) {
-                                                            echo $customerInfo->customerPhone;
-                                                        } else {
-                                                            echo get_phrase("N_A");
-                                                        }
-                                                        ?>
-                                                    </li>
-                                                    <li>
-                                                        <i></i><?php echo get_phrase('Address') ?>: <?php
-                                                        if (!empty($customerInfo->customerAddress)) {
-                                                            echo $customerInfo->customerAddress;
+                                                        <i></i><?php echo get_phrase('Address') ?>
+                                                        :<?php echo $supplierInfo->supAddress; ?> <?php
+                                                        if (!empty($supplierInfo->supAddress)) {
+                                                            echo $$supplierInfo->supAddress;
                                                         } else {
                                                             echo get_phrase("N_A");
                                                         }
@@ -393,6 +210,9 @@ $property_5=get_property_list_for_show_hide(5);
                                             <th nowrap  style="text-align: center;width:10%;border-radius:10px;<?php echo $property_5=='dont_have_this_property'?'display: none':''?>">
                                                 <strong><?php echo $property_5; ?> </strong>
                                             </th>
+                                            <th nowrap  style="text-align: center;width:10%;border-radius:10px;">
+                                                <strong><?php echo 'Narration'; ?> </strong>
+                                            </th>
                                             <td style="text-align: right"><?php echo get_phrase('Quantity') ?></td>
                                             <td style="text-align: right"><?php echo get_phrase('Unit Price') ?> </td>
                                             <td style="text-align: right"><?php echo get_phrase('Total Price') ?></td>
@@ -437,7 +257,9 @@ $property_5=get_property_list_for_show_hide(5);
                                                 <th nowrap  style="text-align: center;width:10%;border-radius:10px;<?php echo $property_5=='dont_have_this_property'?'display: none':''?>">
                                                     <strong><?php echo $each_info['property_5'];; ?> </strong>
                                                 </th>
-
+                                                <th nowrap  style="text-align: center;width:10%;border-radius:25px;">
+                                                    <strong><?php echo $each_info['product_details'];; ?> </strong>
+                                                </th>
                                                 <td align="right"><?php echo $each_info['quantity']; ?> </td>
                                                 <td align="right"><?php echo $each_info['unit_price']; ?> </td>
                                                 <td align="right"><?php echo number_format($each_info['unit_price'] * $each_info['quantity'], 2); ?> </td>
@@ -446,7 +268,7 @@ $property_5=get_property_list_for_show_hide(5);
                                         </tbody>
                                         <tfoot>
                                         <tr>
-                                            <td colspan="7" align="right">
+                                            <td colspan="8" align="right">
                                                 <strong><?php echo get_phrase('Sub_Total') ?></strong></td>
 
                                             <td align="right"><?php echo number_format($tprice, 2); ?></td>
@@ -456,7 +278,7 @@ $property_5=get_property_list_for_show_hide(5);
                                         if ($saleslist->discount_amount > 0) {
                                             ?>
                                             <tr>
-                                                <td colspan="7" align="right">
+                                                <td colspan="8" align="right">
                                                     <strong><?php echo get_phrase('Discount') ?> (
                                                         - ) </strong></td>
 
@@ -469,7 +291,7 @@ $property_5=get_property_list_for_show_hide(5);
                                         if ($saleslist->vat_amount > 0) {
                                             ?>
                                             <tr>
-                                                <td colspan="7" align="right">
+                                                <td colspan="8" align="right">
                                                     <strong><?php echo get_phrase('Vat') ?> <?php //echo round($saleslist->vat, 2) . ' ';       ?>
                                                         %( +
                                                         )</strong></td>
@@ -483,7 +305,7 @@ $property_5=get_property_list_for_show_hide(5);
                                         if ($saleslist->loader_charge > 0) {
                                             ?>
                                             <tr>
-                                                <td colspan="7" align="right"><strong><?php echo get_phrase('Loader') ?>
+                                                <td colspan="8" align="right"><strong><?php echo get_phrase('Loader') ?>
                                                         ( +
                                                         )</strong></td>
                                                 <td align="right"><?php echo number_format($saleslist->loader_charge, 2); ?></td>
@@ -495,7 +317,7 @@ $property_5=get_property_list_for_show_hide(5);
                                         if ($saleslist->transport_charge > 0) {
                                             ?>
                                             <tr>
-                                                <td colspan="7" align="right">
+                                                <td colspan="8" align="right">
                                                     <strong><?php echo get_phrase('Transportation') ?> ( + )</strong>
                                                 </td>
                                                 <td align="right"><?php echo number_format($saleslist->transport_charge, 2); ?></td>
@@ -504,7 +326,7 @@ $property_5=get_property_list_for_show_hide(5);
                                         }
                                         ?>
                                         <tr>
-                                            <td colspan="7" align="right">
+                                            <td colspan="8" align="right">
                                                 <strong><?php echo get_phrase('Net Total') ?></strong></td>
                                             <td align="right"><?php
                                                 $NetTotal = $tprice + $saleslist->transport_charge + $saleslist->loader_charge + $saleslist->vat_amount;
@@ -515,7 +337,7 @@ $property_5=get_property_list_for_show_hide(5);
                                         if ($saleslist->paid_amount > 0) {
                                             ?>
                                             <tr>
-                                                <td colspan="7" align="right">
+                                                <td colspan="8" align="right">
                                                     <strong><?php echo get_phrase('Payment') ?> (
                                                         - )</strong></td>
                                                 <td align="right"><?php echo number_format($saleslist->paid_amount, 2); ?></td>
@@ -527,7 +349,7 @@ $property_5=get_property_list_for_show_hide(5);
                                         if ($NetTotal - $saleslist->paid_amount > 0) {
                                             ?>
                                             <tr>
-                                                <td colspan="7" align="right">
+                                                <td colspan="8" align="right">
                                                     <strong><?php echo get_phrase('Due Amount') ?></strong></td>
                                                 <td align="right"><?php echo number_format($NetTotal - $saleslist->paid_amount, 2); ?></td>
                                             </tr>
@@ -535,14 +357,14 @@ $property_5=get_property_list_for_show_hide(5);
                                         }
                                         ?>
                                         <tr>
-                                            <td colspan="8">
+                                            <td colspan="9">
                                                 <strong><span><?php echo get_phrase('In_Words') ?>
                                                         : &nbsp;</span> <?php echo $this->Common_model->get_bd_amount_in_text($NetTotal); ?>
                                                 </strong>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td colspan="8">
+                                            <td colspan="9">
                                                 <span><?php echo get_phrase('Narration') ?>
                                                     : &nbsp;</span> <?php echo $saleslist->narration; ?>
                                                 <div class="invoice-block pull-right">
@@ -550,7 +372,6 @@ $property_5=get_property_list_for_show_hide(5);
                                                        onclick="javascript:window.print();"> Print
                                                         <i class="fa fa-print"></i>
                                                     </a>
-                                                    <a  href=" <?php site_url('viewLpgCylinder_pdf/' . $brands->brandId) ?>"> target="_blank">thesitewizard.com</a>
 
                                                 </div>
                                             </td>

@@ -53,12 +53,12 @@
                             <option value=""></option>
                             <option value="1">Accounts</option>
                             <option value="2">Customer</option>
-                            <option value="3">Supplier</option>
+                            <option value="3"selected>Supplier</option>
                         </select>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6" style="display: none">
+            <div class="col-md-6" style="">
                 <div id="searchValue"></div>
                 <div id="oldValue">
                     <div class="form-group">
@@ -232,6 +232,14 @@
 </div><!-- /.col -->
 
 <script>
+
+    function selectledgerid(ele) {
+        var ledger_id = $('.chosenRefesh option:selected').attr('attr-ledger-id');
+        $('.paytoAccount ').val(ledger_id);
+        $('.paytoAccount').trigger("chosen:updated");
+
+
+    }
     function isconfirm2() {
 
         var paymentDate = $("#paymentDate").val();
@@ -296,7 +304,7 @@
     $(document).ready(function () {
 
 
-        selectPayType("");
+        selectPayType(3);
         $('.checkAccountBalance').change(function () {
             var accountId = $(this).val();
             // alert(accountId);
@@ -339,10 +347,10 @@
 
 
     function selectPayType(payid) {
-        //alert('OK');
+       // alert('OK');
 
-        var url2 = '<?php echo site_url("FinaneController/getPayUserList") ?>';
-        /*$.ajax({
+        var url = '<?php echo site_url("lpg/FinaneController/getPayUserList") ?>';
+        $.ajax({
             type: 'POST',
             url: url,
             data: {'payid': payid},
@@ -352,7 +360,7 @@
                 $('.chosenRefesh').chosen();
                 $(".chosenRefesh").trigger("chosen:updated");
             }
-        });*/
+        });
 
         /*$("#loding_icon").LoadingOverlay("show", {
             background  : "rgba(230, 227, 227, 0.8) !important"
@@ -469,6 +477,8 @@
     $(document).ready(function () {
 
         $("#add_item").click(function () {
+
+            //selectPayType(1);
             var accountId = $('.paytoAccount').val();
             var accountName = $(".paytoAccount").find('option:selected').attr('paytoAccountName');
             var accountCode = $(".paytoAccount").find('option:selected').attr('paytoAccountCode');

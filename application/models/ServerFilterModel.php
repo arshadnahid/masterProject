@@ -248,31 +248,175 @@ class ServerFilterModel extends CI_Model
 
     private function _get_sales_datatables_query()
     {
-        $this->db->select('sales_invoice_info.sales_invoice_id,
+        $this->db->select("sales_invoice_info.sales_invoice_id,
         sales_invoice_info.invoice_no,
         sales_invoice_info.payment_type,
         sales_invoice_info.narration,
-        sales_invoice_info.invoice_date,
+        DATE_FORMAT(sales_invoice_info.invoice_date, '%b %e, %Y') as invoice_date,
         sales_invoice_info.invoice_amount,
         sales_invoice_info.paid_amount,
         customer.customerID,
         customer.customerName,
         customer.customer_id,
-        GROUP_CONCAT(sales_details.property_1 SEPARATOR ", ") as property_1,
-        GROUP_CONCAT(sales_details.property_2 SEPARATOR ", ") as property_2,
-        GROUP_CONCAT(sales_details.property_3 SEPARATOR ", ") as property_3,
-        GROUP_CONCAT(sales_details.property_4 SEPARATOR ", ") as property_4,
-        GROUP_CONCAT(sales_details.property_5 SEPARATOR ", ")as property_5,
-        ');
+        GROUP_CONCAT(sales_details.property_1 SEPARATOR ', ') as property_1,
+        GROUP_CONCAT(sales_details.property_2 SEPARATOR ', ') as property_2,
+        GROUP_CONCAT(sales_details.property_3 SEPARATOR ', ') as property_3,
+        GROUP_CONCAT(sales_details.property_4 SEPARATOR ', ') as property_4,
+        GROUP_CONCAT(sales_details.property_5 SEPARATOR ', ')as property_5
+       
+        ");
         $this->db->from("sales_invoice_info");
         $this->db->join('customer', 'customer.customer_id=sales_invoice_info.customer_id');
         $this->db->join('sales_details', 'sales_details.sales_invoice_id=sales_invoice_info.sales_invoice_id');
 
         // $this->db->where('sales_invoice_info.dist_id', $this->dist_id);
         $this->db->where('sales_invoice_info.is_active', 'Y');
+        $this->db->where('sales_invoice_info.invoice_for !=', '3');
 
         if (!empty($this->input->post('property_1'))) {
             $this->db->like('sales_details.property_1', $this->input->post('property_1'), 'both');
+        }
+        if (!empty($this->input->post('property_2'))) {
+            $this->db->like('sales_details.property_2', $this->input->post('property_2'), 'both');
+        }
+        if (!empty($this->input->post('property_3'))) {
+            $this->db->like('sales_details.property_3', $this->input->post('property_3'), 'both');
+        }
+        $this->db->group_by("sales_invoice_info.sales_invoice_id");
+        $i = 0;
+        foreach ($this->column_search as $item) { // loop column
+            if ($_POST['search']['value']) { // if datatable send POST for search
+                if ($i === 0) { // first loop
+                    $this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
+                    $this->db->like($item, $_POST['search']['value']);
+                } else {
+                    $this->db->or_like($item, $_POST['search']['value']);
+                }
+
+                if (count($this->column_search) - 1 == $i) //last loop
+                    $this->db->group_end(); //close bracket
+            }
+            $i++;
+        }
+
+        if (isset($_POST['order'])) { // here order processing
+            $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        } else if (isset($this->order)) {
+            //$order = $this->order;
+            $this->db->order_by('sales_invoice_info.sales_invoice_id', 'desc');
+            $this->db->order_by('sales_invoice_info.invoice_date', 'desc');
+        }
+    }
+
+    function get_sales_return_datatables()
+    {
+        $this->_get_sales_return_datatables_query();
+        if ($_POST['length'] != -1)
+            $this->db->limit($_POST['length'], $_POST['start']);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+
+    private function _get_sales_return_datatables_query()
+    {
+        $this->db->select("return_info.id,
+        return_info.return_invoice_no,
+      
+        return_info.narration,
+        DATE_FORMAT(return_info.return_date, '%b %e, %Y') as invoice_date,
+        SUM(stock.quantity*stock.price) as amount ,
+      
+        customer.customerID,
+        customer.customerName,
+        customer.customer_id,
+        GROUP_CONCAT(stock.property_1 SEPARATOR ', ') as property_1,
+        GROUP_CONCAT(stock.property_2 SEPARATOR ', ') as property_2,
+        GROUP_CONCAT(stock.property_3 SEPARATOR ', ') as property_3,
+        GROUP_CONCAT(stock.property_4 SEPARATOR ', ') as property_4,
+        GROUP_CONCAT(stock.property_5 SEPARATOR ', ')as property_5
+       
+        ");
+        $this->db->from("return_info");
+        $this->db->join('customer', 'customer.customer_id=return_info.sup_cus_id');
+        $this->db->join('stock', 'stock.invoice_id=return_info.id');
+        $this->db->join('product', 'product.product_id=stock.product_id');
+        $this->db->join('productcategory', 'product.category_id=productcategory.category_id');
+
+        // $this->db->where('sales_invoice_info.dist_id', $this->dist_id);
+        $this->db->where('return_info.is_active', 'Y');
+        $this->db->where('return_info.return_type ', '2');
+        $this->db->where('stock.form_id ', '5');
+
+        if (!empty($this->input->post('property_1'))) {
+            $this->db->like('stock.property_1', $this->input->post('property_1'), 'both');
+        }
+        if (!empty($this->input->post('property_2'))) {
+            $this->db->like('stock.property_2', $this->input->post('property_2'), 'both');
+        }
+        if (!empty($this->input->post('property_3'))) {
+            $this->db->like('stock.property_3', $this->input->post('property_3'), 'both');
+        }
+        $this->db->group_by("return_info.id");
+        $i = 0;
+        foreach ($this->column_search as $item) { // loop column
+            if ($_POST['search']['value']) { // if datatable send POST for search
+                if ($i === 0) { // first loop
+                    $this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
+                    $this->db->like($item, $_POST['search']['value']);
+                } else {
+                    $this->db->or_like($item, $_POST['search']['value']);
+                }
+
+                if (count($this->column_search) - 1 == $i) //last loop
+                    $this->db->group_end(); //close bracket
+            }
+            $i++;
+        }
+
+        if (isset($_POST['order'])) { // here order processing
+            $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        } else if (isset($this->order)) {
+            //$order = $this->order;
+            $this->db->order_by('return_info.id', 'desc');
+            $this->db->order_by('return_info.return_date', 'desc');
+        }
+    }
+    private function _get_warranty_claim_voucher_datatables_query()
+    {
+        $this->db->select("sales_invoice_info.sales_invoice_id,
+        sales_invoice_info.invoice_no,
+        sales_invoice_info.payment_type,
+        sales_invoice_info.narration,
+        DATE_FORMAT(sales_invoice_info.invoice_date, '%b %e, %Y') as invoice_date,
+        sales_invoice_info.invoice_amount,
+        sales_invoice_info.paid_amount,
+        customer.customerID,
+        customer.customerName,
+        customer.customer_id,
+        GROUP_CONCAT(sales_details.property_1 SEPARATOR ', ') as property_1,
+        GROUP_CONCAT(sales_details.property_2 SEPARATOR ', ') as property_2,
+        GROUP_CONCAT(sales_details.property_3 SEPARATOR ', ') as property_3,
+        GROUP_CONCAT(sales_details.property_4 SEPARATOR ', ') as property_4,
+        GROUP_CONCAT(sales_details.property_5 SEPARATOR ', ')as property_5,
+        GROUP_CONCAT(sales_details.product_details SEPARATOR ', ')as product_details,
+        ");
+        $this->db->from("sales_invoice_info");
+        $this->db->join('customer', 'customer.customer_id=sales_invoice_info.customer_id');
+        $this->db->join('sales_details', 'sales_details.sales_invoice_id=sales_invoice_info.sales_invoice_id');
+
+        // $this->db->where('sales_invoice_info.dist_id', $this->dist_id);
+        $this->db->where('sales_invoice_info.is_active', 'Y');
+        $this->db->where('sales_invoice_info.invoice_for ', '3');
+
+        if (!empty($this->input->post('property_1'))) {
+            $this->db->like('sales_details.property_1', $this->input->post('property_1'), 'both');
+        }
+        if (!empty($this->input->post('property_2'))) {
+            $this->db->like('sales_details.property_2', $this->input->post('property_2'), 'both');
+        }
+        if (!empty($this->input->post('property_3'))) {
+            $this->db->like('sales_details.property_3', $this->input->post('property_3'), 'both');
         }
         $this->db->group_by("sales_invoice_info.sales_invoice_id");
         $i = 0;
@@ -388,6 +532,68 @@ class ServerFilterModel extends CI_Model
         $this->db->join('purchase_details', 'purchase_details.purchase_invoice_id=purchase_invoice_info.purchase_invoice_id');
         //$this->db->where('purchase_invoice_info.dist_id', $this->dist_id);
         $this->db->where('purchase_invoice_info.for', 2);
+        $this->db->where('purchase_invoice_info.is_active', "Y");
+        if (!empty($this->input->post('property_1'))) {
+            $this->db->like('purchase_details.property_1', $this->input->post('property_1'), 'both');
+        }
+        if (!empty($this->input->post('property_1'))) {
+            $this->db->like('purchase_details.property_1', $this->input->post('property_1'), 'both');
+        }
+        if (!empty($this->input->post('property_2'))) {
+            $this->db->like('purchase_details.property_2', $this->input->post('property_1'), 'both');
+        }
+        if (!empty($this->input->post('property_3'))) {
+            $this->db->like('purchase_details.property_3', $this->input->post('property_1'), 'both');
+        }
+        if (!empty($this->input->post('property_4'))) {
+            $this->db->like('purchase_details.property_4', $this->input->post('property_1'), 'both');
+        }
+        $this->db->group_by("purchase_invoice_info.purchase_invoice_id");
+        $i = 0;
+        foreach ($this->column_search as $item) { // loop column
+            if ($_POST['search']['value']) { // if datatable send POST for search
+                if ($i === 0) { // first loop
+                    $this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
+                    $this->db->like($item, $_POST['search']['value']);
+                } else {
+                    $this->db->or_like($item, $_POST['search']['value']);
+                }
+
+                if (count($this->column_search) - 1 == $i) //last loop
+                    $this->db->group_end(); //close bracket
+            }
+            $i++;
+        }
+
+        if (isset($_POST['order'])) { // here order processing
+            $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        } else if (isset($this->order)) {
+            //$order = $this->order;
+            $this->db->order_by('purchase_invoice_info.purchase_invoice_id', 'desc');
+            $this->db->order_by('purchase_invoice_info.invoice_date', 'desc');
+
+        }
+    }
+
+    private function _get_warranty_receipt_voucher_list_query()
+    {
+
+        $this->db->select('purchase_invoice_info.purchase_invoice_id,purchase_invoice_info.invoice_no,purchase_invoice_info.invoice_amount,
+        purchase_invoice_info.narration,purchase_invoice_info.invoice_date,
+        purchase_invoice_info.paid_amount,supplier.supID,supplier.supName,supplier.sup_id,supplier.sup_id,
+        
+         GROUP_CONCAT(purchase_details.property_1 SEPARATOR ", ") as property_1,
+        GROUP_CONCAT(purchase_details.property_2 SEPARATOR ", ") as property_2,
+        GROUP_CONCAT(purchase_details.property_3 SEPARATOR ", ") as property_3,
+        GROUP_CONCAT(purchase_details.property_4 SEPARATOR ", ") as property_4,
+        GROUP_CONCAT(purchase_details.property_5 SEPARATOR ", ") as property_5
+        
+        ');
+        $this->db->from("purchase_invoice_info");
+        $this->db->join('supplier', 'supplier.sup_id=purchase_invoice_info.supplier_id');
+        $this->db->join('purchase_details', 'purchase_details.purchase_invoice_id=purchase_invoice_info.purchase_invoice_id');
+        //$this->db->where('purchase_invoice_info.dist_id', $this->dist_id);
+        $this->db->where('purchase_invoice_info.for', 3);
         $this->db->where('purchase_invoice_info.is_active', "Y");
         if (!empty($this->input->post('property_1'))) {
             $this->db->like('purchase_details.property_1', $this->input->post('property_1'), 'both');
@@ -637,6 +843,7 @@ class ServerFilterModel extends CI_Model
         //$this->db->join('ac_tb_accounts_voucherdtl', 'ac_tb_accounts_voucherdtl.Accounts_VoucherMst_AutoID=ac_accounts_vouchermst.Accounts_VoucherMst_AutoID');
         // $this->db->where('ac_accounts_vouchermst.BranchAutoId', $this->dist_id);
         $this->db->where('ac_accounts_vouchermst.AccouVoucherType_AutoID', 3);
+        $this->db->where('ac_accounts_vouchermst.IsActive', 1);
         // $this->db->group_by('ac_tb_accounts_voucherdtl.Accounts_VoucherMst_AutoID');
         $i = 0;
         foreach ($this->column_search as $item) { // loop column
@@ -670,7 +877,7 @@ class ServerFilterModel extends CI_Model
         $this->db->select("moneyreceit.date,moneyreceit.receitID,moneyreceit.moneyReceitid,moneyreceit.totalPayment,moneyreceit.checkStatus,moneyreceit.paymentType,customer.customerID,customer.customer_id,customer.customerName");
         $this->db->from("moneyreceit");
         $this->db->join('customer', 'customer.customer_id=moneyreceit.customerid');
-        $this->db->where('moneyreceit.dist_id', $this->dist_id);
+       // $this->db->where('moneyreceit.dist_id', $this->dist_id);
         $this->db->where('moneyreceit.receiveType', 1);
         $i = 0;
         foreach ($this->column_search as $item) { // loop column
@@ -866,6 +1073,15 @@ class ServerFilterModel extends CI_Model
         return $query->result();
     }
 
+    function get_warranty_claim_voucher_datatables()
+    {
+        $this->_get_warranty_claim_voucher_datatables_query();
+        if ($_POST['length'] != -1)
+            $this->db->limit($_POST['length'], $_POST['start']);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
     function get_customer_due_datatables()
     {
         $this->_get_customer_due_datatables_query();
@@ -887,6 +1103,14 @@ class ServerFilterModel extends CI_Model
     function get_purchases_cylinder_datatables()
     {
         $this->_get_purchases_cylinder_datatables_query();
+        if ($_POST['length'] != -1)
+            $this->db->limit($_POST['length'], $_POST['start']);
+        $query = $this->db->get();
+        return $query->result();
+    }
+    function get_warranty_receipt_voucher_list_query()
+    {
+        $this->_get_warranty_receipt_voucher_list_query();
         if ($_POST['length'] != -1)
             $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();
@@ -991,6 +1215,11 @@ class ServerFilterModel extends CI_Model
         $this->_get_sales_datatables_query();
         $query = $this->db->get();
         return $query->num_rows();
+    }  function count_filtered_warranty_claim_voucher_list()
+    {
+        $this->_get_warranty_claim_voucher_datatables_query();
+        $query = $this->db->get();
+        return $query->num_rows();
     }
 
     function count_filtered_cus_due_payment()
@@ -1010,6 +1239,12 @@ class ServerFilterModel extends CI_Model
     function count_filtered_cylinder_purchases()
     {
         $this->_get_purchases_cylinder_datatables_query();
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+    function count_filtered_arranty_receipt_voucher()
+    {
+        $this->_get_warranty_receipt_voucher_list_query();
         $query = $this->db->get();
         return $query->num_rows();
     }
@@ -1105,10 +1340,18 @@ class ServerFilterModel extends CI_Model
         $this->db->where('form_id', 5);
         return $this->db->count_all_results();
     }*/
+    public function count_all_warranty_claim_voucher_list()
+    {
+        $this->db->from($this->table);
+        $this->db->where('invoice_for', 3);
+        //$this->db->where('form_id', 5);
+        return $this->db->count_all_results();
+    }
+
     public function count_all_sales()
     {
         $this->db->from($this->table);
-        $this->db->where('dist_id', $this->dist_id);
+        //$this->db->where('dist_id', $this->dist_id);
         //$this->db->where('form_id', 5);
         return $this->db->count_all_results();
     }
@@ -1124,8 +1367,16 @@ class ServerFilterModel extends CI_Model
     public function count_all_cylinder_purchases()
     {
         $this->db->from($this->table);
-        $this->db->where('dist_id', $this->dist_id);
+
         $this->db->where('for', 2);
+        //$this->db->where('form_id', 11);
+        return $this->db->count_all_results();
+    }
+    public function count_all_warranty_receipt_voucher()
+    {
+        $this->db->from($this->table);
+
+        $this->db->where('for', 3);
         //$this->db->where('form_id', 11);
         return $this->db->count_all_results();
     }

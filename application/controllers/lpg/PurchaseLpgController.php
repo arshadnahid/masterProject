@@ -295,11 +295,21 @@ class PurchaseLpgController extends CI_Controller
                             redirect(site_url($this->project . '/purchases_lpg_add'));
                         }
 
-
+                        $lastPurchasepriceArray = $this->db->where('product_id', $_POST['product_id_' . $value])
+                            ->where('branch_id', $branch_id)
+                            ->order_by('purchase_details_id', "desc")
+                            ->limit(1)
+                            ->get('purchase_details')
+                            ->row();
+                        $lastPurchaseprice = !empty($lastPurchasepriceArray) ? $lastPurchasepriceArray->unit_price : 0;
                         //sitehelper
                         //$product_last_purchase_price=get_product_last_purchase_price($packageEmptyProductId);
                         //$product_last_purchase_price=$this->Sales_Model->emptyCylinderPurchasePrice($packageEmptyProductId, $this->dist_id);;
                         $product_last_purchase_price=$this->Common_model->get_single_data_by_single_column('product', 'product_id', $packageEmptyProductId)->purchases_price;
+
+
+
+
 
                         $emptyCylindetWithRefill['product_id'] = $packageEmptyProductId;
                         $emptyCylindetWithRefill['price'] = ($product_last_purchase_price * $_POST['quantity_' . $value]);
@@ -330,6 +340,51 @@ class PurchaseLpgController extends CI_Controller
 
 
 
+
+                        $stockNewTable=array();
+                        $stockNewTable['parent_stock_id']=0;
+                        $stockNewTable['invoice_id']=$this->invoice_id;
+                        $stockNewTable['form_id']=2;
+                        $stockNewTable['type']=1;
+                        $stockNewTable['Accounts_VoucherMst_AutoID']=$accountingVoucherId;
+                        $stockNewTable['Accounts_VoucherDtl_AutoID']=0;
+                        $stockNewTable['customer_id']=0;
+                        $stockNewTable['supplier_id']=$this->input->post('supplierID');
+                        $stockNewTable['branch_id']=$branch_id;
+                        $stockNewTable['invoice_date']=$purchasesDate;
+                        $stockNewTable['category_id']=$category_id;
+                        $stockNewTable['product_id']=$packageEmptyProductId;
+                        $stockNewTable['empty_cylinder_id']=$packageEmptyProductId;
+                        $stockNewTable['is_package']=0;
+                        $stockNewTable['show_in_invoice']=0;
+                        $stockNewTable['unit']=getProductUnit($packageEmptyProductId);
+
+                        $stockNewTable['quantity']=$_POST['quantity_' . $value];
+                        $stockNewTable['quantity_out']=0;
+                        $stockNewTable['quantity_in']=$_POST['quantity_' . $value];
+                        $stockNewTable['returnable_quantity']=0;
+                        $stockNewTable['return_quentity']=0;
+                        $stockNewTable['due_quentity']=0;
+                        $stockNewTable['advance_quantity']=0;
+                        $stockNewTable['price']=$product_last_purchase_price;
+                        $stockNewTable['price_in']=$product_last_purchase_price;
+                        $stockNewTable['price_out']=0;
+                        $stockNewTable['last_purchase_price']=$lastPurchaseprice;
+                        $stockNewTable['product_details']="";
+                        $stockNewTable['property_1'] =$_POST['property_1_' . $value];
+                        $stockNewTable['property_2'] =$_POST['property_2_' . $value];
+                        $stockNewTable['property_3'] =$_POST['property_3_' . $value];
+                        $stockNewTable['property_4'] =$_POST['property_4_' . $value];
+                        $stockNewTable['property_5'] =$_POST['property_5_' . $value];
+                        $stockNewTable['openingStatus']=0;
+                        $stockNewTable['insert_by'] = $this->admin_id;
+                        $stockNewTable['insert_date'] = $this->timestamp;
+                        $stockNewTable['update_by']='';
+                        $stockNewTable['update_date']='';
+                        $this->Common_model->insert_data('stock', $stockNewTable);
+
+
+
                     }
                     if (isset($_POST['returnproduct_' . $value])) {
                         foreach ($_POST['returnproduct_' . $value] as $key1 => $value1) {
@@ -352,6 +407,57 @@ class PurchaseLpgController extends CI_Controller
                             //$stock2['unit_price'] = get_product_purchase_price($value1);;
                             $stock2['unit_price'] = $product_last_purchase_price;
                             $allStock[] = $stock2;
+
+
+
+
+
+
+                            $stockNewTable=array();
+                            $stockNewTable['parent_stock_id']=$stock_id;
+                            $stockNewTable['invoice_id']=$this->invoice_id;
+                            $stockNewTable['form_id']=2;
+                            $stockNewTable['type']=2;
+                            $stockNewTable['Accounts_VoucherMst_AutoID']=$accountingVoucherId;
+                            $stockNewTable['Accounts_VoucherDtl_AutoID']=0;
+                            $stockNewTable['customer_id']=0;
+                            $stockNewTable['supplier_id']=$this->input->post('supplierID');
+                            $stockNewTable['branch_id']=$branch_id;
+                            $stockNewTable['invoice_date']=$purchasesDate;
+                            $stockNewTable['category_id']=$category_id;
+                            $stockNewTable['product_id']=$value1;
+                            $stockNewTable['empty_cylinder_id']=$value1;
+                            $stockNewTable['is_package']=0;
+                            $stockNewTable['show_in_invoice']=1;
+                            $stockNewTable['unit']=getProductUnit($value1);
+
+                            $stockNewTable['quantity']=$_POST['returnQuentity_' . $value][$key1];
+                            $stockNewTable['quantity_out']=$_POST['returnQuentity_' . $value][$key1];
+                            $stockNewTable['quantity_in']=0;
+                            $stockNewTable['returnable_quantity']=0;
+                            $stockNewTable['return_quentity']=0;
+                            $stockNewTable['due_quentity']=0;
+                            $stockNewTable['advance_quantity']=0;
+                            $stockNewTable['price']=$product_last_purchase_price;
+                            $stockNewTable['price_in']=0;
+                            $stockNewTable['price_out']=$product_last_purchase_price;
+                            $stockNewTable['last_purchase_price']=$lastPurchaseprice;
+                            $stockNewTable['product_details']="";
+                            $stockNewTable['property_1'] =$_POST['property_1_' . $value];
+                            $stockNewTable['property_2'] =$_POST['property_2_' . $value];
+                            $stockNewTable['property_3'] =$_POST['property_3_' . $value];
+                            $stockNewTable['property_4'] =$_POST['property_4_' . $value];
+                            $stockNewTable['property_5'] =$_POST['property_5_' . $value];
+                            $stockNewTable['openingStatus']=0;
+                            $stockNewTable['insert_by'] = $this->admin_id;
+                            $stockNewTable['insert_date'] = $this->timestamp;
+                            $stockNewTable['update_by']='';
+                            $stockNewTable['update_date']='';
+                            $this->Common_model->insert_data('stock', $stockNewTable);
+
+
+
+
                         }
                     }
                 }
@@ -786,7 +892,7 @@ class PurchaseLpgController extends CI_Controller
         $data['bankList'] = $this->Common_model->get_data_list_by_many_columns('bank_account_info', $condition2);
         $data['voucherID'] = create_purchase_invoice_no();
         /* this invoice no is comming  from purchase_invoice_no_helper */
-        if ($this->business_type == "MOBILE") {
+        if ($this->business_type != "LPG") {
             $data['mainContent'] = $this->load->view('distributor/inventory/purchases_mobile/purchasesWithPos', $data, true);
 
             //$this->folderSub = 'distributor/inventory/product_mobile/';

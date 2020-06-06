@@ -23,6 +23,37 @@ class MpdfController extends CI_Controller {
 
         // Output the generated PDF (1 = download and 0 = preview)
         $this->dompdf->stream("welcome.pdf", array("Attachment"=>0));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
 }

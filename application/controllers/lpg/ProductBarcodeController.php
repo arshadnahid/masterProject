@@ -57,39 +57,44 @@ class ProductBarcodeController extends CI_Controller
     function productBarcode()
     {
         if (isPostBack()) {
-            /*  echo '<pre>';
-              print_r($_POST);
-              exit;*/
-            $category = $this->input->post('category');
-            $productid = $this->input->post('productid');
+
+            $category = $this->input->post('barcodeProductCategoryId');
+            $productid = $this->input->post('barcodeProductId');
             /*By Mamun*/
-            $quantity = $this->input->post('quantity');
-            if ($category == 'all' && $productid == 'all') {
-                $data['productList'] = $this->Common_model->getPublicProductWithoutCat($this->dist_id);
-            } elseif ($category != 'all' && $productid == 'all') {
-                $data['productList'] = $this->Common_model->getProductListByCategory($category, $this->dist_id);
-            } else {
-                $data['productList'] = $this->Common_model->get_data_list_by_single_column('product', 'product_id', $productid);
-            }
-            $productSelectList = $this->input->post('productId');
+            $quantity = $this->input->post('barcodeProductQty');
+            $data['productList'] = $productid;
+            $data['category'] = $category;
+            $data['quantity'] = $quantity;
+
+
+            $productSelectList = $productid;
             $numberOfBarcode = 0;
             foreach ($productSelectList as $key => $eachProduct) {
-                $numberOfBarcode = $numberOfBarcode + $quantity[$productInfo->product_id];
+
+
+               // $numberOfBarcode = $numberOfBarcode + $quantity[$productInfo->product_id];
                 $productInfo = $this->Common_model->getProductInfo($eachProduct);
-                for ($i = 0; $i < $quantity[$productInfo->product_id]; $i++) {
+                for ($i = 0; $i < $quantity[$eachProduct]; $i++) {
                     $barcodes[] = $productInfo;
                 }
             }
-            if (!empty($productSelectList)) {
-                $data['selectList'] = $productSelectList;
-                $data['barcodes'] = $barcodes;
-                $data['numberOfBarcode'] = $numberOfBarcode;
-            }
+            $footer = '';
+            $data['barcodes']=$barcodes;
+            $footer ='';
+            $output_type = '';
+            $header = '';
+            $this->load->library('tec_mpdf', '', 'pdf');
+
+             $content = $this->load->view('distributor/inventory/product/barcode_new_pdf', $data, true);
+
+            $this->pdf->generate($content, $name = 'download.pdf', $output_type, $footer, $margin_bottom = null, $header, $margin_top = '45', $orientation = 'l');
+
+
         }
         $data['categoryList'] = $this->Common_model->getPublicProductCat($this->dist_id);
         /*page navbar details*/
         $data['title'] = get_phrase('Product Barcode');
-        $data['quantity'] = $quantity;
+        //$data['quantity'] = $quantity;
         $data['page_type'] = get_phrase($this->page_type);
         $data['link_page_name'] = get_phrase('Product Barcode List');
         $data['link_page_url'] = '';
@@ -120,13 +125,13 @@ class ProductBarcodeController extends CI_Controller
             $this->db->where('category_id', $category_id);
         }
         $result = $this->db->get()->result();
-        $result_tr="";
+        $result_tr = "";
         foreach ($result as $key => $row):
             $result_tr .= '<tr>';
-            $result_tr .= '<td>'.$this->Common_model->tableRow('productcategory', 'category_id', $row->category_id)->title.'</td>';
-            $result_tr .= '<td>' . $this->Common_model->tableRow('product', 'product_id', $row->product_id)->productName .'[ ' .$this->Common_model->tableRow('product', 'product_id', $row->product_id)->product_code .' ]'. '</td>';
-            $result_tr .= '<td>' . $qty . '</td>';
-            $result_tr .= '<td></td>';
+            $result_tr .= '<td>' . $this->Common_model->tableRow('productcategory', 'category_id', $row->category_id)->title . '</td>';
+            $result_tr .= '<td>' . $this->Common_model->tableRow('product', 'product_id', $row->product_id)->productName . '[ ' . $this->Common_model->tableRow('product', 'product_id', $row->product_id)->product_code . ' ]' . '</td>';
+            $result_tr .= '<td>' . '<input type="text" name="barcodeProductQty[' . $row->product_id . ']"value="' . $qty . '">' . '</td>';
+            $result_tr .= '<td>' . '<input type="text" name="barcodeProductCategoryId[]"value="' . $row->category_id . '"><input type="text" name="barcodeProductId[]"value="' . $row->product_id . '">' . '</td>';
             $result_tr .= '</tr>';
         endforeach;
         echo $result_tr;

@@ -494,7 +494,7 @@ class SalesReportController extends CI_Controller
                             $accountingMasterTable['BackReferenceInvoiceID'] = $salesInvoiceInfo->sales_invoice_id;
                             $accountingMasterTable['Narration'] = 'Customer Pending Cheque Recive';
                             $accountingMasterTable['CompanyId'] = $this->dist_id;
-
+                            $accountingMasterTable['due_collection_details_id'] =$dueCollectionInvoices->id;
                             $accountingMasterTable['BranchAutoId'] = $salesInvoiceInfo->branch_id;
                             $accountingMasterTable['customer_id'] = $receiteInfo->customerid;
                             $accountingMasterTable['IsActive'] = 1;
@@ -505,6 +505,8 @@ class SalesReportController extends CI_Controller
 
                             /*Customer Receivable  /account Receiveable  =>>25*/
                             //account Receiveable
+                            $accountingDetailsTable_DR['cus_due_collection_details_id'] =$dueCollectionInvoices->id;
+                            $accountingDetailsTable_DR['for'] = 6;
                             $accountingDetailsTable_CR['Accounts_VoucherMst_AutoID'] = $accountingVoucherId;
                             $accountingDetailsTable_CR['TypeID'] = '2';//CR
                             $accountingDetailsTable_CR['CHILD_ID'] = $ledger_id->id;//$this->config->item("Customer_Receivable");//'25';
@@ -521,6 +523,8 @@ class SalesReportController extends CI_Controller
                             //supplier paid amount
 
                             /*Cash in hand*/
+                            $accountingDetailsTable_DR['cus_due_collection_details_id'] =$dueCollectionInvoices->id;
+                            $accountingDetailsTable_DR['for'] = 6;
                             $accountingDetailsTable_DR['Accounts_VoucherMst_AutoID'] = $accountingVoucherId;
                             $accountingDetailsTable_DR['TypeID'] = '1';//CR
                             $accountingDetailsTable_DR['CHILD_ID'] = $this->input->post('accountDr');
@@ -537,22 +541,7 @@ class SalesReportController extends CI_Controller
                             $this->db->insert_batch('ac_tb_accounts_voucherdtl', $finalDetailsArray);
                             $finalDetailsArray=array();
 
-                            $customerData = array(
-                                'ledger_type' => 1,
-                                'history_id' => $accountingVoucherId,
-                                'trans_type' => $receiteInfo->receitID,
-                                'paymentType' => 'Customer Check Received',
-                                'client_vendor_id' => $clientID,
-                                'invoice_id' => $salesInvoiceInfo->sales_invoice_id,
-                                'invoice_type' => '1',
-                                'Accounts_VoucherType_AutoID' => '1',
-                                'amount' => $receiteInfo->totalPayment,
-                                'cr' => $receiteInfo->totalPayment,
-                                'dist_id' => $this->dist_id,
-                                'BranchAutoId' => $salesInvoiceInfo->branch_id,
-                                'date' => date('Y-m-d', strtotime($this->input->post('paymentDate')))
-                            );
-                            $this->db->insert('client_vendor_ledger', $customerData);
+
 
 
                         }
@@ -563,8 +552,46 @@ class SalesReportController extends CI_Controller
 
 
                 }else{
-
                     $salesInvoiceInfo = $this->Common_model->tableRow('sales_invoice_info', 'sales_invoice_id', $receiteInfo->invoiceID);
+
+
+                    $cus_due_collection_infoNo = $this->db->where(array('1' => 1))->count_all_results('cus_due_collection_info') + 1;
+                    $ReceitVoucher = "CDR" . date("y") . date("m") . str_pad($cus_due_collection_infoNo, 4, "0", STR_PAD_LEFT);
+                    $due_collection_info['total_paid_amount'] =$receiteInfo->totalPayment;
+                    $due_collection_info['customer_id'] = $receiteInfo->customerid;
+                    $due_collection_info['cus_due_coll_no'] = $ReceitVoucher;
+                    $due_collection_info['payment_type'] =1;
+                    $due_collection_info['bank_name'] = $receiteInfo->bankName;
+                    $due_collection_info['branch_name'] =$receiteInfo->branchName;
+                    $due_collection_info['check_no'] = $receiteInfo->checkNo;
+                    $due_collection_info['check_date'] = $receiteInfo->checkDate;
+                    $due_collection_info['date'] = date('Y-m-d', strtotime($this->input->post('paymentDate')));
+                    $due_collection_info['dist_id'] = $this->dist_id;
+                    $due_collection_info['insert_date'] = $this->timestamp;
+                    $due_collection_info['insert_by'] = $this->admin_id;
+                    $due_collection_info['is_active'] = 'Y';
+                    $due_collection_info['is_delete'] = 'N';
+                    $due_collection_info['narration'] = $this->input->post('narration');
+                    $cus_due_collection_info_id = $this->Common_model->insert_data('cus_due_collection_info', $due_collection_info);
+
+
+                    $due_collection['sales_invoice_id'] =  $receiteInfo->invoiceID;
+                    $due_collection['due_collection_info_id'] = $cus_due_collection_info_id;
+                    $due_collection['customer_id'] = $receiteInfo->customerid;
+                    $due_collection['payment_type'] = 1;
+                    $due_collection['paid_amount'] = $this->input->post('accountDr');
+                    $due_collection['insert_date'] = $this->timestamp;
+                    $due_collection['date'] = date('Y-m-d', strtotime($this->input->post('paymentDate')));
+                    $due_collection['insert_by'] = $this->admin_id;
+                    $due_collection['is_active'] = 'Y';
+                    $due_collection['is_delete'] = 'N';
+                    $cus_due_collection_details_id = $this->Common_model->insert_data('cus_due_collection_details', $due_collection);
+
+
+
+
+
+
                     $this->load->helper('create_receive_voucher_no');
                     /*ac_accounts_vouchermst*/
                     $voucher_no = create_receive_voucher_no();
@@ -573,6 +600,7 @@ class SalesReportController extends CI_Controller
                     $accountingMasterTable['Accounts_Voucher_Date'] = date('Y-m-d', strtotime($this->input->post('paymentDate')));
                     $accountingMasterTable['BackReferenceInvoiceNo'] = $salesInvoiceInfo->invoice_no;
                     $accountingMasterTable['BackReferenceInvoiceID'] = $receiteInfo->invoiceID;
+                    $accountingMasterTable['due_collection_details_id'] =$cus_due_collection_details_id;
                     $accountingMasterTable['Narration'] = 'Customer Pending Cheque Recive';
                     $accountingMasterTable['CompanyId'] = $this->dist_id;
                     $accountingMasterTable['BranchAutoId'] = $salesInvoiceInfo->branch_id;
@@ -585,9 +613,11 @@ class SalesReportController extends CI_Controller
 
                     /*Customer Receivable  /account Receiveable  =>>25*/
                     //account Receiveable
+                    $accountingDetailsTable_CR['cus_due_collection_details_id'] =$cus_due_collection_details_id;
+                    $accountingDetailsTable_CR['for'] = 6;
                     $accountingDetailsTable_CR['Accounts_VoucherMst_AutoID'] = $accountingVoucherId;
                     $accountingDetailsTable_CR['TypeID'] = '2';//CR
-                    $accountingDetailsTable_CR['CHILD_ID'] = $ledger_id->id;$this->config->item("Customer_Receivable");//'25';
+                    $accountingDetailsTable_CR['CHILD_ID'] = $ledger_id->id;//$this->config->item("Customer_Receivable");//'25';
                     $accountingDetailsTable_CR['GR_DEBIT'] = '0.00';
                     $accountingDetailsTable_CR['GR_CREDIT'] = $receiteInfo->totalPayment;
                     $accountingDetailsTable_CR['Reference'] = 'Customer Recivable';
@@ -601,6 +631,8 @@ class SalesReportController extends CI_Controller
                     //supplier paid amount
 
                     /*Cash in hand*/
+                    $accountingDetailsTable_DR['cus_due_collection_details_id'] =$cus_due_collection_details_id;
+                    $accountingDetailsTable_DR['for'] = 6;
                     $accountingDetailsTable_DR['Accounts_VoucherMst_AutoID'] = $accountingVoucherId;
                     $accountingDetailsTable_DR['TypeID'] = '1';//CR
                     $accountingDetailsTable_DR['CHILD_ID'] = $this->input->post('accountDr');
@@ -633,6 +665,10 @@ class SalesReportController extends CI_Controller
                         'date' => date('Y-m-d', strtotime($this->input->post('paymentDate')))
                     );
                     $this->db->insert('client_vendor_ledger', $customerData);
+
+
+                    $changeStatus['due_collection_info_id'] = $cus_due_collection_info_id;
+
                 }
 
                 $changeStatus['checkStatus'] = 2;

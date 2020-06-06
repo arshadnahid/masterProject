@@ -50,7 +50,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
         <div class="col-sm-12 col-md-4" style="margin-top: 10px;">
             <div class="form-group">
                 <label class="col-sm-3 control-label formfonterp" for="form-field-1"> <span
-                            style="color:red;">*</span><strong><?php echo get_phrase('Sales_Date') ?></strong></label>
+                            style="color:red;">*</span><strong><?php echo get_phrase('Date') ?></strong></label>
                 <div class="col-sm-7">
                     <div class="input-group">
                         <input class="form-control date-picker-sales" name="saleDate" id="saleDate" type="text"
@@ -63,17 +63,21 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
             </div>
             <div class="form-group">
                 <label class="col-sm-3 control-label formfonterp" for="form-field-1"> <span
-                            style="color:red;">*</span><strong>Customer Name</strong></label>
+                            style="color:red;">*</span><strong>Warranty Proviber</strong></label>
                 <div class="col-sm-7">
                     <div class="input-group">
                         <select id="customerid" name="customer_id" class="chosen-select form-control"
                                 onchange="getCustomerCurrentBalace(this.value)"
-                                data-placeholder="Select Customer Name">
+                                data-placeholder="Select Warranty Proviber Name">
                             <option></option>
                             <?php foreach ($customerList as $key => $each_info): ?>
                                 <option value="<?php echo $each_info->customer_id; ?>"><?php echo $each_info->customerName . '&nbsp&nbsp[ ' . $each_info->typeTitle . ' ] '; ?></option>
                                 <!--   <!---->
                                 <option value="<?php /* echo $each_info->customer_id; */ ?>"><?php /* echo $each_info->typeTitle . ' - ' . $each_info->customerID . ' [ ' . $each_info->customerName . ' ] '; */ ?></option>-->
+                            <?php endforeach; ?>
+
+                            <?php foreach ($supplierList as $key => $each_info): ?>
+                                <option value="<?php echo $each_info->sup_id; ?>"><?php echo $each_info->supName . ' [ ' . $each_info->supID . ' ] '; ?></option>
                             <?php endforeach; ?>
                         </select>
                         <span class="input-group-btn" id="newCustomerHide">
@@ -85,7 +89,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-3 control-label formfonterp" for="form-field-1"> <strong>Reference</strong></label>
+                <label class="col-sm-3 control-label formfonterp" for="form-field-1"> <strong>Reference /Challan</strong></label>
                 <div class="col-sm-7">
 
                     <select name="reference" class="chosen-select form-control" id="form-field-select-3"
@@ -233,7 +237,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
             <div class="clearfix"></div>
             <div class="form-group">
                 <label class="col-sm-3 control-label formfonterp" style="white-space: nowrap;" for="form-field-1"><span
-                            style="color:red;">*</span><strong><?php echo get_phrase('Payment_Type') ?></strong></label>
+                            style="color:red;">*</span><strong><?php echo get_phrase('warranty_claim_Type') ?></strong></label>
                 <div class="col-sm-7">
                     <select onchange="showBankinfo(this.value)" name="paymentType" class="chosen-select form-control"
                             id="paymentType" data-placeholder="Select Payment Type">
@@ -450,6 +454,9 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                         style="text-align: center;width:10%;border-radius:10px;<?php echo $property_5 == 'dont_have_this_property' ? 'display: none' : '' ?>">
                         <strong><?php echo $property_5; ?> </strong>
                     </th>
+                    <th nowrap  style="text-align: center;width:30%;border-radius:10px;">
+                        <strong><?php echo "Narration"; ?> </strong>
+                    </th>
                     <th><strong><?php echo get_phrase('Action') ?></strong></th>
                 </tr>
                 </thead>
@@ -511,7 +518,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                     </td>
                     <td style="<?php echo $property_1 == 'dont_have_this_property' ? 'display: none' : '' ?>">
                         <input type="text" onclick="this.select();" class="form-control text-right property_1 "
-                               placeholder="<?php echo $property_1; ?>" />
+                               placeholder="<?php echo $property_1; ?>"/>
                     </td>
                     <td style="<?php echo $property_2 == 'dont_have_this_property' ? 'display: none' : '' ?>">
 
@@ -529,6 +536,10 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                     <td style="<?php echo $property_5 == 'dont_have_this_property' ? 'display: none' : '' ?>">
                         <input type="text" onclick="this.select();" class="form-control text-right property_5 "
                                placeholder="<?php echo $property_5; ?>"/>
+                    </td>
+                    <td style="">
+                        <input type="text" onclick="" class="form-control text-right narration_of_product "
+                               placeholder="Narration"/>
                     </td>
                     <td>
                         <a id="add_item" class="btn blue form-control" href="javascript:void(0);" title="Add Item">
@@ -1042,6 +1053,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
             var property_3 = $('.property_3').val();
             var property_4 = $('.property_4').val();
             var property_5 = $('.property_5').val();
+            var narration_of_product=$('.narration_of_product').val();
 
             var price = $('.price').val();
             var returnQuantity = $('.returnQuantity').val();
@@ -1107,6 +1119,9 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                     '</td>' +
                     '<td align="right" style="<?php echo $property_5 == 'dont_have_this_property' ? 'display: none' : ''?> ">' +
                     '<input  type="text" class="add_property_5 text-right form-control" id="property_5' + j + '" name="property_5_' + slNo + '" value="' + property_5 + '">' +
+                    '</td>' +
+                    '<td align="right" style="">' +
+                    '<input  type="text" class="narration_of_product_input text-right form-control" id="property_5' + j + '" name="narration_of_product_' + slNo + '" value="' + narration_of_product + '">' +
                     '</td>' +
                     '<td>' +
                     '<a del_id="' + j + '" class="delete_item btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times"></i>&nbsp;</a>' +
@@ -1182,6 +1197,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
             $('.property_3').val('');
             $('.property_4').val('');
             $('.property_5').val('');
+            $('.narration_of_product').val('');
 
             checkSalesRateLockPermission();
         })

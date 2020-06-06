@@ -1908,7 +1908,356 @@ WHERE 1=1";
     }
 
 
-    public function stock_report_with_branch($given_branch_id,$productCatagory,$productBrand,$productId,$startDate,$endDate,$subcategory,$color,$size){
+    public function stock_report_with_branch($given_branch_id,$productCatagory,$productBrand,$productId,$startDate,$endDate,$subcategory,$color,$size,$model_id='all'){
+        $branch_id=" 1=1";
+        $inventory_adjustment_details_branch_id=" 1=1";
+        if($given_branch_id !='all'){
+            $branch_id=" branch_id=".$given_branch_id;
+            $inventory_adjustment_details_branch_id=" inventory_adjustment_details.BranchAutoId=".$given_branch_id;
+        }
+
+
+
+$query4="SELECT 
+IFNULL(tb_subcategory.SubCatName,'NA') SubCatName,
+IFNULL(tb_model.Model,'NA') Model_name,
+IFNULL(tb_size.Size,'NA') SizeName,
+IFNULL(tb_color.Color,'NA') ColorName,
+Tol.branch_id,Tol.branch_name,
+ 
+  Tol.product_id, Tol.category_id, Tol.unit_id, Tol.brand_id,
+    Tol.BrandName, Tol.productName,   Tol.CategoryName, Tol.unitTtile,
+
+IFNULL(Tol.OP_quantity,0) OP_quantity,
+IFNULL(Tol.OP_UPrice,0) OP_UPrice ,
+IFNULL(Tol.OP_Amount,0) OP_Amount,
+IFNULL(Tol.Pur_quantity,0) Pur_quantity,
+IFNULL(Tol.Pur_UPrice,0) Pur_UPrice,
+IFNULL(Tol.Pur_Amount,0) Pur_Amount,
+IFNULL(Tol.S_quantity,0) S_quantity,
+IFNULL(Tol.S_UPrice,0) S_UPrice,
+IFNULL(Tol.S_Amount,0) S_Amount,
+
+IFNULL(IFNULL(Tol.OP_quantity,0)+IFNULL(Tol.Pur_quantity,0)-IFNULL(Tol.S_quantity,0),0) C_quantity ,
+
+IFNULL(IFNULL((IFNULL(Tol.OP_Amount,0)+IFNULL(Tol.Pur_Amount,0)) ,0)/NULLIF(((IFNULL(Tol.OP_quantity,0)+IFNULL(Tol.Pur_quantity,0))),0),0) C_UPrice,
+ 
+
+ IFNULL(((IFNULL(IFNULL(Tol.OP_quantity,0)+IFNULL(Tol.Pur_quantity,0)-IFNULL(Tol.S_quantity,0),0))*
+ (IFNULL(IFNULL((IFNULL(Tol.OP_Amount,0)+IFNULL(Tol.Pur_Amount,0)) ,0)/NULLIF(((IFNULL(Tol.OP_quantity,0)+IFNULL(Tol.Pur_quantity,0))),0),0))),0) C_Amount
+
+FROM
+
+
+(
+
+SELECT BaseT.product_id,BaseT.category_id,BaseT.unit_id,BaseT.brand_id, 
+brand.brandName BrandName,BaseT.productName, title CategoryName,unit.unitTtile,
+BaseT.branch_id,branch.branch_name,
+
+  IFNULL(OP_quantity,0) OP_quantity,
+IFNULL(OP_UPrice,0) OP_UPrice 
+,IFNULL(OP_Amount,0) OP_Amount,
+
+IFNULL((IFNULL(Pur_quantity,0) + IFNULL(Srt_quantity,0) + IFNULL(INV_in_qty,0)),0) Pur_quantity ,
+
+IFNULL(((IFNULL((IFNULL(Pur_Amount,0)+ IFNULL(Srt_Amount,0) + IFNULL(INV_IN_Amount,0) ),0))/
+NULLIF((IFNULL((IFNULL(Pur_quantity,0) + IFNULL(Srt_quantity,0) + IFNULL(INV_in_qty,0) ),0)),0)),0)  Pur_UPrice,
+
+
+
+IFNULL((IFNULL(Pur_Amount,0)+ IFNULL(Srt_Amount,0)+IFNULL(INV_IN_Amount,0)),0) Pur_Amount,
+
+
+
+IFNULL((IFNULL(S_quantity,0) + IFNULL(INV_out_qty,0)),0) S_quantity ,
+
+
+IFNULL(((IFNULL((IFNULL(S_Amount,0) + IFNULL(INV_OUT_Amount,0)),0))
+
+/NULLIF((IFNULL((IFNULL(S_quantity,0) + IFNULL(INV_out_qty,0)),0)),0)),0) S_UPrice,
+IFNULL((IFNULL(S_Amount,0) + IFNULL(INV_OUT_Amount,0)),0) S_Amount 
+ 
+
+FROM 
+ (
+SELECT product.product_id,T2.branch_id, product.productName,product.category_id ,product.unit_id,product.brand_id
+  FROM  
+ (SELECT product_id,branch_id  FROM   purchase_details Where 
+ ".$branch_id."
+  union  
+  SELECT product_id,branch_id FROM   purchase_return_details  Where 
+ ".$branch_id."
+ 
+  union
+SELECT inventory_adjustment_details.product_id as product_id,inventory_adjustment_details.BranchAutoId AS branch_id FROM inventory_adjustment_details WHERE 
+".$inventory_adjustment_details_branch_id."
+-- inventory_adjustment_details.BranchAutoId
+  )   
+    T2 LEFT OUTER JOIN 
+   product  
+  ON product.product_id=T2.product_id  WHERE product.category_id<>1) BaseT LEFT OUTER JOIN
+                      productcategory ON BaseT.category_id = productcategory.category_id LEFT OUTER JOIN
+                      unit ON BaseT.unit_id = unit.unit_id LEFT OUTER JOIN
+                      brand ON BaseT.brand_id = brand.brandId LEFT OUTER JOIN 
+     branch ON BaseT.branch_id=branch.branch_id LEFT OUTER JOIN 
+                      
+  (
+SELECT BaseT.product_id, BaseT.category_id , BaseT.unit_id, BaseT.brand_id,
+ brandName BrandName,productName, title CategoryName,unitTtile,
+BaseT.branch_id,branch.branch_name,
+
+(IFNULL((IFNULL(OP_quantity,0) + IFNULL(Srt_quantity,0) + IFNULL(INV_in_qty,0)),0)) -
+(IFNULL((IFNULL(S_quantity,0) + IFNULL(INV_out_qty,0)),0))  
+OP_quantity  ,
+
+IFNULL((IFNULL(OP_Amount,0)+ IFNULL(Srt_Amount,0) + IFNULL(INV_IN_Amount,0)),0) / NULLIF((
+IFNULL((IFNULL(OP_quantity,0)+ IFNULL(Srt_quantity,0) + IFNULL(INV_in_qty,0)),0)),0)   
+OP_UPrice ,
+
+  IFNULL(((IFNULL((IFNULL(OP_quantity,0) + IFNULL(Srt_quantity,0) + IFNULL(INV_in_qty,0)),0)) -
+(IFNULL((IFNULL(S_quantity,0) + IFNULL(INV_out_qty,0)),0)))*(IFNULL((IFNULL(OP_Amount,0)+ 
+IFNULL(Srt_Amount,0) + IFNULL(INV_IN_Amount,0)),0) / NULLIF((
+IFNULL((IFNULL(OP_quantity,0)+ IFNULL(Srt_quantity,0) + IFNULL(INV_in_qty,0)),0)),0)) ,0)
+ OP_Amount 
+  
+FROM 
+
+(
+SELECT product.product_id,T2.branch_id, product.productName,product.category_id ,product.unit_id,product.brand_id
+  FROM  
+ (SELECT product_id,branch_id  FROM   purchase_details Where 
+ ".$branch_id."
+  union  
+  SELECT product_id,branch_id FROM   purchase_return_details  Where 
+ ".$branch_id."
+ 
+ union
+SELECT inventory_adjustment_details.product_id as product_id,inventory_adjustment_details.BranchAutoId AS branch_id FROM inventory_adjustment_details WHERE 
+".$inventory_adjustment_details_branch_id."
+-- inventory_adjustment_details.BranchAutoId
+  )   
+    T2 LEFT OUTER JOIN 
+   product  
+  ON product.product_id=T2.product_id  WHERE product.category_id<>1) BaseT LEFT OUTER JOIN
+                      productcategory ON BaseT.category_id = productcategory.category_id LEFT OUTER JOIN
+                      unit ON BaseT.unit_id = unit.unit_id LEFT OUTER JOIN
+                      brand ON BaseT.brand_id = brand.brandId LEFT OUTER JOIN 
+     branch ON BaseT.branch_id=branch.branch_id LEFT OUTER JOIN 
+
+(
+ 
+SELECT   
+       pd.product_id  , pd.branch_id, 
+       
+        SUM(pd.quantity)  OP_quantity
+      , SUM(pd.quantity * pd.unit_price) / NULLIF(SUM(pd.quantity),0) AS OP_UPrice       
+     ,(SUM(pd.quantity * pd.unit_price) / NULLIF(SUM(pd.quantity),0))*(SUM(pd.quantity) )  OP_Amount
+       
+  FROM purchase_details pd  LEFT OUTER JOIN
+       
+       purchase_invoice_info pii ON pd.purchase_invoice_id=pii.purchase_invoice_id AND pd.branch_id=pii.branch_id
+       
+       WHERE  pd.is_active='Y' AND pd.is_delete='N' AND pii.invoice_date <  '".$startDate."'  
+       
+       GROUP BY pd.product_id  ,pd.branch_id
+       
+        
+       ) opening  ON opening.product_id=BaseT.product_id AND opening.branch_id=BaseT.branch_id  LEFT  OUTER JOIN
+ 
+
+       
+    (
+SELECT   
+        sr.product_id, sr.branch_id, SUM(sr.return_quantity)  Srt_quantity
+      , SUM(sr.return_quantity * sr.unit_price) / NULLIF(SUM(sr.return_quantity),0) AS Srt_UPrice       
+     ,(SUM(sr.return_quantity * sr.unit_price) / NULLIF(SUM(sr.return_quantity),0))*(SUM(sr.return_quantity) )  Srt_Amount
+       
+  FROM sales_return sr   
+       
+       WHERE  sr.is_active='Y' AND sr.is_delete='N'    
+       AND sr.return_date < '".$startDate."'  
+         
+       
+       GROUP BY sr.product_id ,sr.branch_id
+       
+      
+       ) sales_Ret ON  BaseT.product_id= sales_Ret.product_id AND BaseT.branch_id= sales_Ret.branch_id LEFT  OUTER JOIN   
+       (
+SELECT   
+       sd.product_id,sd.branch_id,   SUM(sd.quantity)  S_quantity
+      , SUM(sd.quantity * sd.unit_price) / NULLIF(SUM(sd.quantity),0)
+       AS S_UPrice       
+     ,(SUM(sd.quantity * sd.unit_price) / NULLIF(SUM(sd.quantity),0))*(SUM(sd.quantity) )  S_Amount
+       
+  FROM sales_details sd  LEFT OUTER JOIN
+       
+       sales_invoice_info sii ON sd.sales_invoice_id=sii.sales_invoice_id AND sd.branch_id=sii.branch_id 
+       
+       WHERE   sd.is_active='Y' AND sd.is_delete='N'  
+ AND sii.invoice_date < '".$startDate."'
+       
+       GROUP BY sd.product_id ,sd.branch_id
+       
+       
+        ) Sales ON Sales.product_id=BaseT.product_id AND Sales.branch_id=BaseT.branch_id 
+        LEFT  OUTER JOIN   
+       (
+SELECT   
+       iad.product_id,   iad.BranchAutoId,
+       SUM(iad.in_qty)  INV_in_qty,  
+       SUM(iad.out_qty)  INV_out_qty, 
+       
+        SUM(iad.in_qty * iad.unit_price) / NULLIF(SUM(iad.in_qty),0) AS INV_IN_UPrice  ,     
+        SUM(iad.out_qty * iad.unit_price) / NULLIF(SUM(iad.out_qty),0) AS INV_OUT_UPrice ,  
+      
+          
+      (SUM(iad.in_qty * iad.unit_price) / NULLIF(SUM(iad.in_qty),0))*(SUM(iad.in_qty))  INV_IN_Amount,
+      (SUM(iad.out_qty * iad.unit_price) / NULLIF(SUM(iad.out_qty),0))*( SUM(iad.out_qty))  INV_OUT_Amount 
+       
+  FROM inventory_adjustment_details iad  LEFT OUTER JOIN
+       
+       inventory_adjustment_info iai ON iad.inv_adjustment_info_id=iai.id AND iad.BranchAutoId=iai.BranchAutoId
+       
+       WHERE   iad.is_active='Y' AND iad.is_delete='N'  
+ AND iai.date < '".$startDate."'
+       
+       GROUP BY iad.product_id  ,iad.branch_id   
+        ) Inv_Adj ON Inv_Adj.product_id=BaseT.product_id  AND Inv_Adj.BranchAutoId=BaseT.branch_id
+--         GROUP BY BaseT.product_id,BaseT.BranchAutoId
+        
+
+) Opening_All   
+          
+ ON Opening_All.product_id=BaseT.product_id  and Opening_All.branch_id=BaseT.branch_id   LEFT  OUTER JOIN
+ 
+ (
+SELECT   
+       pd.product_id,pd.branch_id,   SUM(pd.quantity)  Pur_quantity
+      , SUM(pd.quantity * pd.unit_price) / NULLIF(SUM(pd.quantity),0) AS Pur_UPrice       
+     ,(SUM(pd.quantity * pd.unit_price) / NULLIF(SUM(pd.quantity),0))*(SUM(pd.quantity) )  Pur_Amount
+       
+  FROM purchase_details pd  LEFT OUTER JOIN      
+       purchase_invoice_info pii ON pd.purchase_invoice_id=pii.purchase_invoice_id  AND pd.branch_id=pii.branch_id       
+       WHERE  pd.is_active='Y' AND pd.is_delete='N'    
+       AND pii.invoice_date >=  '".$startDate."' 
+       AND pii.invoice_date <= '".$endDate."'         
+       
+       GROUP BY pd.product_id      ,pd.branch_id
+      
+       ) purchase ON  BaseT.product_id= purchase.product_id AND BaseT.branch_id= purchase.branch_id   LEFT  OUTER JOIN
+       
+    (
+SELECT   
+        sr.product_id,sr.branch_id , SUM(sr.return_quantity)  Srt_quantity
+      , SUM(sr.return_quantity * sr.unit_price) / NULLIF(SUM(sr.return_quantity),0) AS Srt_UPrice       
+     ,(SUM(sr.return_quantity * sr.unit_price) / NULLIF(SUM(sr.return_quantity),0))*(SUM(sr.return_quantity) )  Srt_Amount
+       
+  FROM sales_return sr   
+       
+       WHERE  sr.is_active='Y' AND sr.is_delete='N'    
+       AND sr.return_date >= '".$startDate."'
+       AND sr.return_date <= '".$endDate."'  
+         
+       
+       GROUP BY sr.product_id,sr.branch_id 
+       
+      
+       ) sales_Ret ON  BaseT.product_id= sales_Ret.product_id AND  BaseT.branch_id= sales_Ret.branch_id LEFT  OUTER JOIN   
+       (
+SELECT   
+       sd.product_id,sd.branch_id,   SUM(sd.quantity)  S_quantity
+      , SUM(sd.quantity * sd.unit_price) / NULLIF(SUM(sd.quantity),0) AS S_UPrice       
+     ,(SUM(sd.quantity * sd.unit_price) / NULLIF(SUM(sd.quantity),0))*(SUM(sd.quantity) )  S_Amount
+       
+  FROM sales_details sd  LEFT OUTER JOIN
+       
+       sales_invoice_info sii ON sd.sales_invoice_id=sii.sales_invoice_id AND sd.branch_id=sii.branch_id
+       
+       WHERE   sd.is_active='Y' AND sd.is_delete='N'  
+ AND sii.invoice_date >= '".$startDate."'
+AND sii.invoice_date <= '".$endDate."' 
+       
+       GROUP BY sd.product_id ,sd.branch_id
+       
+       
+        ) Sales ON Sales.product_id=BaseT.product_id AND Sales.branch_id=BaseT.branch_id 
+        LEFT  OUTER JOIN   
+       (
+SELECT   
+       iad.product_id,   iad.BranchAutoId, 
+       SUM(iad.in_qty)  INV_in_qty,  
+       SUM(iad.out_qty)  INV_out_qty, 
+       
+        SUM(iad.in_qty * iad.unit_price) / NULLIF(SUM(iad.in_qty),0) AS INV_IN_UPrice  ,     
+        SUM(iad.out_qty * iad.unit_price) / NULLIF(SUM(iad.out_qty),0) AS INV_OUT_UPrice ,  
+      
+          
+      (SUM(iad.in_qty * iad.unit_price) / NULLIF(SUM(iad.in_qty),0))*(SUM(iad.in_qty))  INV_IN_Amount,
+      (SUM(iad.out_qty * iad.unit_price) / NULLIF(SUM(iad.out_qty),0))*( SUM(iad.out_qty))  INV_OUT_Amount 
+       
+  FROM inventory_adjustment_details iad  LEFT OUTER JOIN       
+       inventory_adjustment_info iai ON iad.inv_adjustment_info_id=iai.id AND   iad.BranchAutoId=iai.BranchAutoId 
+       
+       WHERE   iad.is_active='Y' AND iad.is_delete='N'  
+                AND iai.date >= '".$startDate."'
+                AND iai.date <= '".$endDate."'    
+       
+       GROUP BY iad.product_id, iad.BranchAutoId     
+        ) Inv_Adj ON Inv_Adj.product_id=BaseT.product_id AND   Inv_Adj.BranchAutoId=BaseT.branch_id 
+        
+        
+        
+            ) Tol
+LEFT JOIN product ON product.product_id=Tol.product_id
+LEFT JOIN tb_subcategory ON tb_subcategory.SubCatID=product.subcategoryID
+LEFT JOIN tb_color ON tb_color.ColorID=product.colorID
+LEFT JOIN tb_size ON tb_size.SizeID=product.sizeID
+LEFT JOIN tb_model ON tb_model.ModelID=product.modelID
+
+ WHERE 1=1 ";
+
+
+        if($productCatagory !='all'){
+            $query4.=" AND Tol.category_id=".$productCatagory;
+        }
+        if($productBrand !='all'){
+            $query4.=" AND Tol.brand_id=".$productBrand;
+        }
+        if($productId !='all'){
+            $query4.=" AND Tol.product_id=".$productId;
+        }
+        if($subcategory !='all'){
+            $query4.=" AND tb_subcategory.SubCatID=".$subcategory;
+        }
+        if($size !='all'){
+            $query4.=" AND tb_size.SizeID=".$size;
+        }
+        if($color !='all'){
+            $query4.=" AND tb_color.ColorID=".$color;
+        }
+        if($model_id !='all'){
+            $query4.=" AND tb_model.ModelID=".$model_id;
+        }
+
+
+        $query4.=" ORDER BY  Tol.branch_name,Tol.product_id,tb_subcategory.SubCatID,tb_color.ColorID,tb_size.SizeID";
+        log_message('error','this is stock report'.print_r($query4,true));
+        $query = $this->db->query($query4);
+        $result = $query->result();
+        if ($this->business_type == "MOTORCYCLE") {
+            foreach ($result as $key => $value) {
+                $array[$value->branch_name][$value->CategoryName][$value->BrandName][$value->Model_name][] = $value;
+            }
+        }else{
+            foreach ($result as $key => $value) {
+                $array[$value->branch_name][$value->CategoryName][$value->BrandName][] = $value;
+            }
+        }
+        return $array;
+
+    }
+    /*public function stock_report_with_branch_bk($given_branch_id,$productCatagory,$productBrand,$productId,$startDate,$endDate,$subcategory,$color,$size,$model_id='all'){
         $branch_id=" 1=1";
         $inventory_adjustment_details_branch_id=" 1=1";
         if($given_branch_id !='all'){
@@ -2202,6 +2551,7 @@ SELECT
 
 $query4="SELECT 
 IFNULL(tb_subcategory.SubCatName,'NA') SubCatName,
+IFNULL(tb_model.Model,'NA') Model_name,
 IFNULL(tb_size.Size,'NA') SizeName,
 IFNULL(tb_color.Color,'NA') ColorName,
 Tol.branch_id,Tol.branch_name,
@@ -2494,6 +2844,7 @@ LEFT JOIN product ON product.product_id=Tol.product_id
 LEFT JOIN tb_subcategory ON tb_subcategory.SubCatID=product.subcategoryID
 LEFT JOIN tb_color ON tb_color.ColorID=product.colorID
 LEFT JOIN tb_size ON tb_size.SizeID=product.sizeID
+LEFT JOIN tb_model ON tb_model.ModelID=product.modelID
 
  WHERE 1=1 ";
 
@@ -2516,17 +2867,29 @@ LEFT JOIN tb_size ON tb_size.SizeID=product.sizeID
         if($color !='all'){
             $query4.=" AND tb_color.ColorID=".$color;
         }
+        if($model_id !='all'){
+            $query4.=" AND tb_model.ModelID=".$model_id;
+        }
 
 
         $query4.=" ORDER BY  Tol.branch_name,Tol.product_id,tb_subcategory.SubCatID,tb_color.ColorID,tb_size.SizeID";
         log_message('error','this is stock report'.print_r($query4,true));
         $query = $this->db->query($query4);
         $result = $query->result();
-        foreach ($result as $key => $value) {
-            $array[$value->branch_name ][$value->CategoryName ][$value->BrandName][] = $value;
+        if ($this->business_type == "MOTORCYCLE") {
+            foreach ($result as $key => $value) {
+                $array[$value->branch_name][$value->CategoryName][$value->BrandName][$value->Model_name][] = $value;
+            }
+        }else{
+            foreach ($result as $key => $value) {
+                $array[$value->branch_name][$value->CategoryName][$value->BrandName][] = $value;
+            }
         }
         return $array;
 
-    }
+    }*/
+
+
+
 
 }

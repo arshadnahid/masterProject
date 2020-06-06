@@ -720,7 +720,7 @@ LEFT JOIN customertype on customertype.type_id=customer.customerType  WHERE 1=1 
             return $result->qty;
         } else if ($category_id->category_id != 1) {
             //$query="select sum(purchase_details.quantity) AS purchase_qty FROM purchase_details WHERE purchase_details.is_package=".$is_package."  AND  purchase_details.product_id=".$productId;
-            $query = "select sum(purchase_details.quantity) AS purchase_qty,(sales_details.sales_qty) as sales_qty,IFNULL(sales_return.sales_return_qty,0) as sales_return_qty
+            $query2 = "select sum(purchase_details.quantity) AS purchase_qty,(sales_details.sales_qty) as sales_qty,IFNULL(sales_return.sales_return_qty,0) as sales_return_qty
                           FROM 
                           purchase_details 
                           LEFT JOIN(
@@ -744,6 +744,62 @@ LEFT JOIN customertype on customertype.type_id=customer.customerType  WHERE 1=1 
                                 GROUP BY sales_return.product_id
                         )AS sales_return  ON sales_return.product_id=purchase_details.product_id
                           WHERE   purchase_details.product_id=" . $productId . " AND purchase_details.branch_id=" . $branchId;
+
+
+
+           $query="SELECT
+                    p.product_id,
+                    sum(pd.quantity)AS purchase_qty,
+                    IFNULL(sales_details.sales_qty,0)AS sales_qty,
+                    IFNULL(sales_return.sales_return_qty,0)AS sales_return_qty,
+                    IFNULL(inv_adj_table.adj_in,0) as adj_in,
+                    IFNULL(inv_adj_table.adj_out,0) as adj_out
+                FROM
+                    product p
+                LEFT JOIN purchase_details pd ON pd.product_id = p.product_id
+                AND pd.branch_id = " . $branchId . "
+                LEFT JOIN(
+                    SELECT
+                        sales_details.product_id,
+                        sum(sales_details.quantity)AS sales_qty
+                    FROM
+                        sales_details
+                    WHERE
+                        1 = 1
+                    AND sales_details.product_id=" . $productId . "
+                    AND sales_details.branch_id = " . $branchId . "
+                    GROUP BY
+                        sales_details.product_id
+                )AS sales_details ON sales_details.product_id = p.product_id
+                LEFT JOIN(
+                    SELECT
+                        sales_return.product_id,
+                        sum(sales_return.return_quantity)AS sales_return_qty
+                    FROM
+                        sales_return
+                    WHERE
+                        1 = 1
+                    AND sales_return.product_id=" . $productId . "
+                    AND sales_return.branch_id = " . $branchId . "
+                    GROUP BY
+                        sales_return.product_id
+                )AS sales_return ON sales_return.product_id = p.product_id
+                LEFT JOIN (
+                SELECT
+                    iad.product_id,
+                    SUM(IFNULL(iad.in_qty, 0))adj_in,
+                    SUM(IFNULL(iad.out_qty, 0))adj_out
+                FROM
+                    inventory_adjustment_details iad
+                WHERE
+                    iad.BranchAutoId = " . $branchId . "
+                AND iad.product_id =" . $productId . "
+                GROUP BY iad.product_id 
+                ) AS inv_adj_table ON inv_adj_table.product_id= p.product_id
+                
+                WHERE
+                    p.product_id = ".$productId;
+
             if ($ispackage != null && $ispackage == '1') {
                 //$query .= "  AND purchase_details.is_package=" . $ispackage;
             }
@@ -751,7 +807,7 @@ LEFT JOIN customertype on customertype.type_id=customer.customerType  WHERE 1=1 
             $result = $query->row();
             log_message('error', 'getProductStock ' . print_r($this->db->last_query(), true));
             //log_message('error','getProductStock '.print_r('NAHID 2',true));
-            return $result->purchase_qty - $result->sales_qty +$result->sales_return_qty;
+            return $result->purchase_qty - $result->sales_qty +$result->sales_return_qty+$result->adj_in-$result->adj_out;
         }
     }
     function generals_customer($customer_id, $BranchAutoId)
@@ -763,8 +819,8 @@ $query="SELECT
 	sales_invoice_info.invoice_no,
 	sales_invoice_info.invoice_date,
 	sales_invoice_info.sales_invoice_id,
-	(sales_product.sales_product_price + sales_invoice_info.transport_charge + sales_invoice_info.loader_charge)AS invoice_amount,
-	(sales_product.sales_product_price + sales_invoice_info.transport_charge + sales_invoice_info.loader_charge)-paid_against_invoice.paid_amount AS amount,
+	(sales_product.sales_product_price + sales_invoice_info.transport_charge + sales_invoice_info.loader_charge-sales_invoice_info.discount_amount)AS invoice_amount,
+	(sales_product.sales_product_price + sales_invoice_info.transport_charge + sales_invoice_info.loader_charge-sales_invoice_info.discount_amount)-paid_against_invoice.paid_amount AS amount,
 	paid_against_invoice.paid_amount,
 	sales_invoice_info.due_date,
 	sales_invoice_info.payment_type,

@@ -107,6 +107,8 @@ $config['accounting_master_table_for_Sales_invoice_Customer_Payment_money_recive
 //6->sales invoice customer Pending Cheque money recive
 $config['accounting_master_table_for_sales_invoice_customer_Pending_Cheque_money_recive']='6';
 $config['accounting_master_table_for_invoice_Adjustment']='7';
+$config['accounting_master_table_for_warranty_claim_voucher']='8';
+$config['accounting_master_table_for_warranty_receipt_voucher']='9';
 
 
 

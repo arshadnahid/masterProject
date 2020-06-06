@@ -246,6 +246,53 @@ class AccountReportController extends CI_Controller
 
     public function customerLedger()
     {
+
+
+
+        $data['companyInfo'] = $companyInfo = $this->Common_model->get_single_data_by_single_column('system_config', 'dist_id', $this->dist_id);
+        if (isPostBack()) {
+            $account = $this->input->post('accountHead');
+            $group = $this->input->post('group');
+            $branch_id = isset($_POST['branch_id'])?$this->input->post('branch_id'):0;
+
+            $from_date = date('Y-m-d', strtotime($this->input->post('start_date')));
+            $to_date = date('Y-m-d', strtotime($this->input->post('end_date')));
+            $data['gl_data'] = $this->Accounts_model->get_general_ledger_summery($group, $account, $from_date, $to_date, $branch_id);
+
+            if ($this->input->post('is_print') == 1) {
+                $footer = '';
+                $data['start_date']=$this->input->post('start_date');
+                $data['end_date']=$this->input->post('end_date');
+                $footer = $this->load->view('distributor/account/report/pdf/footer', $data, true);
+                $output_type = '';
+                $header = $this->load->view('distributor/account/report/pdf/header', $data, true);
+                $this->load->library('tec_mpdf', '', 'pdf');
+
+                $content = $this->load->view('distributor/account/report/generalLedger_pdf', $data, true);
+                $this->pdf->generate($content, $name = 'download.pdf', $output_type, $footer, $margin_bottom = null, $header, $margin_top = '45', $orientation = 'l');
+            }
+        }
+        if (!empty($account)) {
+            $data['dist_id'] = $this->dist_id;
+            $data['account'] = $account;
+        } else {
+            $data['fromdate'] = 0;
+            $data['todate'] = 0;
+            $data['account'] = 0;
+        }
+
+        $this->db->select('id,parent_name,code,level_no');
+        $this->db->from("ac_account_ledger_coa");
+        $this->db->where('posted !=', 1);
+        $this->db->order_by('id', 'ASC');
+        $result = $this->db->get()->result();
+        $data['accountHeadList'] = $result;
+
+
+        /*page navbar details*/
+
+
+
         $data['companyInfo'] = $this->Common_model->get_single_data_by_single_column('system_config', 'dist_id', $this->dist_id);
         $data['customerList'] = $this->Common_model->get_data_list_by_single_column('customer', 'dist_id', $this->dist_id, 'customerName', 'ASC');
         $data['title'] = get_phrase('Customer Ledger');

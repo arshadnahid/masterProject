@@ -408,4 +408,99 @@ if (!function_exists('check_parmission_by_user_role')) {
 
         }
     }
+
+    if (!function_exists('cash_ledger_of_sales_purchase_invoice')) {
+
+        function cash_ledger_of_sales_purchase_invoice($invoice_id,$invoice_type=array('sales','purchase'))
+        {
+            $CI =& get_instance();
+            $CI->load->database();
+            $sql = "SELECT acm.Accounts_VoucherMst_AutoID,(SELECT
+     acd.CHILD_ID
+ FROM
+     ac_tb_accounts_voucherdtl acd
+ WHERE
+     acd.Accounts_VoucherMst_AutoID = acm.Accounts_VoucherMst_AutoID
+     AND acd.CHILD_ID IN(
+         SELECT
+         CHILD_ID
+     FROM
+         ac_tb_coa
+     WHERE
+         PARENT_ID = 27
+         AND CHILD_ID <> 0
+     UNION ALL
+         SELECT
+             CHILD_ID
+         FROM
+             ac_tb_coa
+         WHERE
+             PARENT_ID1 = 27
+             AND CHILD_ID <> 0
+         UNION ALL
+             SELECT
+                 CHILD_ID
+             FROM
+                 ac_tb_coa
+             WHERE
+                 PARENT_ID2 = 27
+                 AND CHILD_ID <> 0
+             UNION ALL
+                 SELECT
+                     CHILD_ID
+                 FROM
+                     ac_tb_coa
+                 WHERE
+                     PARENT_ID3 = 27
+                     AND CHILD_ID <> 0
+                 UNION ALL
+                     SELECT
+                         CHILD_ID
+                     FROM
+                         ac_tb_coa
+                     WHERE
+                         PARENT_ID4 = 27
+                         AND CHILD_ID <> 0
+                     UNION ALL
+                         SELECT
+                             CHILD_ID
+                         FROM
+                             ac_tb_coa
+                         WHERE
+                             PARENT_ID5 = 27
+                             AND CHILD_ID <> 0
+                         UNION ALL
+                             SELECT
+                                 CHILD_ID
+                             FROM
+                                 ac_tb_coa
+                             WHERE
+                                 PARENT_ID6 = 27
+                                 AND CHILD_ID <> 0
+                             UNION ALL
+                                 SELECT
+                                     CHILD_ID
+                                 FROM
+                                     ac_tb_coa
+                                 WHERE
+                                     PARENT_ID7 = 27
+                                     AND CHILD_ID <> 0
+ ))  as cash_ledger
+ FROM ac_accounts_vouchermst acm
+ WHERE
+ acm.for = 2
+     AND acm.BackReferenceInvoiceID =".$invoice_id;//WHERE is_active='Y' AND is_delete='N'
+            //$result = row_array($sql);
+
+            $query = $CI->db->query($sql);
+            $result = $query->row_array();
+
+
+
+             return  $result['cash_ledger'];
+
+        }
+    }
+
+
 }

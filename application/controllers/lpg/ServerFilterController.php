@@ -346,10 +346,11 @@ class ServerFilterController extends CI_Controller
         $property_5=get_property_list_for_show_hide(5);
 
         $this->Filter_Model->filterData('sales_invoice_info',
-            array('sales_invoice_info.invoice_date', 'sales_invoice_info.invoice_no', 'customer.customerID', 'customer.customerName', 'sales_invoice_info.narration', 'sales_invoice_info.paid_amount', 'sales_invoice_info.payment_type'),
-            array('sales_invoice_info.invoice_date', 'sales_invoice_info.invoice_no', 'customer.customerID', 'customer.customerName', 'sales_invoice_info.narration', 'sales_invoice_info.paid_amount', 'sales_invoice_info.payment_type'),
-            array('sales_invoice_info.invoice_date', 'sales_invoice_info.invoice_no', 'customer.customerID', 'customer.customerName', 'sales_invoice_info.narration', 'sales_invoice_info.paid_amount', 'sales_invoice_info.payment_type'), $this->dist_id);
+            array("DATE_FORMAT(sales_invoice_info.invoice_date, '%b %e, %Y') ", 'sales_invoice_info.invoice_no', 'customer.customerID', 'customer.customerName', 'sales_invoice_info.narration', 'sales_invoice_info.paid_amount', 'sales_invoice_info.payment_type'),
+            array("DATE_FORMAT(sales_invoice_info.invoice_date, '%b %e, %Y') ", 'sales_invoice_info.invoice_no', 'customer.customerID', 'customer.customerName', 'sales_invoice_info.narration', 'sales_invoice_info.paid_amount', 'sales_invoice_info.payment_type'),
+            array("DATE_FORMAT(sales_invoice_info.invoice_date, '%b %e, %Y') ", 'sales_invoice_info.invoice_no', 'customer.customerID', 'customer.customerName', 'sales_invoice_info.narration', 'sales_invoice_info.paid_amount', 'sales_invoice_info.payment_type'), $this->dist_id);
         $list = $this->Filter_Model->get_sales_datatables();
+        log_message('error','ReturnDamageModel '.print_r($this->db->last_query(),true));
         $data = array();
         $no = $_POST['start'];
         foreach ($list as $sale) {
@@ -363,7 +364,7 @@ class ServerFilterController extends CI_Controller
             $no++;
             $row = array();
             $row[] = $no;
-            $row[] = date('M d, Y', strtotime($sale->invoice_date));
+            $row[] = $sale->invoice_date;
             $row[] = '<a title="view invoice" href="' . site_url($this->project . '/viewLpgCylinder/' . $sale->sales_invoice_id) . '">' . $sale->invoice_no . '</a></td>';
             //$row[] = $sale->name;
             $row[] = '<a title="View Customer Dashboard" href="javascript:void(0)">' . $sale->customerID . ' [ ' . $sale->customerName . ' ] ' . '</a>';
@@ -393,7 +394,7 @@ class ServerFilterController extends CI_Controller
             /*$row[] = number_format((float) $this->Sales_Model->getGpAmountByInvoiceId($this->dist_id, $sale->sales_invoice_id), 2, '.', ',');*/
             $row[] = '<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/viewLpgCylinder/' . $sale->sales_invoice_id) . '">
     <i class="fa fa-search-plus bigger-130"></i></a>
-    <i class="fa fa-edit"></i></a><a class="btn btn-icon-only red" href="' . site_url($this->project . '/salesInvoice_edit/' . $sale->sales_invoice_id) . '">
+    <a class="btn btn-icon-only red" href="' . site_url($this->project . '/salesInvoice_edit/' . $sale->sales_invoice_id) . '"><i class="fa fa-edit"></i></a>
     ';
             /* <a class="btn btn-icon-only red" href="' . site_url($this->project . '/salesInvoice_edit/' . $sale->sales_invoice_id) . '">*/
             $data[] = $row;
@@ -403,6 +404,150 @@ class ServerFilterController extends CI_Controller
             "draw" => $_POST['draw'],
             "recordsTotal" => $this->Filter_Model->count_all_sales(),
             "recordsFiltered" => $this->Filter_Model->count_filtered_sales(),
+            "data" => $data,
+        );
+//output to json format
+        echo json_encode($output);
+    }
+
+
+    public function salesReturnList()
+    {
+
+        $property_1=get_property_list_for_show_hide(1);
+        $property_2=get_property_list_for_show_hide(2);
+        $property_3=get_property_list_for_show_hide(3);
+        $property_4=get_property_list_for_show_hide(4);
+        $property_5=get_property_list_for_show_hide(5);
+
+        $this->Filter_Model->filterData('return_info',
+            array("DATE_FORMAT(return_info.return_date, '%b %e, %Y') ", 'return_info.return_invoice_no', 'customer.customerID', 'customer.customerName', 'return_info.narration'),
+            array("DATE_FORMAT(return_info.return_date, '%b %e, %Y') ", 'return_info.return_invoice_no', 'customer.customerID', 'customer.customerName', 'return_info.narration'),
+            array("DATE_FORMAT(return_info.return_date, '%b %e, %Y') ", 'return_info.return_invoice_no', 'customer.customerID', 'customer.customerName', 'return_info.narration'), $this->dist_id);
+        $list = $this->Filter_Model->get_sales_return_datatables();
+        log_message('error','ReturnDamageModel '.print_r($this->db->last_query(),true));
+        $data = array();
+        $no = $_POST['start'];
+        foreach ($list as $sale) {
+
+            $no++;
+            $row = array();
+            $row[] = $no;
+            $row[] = $sale->invoice_date;
+            $row[] = '<a title="view invoice" href="' . site_url($this->project . '/salesReturnView/' . $sale->id) . '">' . $sale->return_invoice_no . '</a></td>';
+            //$row[] = $sale->name;
+            $row[] = '<a title="View Customer Dashboard" href="javascript:void(0)">' . $sale->customerID . ' [ ' . $sale->customerName . ' ] ' . '</a>';
+
+
+           // $row[] = number_format((float)$sale->amount, 2, '.', ',');
+
+            if($property_1 !='dont_have_this_property'){
+                $row[]=$sale->property_1;
+            }
+            if($property_2 !='dont_have_this_property'){
+                $row[]=$sale->property_2;
+            }
+            if($property_3 !='dont_have_this_property'){
+                $row[]=$sale->property_3;
+            }
+            if($property_4 !='dont_have_this_property'){
+                $row[]=$sale->property_4;
+            }
+            if($property_5 !='dont_have_this_property'){
+                $row[]=$sale->property_5;
+            }
+
+
+
+            $row[] = $sale->narration;
+            /*$row[] = number_format((float) $this->Sales_Model->getGpAmountByInvoiceId($this->dist_id, $sale->sales_invoice_id), 2, '.', ',');*/
+            $row[] = '<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/viewSalesReturn/' . $sale->id) . '">
+    <i class="fa fa-search-plus bigger-130"></i></a>
+     ';
+            /* <a class="btn btn-icon-only red" href="' . site_url($this->project . '/salesInvoice_edit/' . $sale->sales_invoice_id) . '">*/
+            $data[] = $row;
+        }
+
+        $output = array(
+            "draw" => $_POST['draw'],
+            "recordsTotal" => $this->Filter_Model->count_all_sales(),
+            "recordsFiltered" => $this->Filter_Model->count_filtered_sales(),
+            "data" => $data,
+        );
+//output to json format
+        echo json_encode($output);
+    }
+
+    public function warranty_claim_voucher_list()
+    {
+
+        $property_1=get_property_list_for_show_hide(1);
+        $property_2=get_property_list_for_show_hide(2);
+        $property_3=get_property_list_for_show_hide(3);
+        $property_4=get_property_list_for_show_hide(4);
+        $property_5=get_property_list_for_show_hide(5);
+
+        $this->Filter_Model->filterData('sales_invoice_info',
+            array("DATE_FORMAT(sales_invoice_info.invoice_date, '%b %e, %Y') ", 'sales_invoice_info.invoice_no', 'customer.customerID', 'customer.customerName', 'sales_invoice_info.narration', 'sales_invoice_info.paid_amount', 'sales_invoice_info.payment_type'),
+            array("DATE_FORMAT(sales_invoice_info.invoice_date, '%b %e, %Y') ", 'sales_invoice_info.invoice_no', 'customer.customerID', 'customer.customerName', 'sales_invoice_info.narration', 'sales_invoice_info.paid_amount', 'sales_invoice_info.payment_type'),
+            array("DATE_FORMAT(sales_invoice_info.invoice_date, '%b %e, %Y') ", 'sales_invoice_info.invoice_no', 'customer.customerID', 'customer.customerName', 'sales_invoice_info.narration', 'sales_invoice_info.paid_amount', 'sales_invoice_info.payment_type'), $this->dist_id);
+        $list = $this->Filter_Model->get_warranty_claim_voucher_datatables();
+        $data = array();
+        $no = $_POST['start'];
+        foreach ($list as $sale) {
+            if ($sale->payment_type == 4) {
+                $payment_type = get_phrase('Cash');
+            } else if ($sale->payment_type == 2) {
+                $payment_type = get_phrase('Credit');
+            } else {
+                $payment_type = get_phrase('Cheque_DD_PO');
+            }
+            $no++;
+            $row = array();
+            $row[] = $no;
+            $row[] = $sale->invoice_date;
+            $row[] = '<a title="view invoice" href="' . site_url($this->project . '/viewLpgCylinder/' . $sale->sales_invoice_id) . '">' . $sale->invoice_no . '</a></td>';
+            //$row[] = $sale->name;
+            $row[] = '<a title="View Customer Dashboard" href="javascript:void(0)">' . $sale->customerID . ' [ ' . $sale->customerName . ' ] ' . '</a>';
+            $row[] = $payment_type;
+
+            $row[] = number_format((float)$sale->invoice_amount, 2, '.', ',');
+
+            if($property_1 !='dont_have_this_property'){
+                $row[]=$sale->property_1;
+            }
+            if($property_2 !='dont_have_this_property'){
+                $row[]=$sale->property_2;
+            }
+            if($property_3 !='dont_have_this_property'){
+                $row[]=$sale->property_3;
+            }
+            if($property_4 !='dont_have_this_property'){
+                $row[]=$sale->property_4;
+            }
+            if($property_5 !='dont_have_this_property'){
+                $row[]=$sale->property_5;
+            }
+
+
+
+            $row[] = $sale->narration;
+            /*$row[] = number_format((float) $this->Sales_Model->getGpAmountByInvoiceId($this->dist_id, $sale->sales_invoice_id), 2, '.', ',');*/
+            $row[] = '<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/warranty_claim_voucher_view/' . $sale->sales_invoice_id) . '">
+    <i class="fa fa-search-plus bigger-130"></i></a>
+    <i class="fa fa-edit"></i></a><a class="btn btn-icon-only red" href="#">
+    ';
+            /* <a class="btn btn-icon-only red" href="' . site_url($this->project . '/salesInvoice_edit/' . $sale->sales_invoice_id) . '">*/
+            $data[] = $row;
+        }
+
+        $output = array(
+            "draw" => $_POST['draw'],
+            "recordsTotal" => $this->Filter_Model->count_all_warranty_claim_voucher_list(),
+            "recordsFiltered" => $this->Filter_Model->count_filtered_warranty_claim_voucher_list(),
+
+           /* "recordsTotal" => $this->Filter_Model->count_all_sales(),
+            "recordsFiltered" => $this->Filter_Model->count_filtered_sales(),*/
             "data" => $data,
         );
 //output to json format
@@ -546,6 +691,67 @@ class ServerFilterController extends CI_Controller
 //output to json format
         echo json_encode($output);
     }
+    public function warranty_receipt_voucher_list()
+    {
+
+        $property_1=get_property_list_for_show_hide(1);
+        $property_2=get_property_list_for_show_hide(2);
+        $property_3=get_property_list_for_show_hide(3);
+        $property_4=get_property_list_for_show_hide(4);
+        $property_5=get_property_list_for_show_hide(5);
+
+
+        $this->Filter_Model->filterData('purchase_invoice_info',
+            array('purchase_invoice_info.invoice_date', 'purchase_invoice_info.invoice_no', 'supplier.supID', 'supplier.supName', 'purchase_invoice_info.narration', 'purchase_invoice_info.paid_amount '),
+            array('purchase_invoice_info.invoice_date', 'purchase_invoice_info.invoice_no', 'supplier.supID', 'supplier.supName', 'purchase_invoice_info.narration', 'purchase_invoice_info.paid_amount '),
+            array('purchase_invoice_info.invoice_date', 'purchase_invoice_info.invoice_no', 'supplier.supID', 'supplier.supName', 'purchase_invoice_info.narration', 'purchase_invoice_info.paid_amount'), $this->dist_id);
+        $list = $this->Filter_Model->get_warranty_receipt_voucher_list_query();
+        $data = array();
+        $no = $_POST['start'];
+        foreach ($list as $purchases) {
+            $no++;
+            $row = array();
+            $row[] = $no;
+            $row[] = date('M d, Y', strtotime($purchases->invoice_date));
+            $row[] = '<a title="view Voucher" href="' . site_url($this->project . '/warranty_receipt_voucher_view/' . $purchases->purchase_invoice_id) . '">' . $purchases->invoice_no . '</a></td>';
+            /*$row[] = $purchases->name;*/
+            $row[] = '<a title="View Supplier Dashboard" href="' . site_url($this->project . '/supplierDashboard/' . $purchases->sup_id) . '">' . $purchases->supID . ' [ ' . $purchases->supName . ' ] ' . '</a>';
+
+            $row[] = number_format((float)$purchases->invoice_amount, 2, '.', ',');
+
+            if($property_1 !='dont_have_this_property'){
+                $row[]=$purchases->property_1;
+            }
+            if($property_2 !='dont_have_this_property'){
+                $row[]=$purchases->property_2;
+            }
+            if($property_3 !='dont_have_this_property'){
+                $row[]=$purchases->property_3;
+            }
+            if($property_4 !='dont_have_this_property'){
+                $row[]=$purchases->property_4;
+            }
+            if($property_5 !='dont_have_this_property'){
+                $row[]=$purchases->property_5;
+            }
+            $row[] = $purchases->narration;
+            $row[] = '<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/warranty_receipt_voucher_view/' . $purchases->purchase_invoice_id) . '">
+    <i class="fa fa-search-plus bigger-130"></i></a>
+    <i class="fa fa-pencil bigger-130"></i></a>
+    ';
+            /* <a class="btn red" href="' . site_url($this->project . '/purchases_lpg_edit/' . $purchases->purchase_invoice_id) . '">*/
+            $data[] = $row;
+        }
+
+        $output = array(
+            "draw" => $_POST['draw'],
+            "recordsTotal" => $this->Filter_Model->count_all_warranty_receipt_voucher(),
+            "recordsFiltered" => $this->Filter_Model->count_filtered_arranty_receipt_voucher(),
+            "data" => $data,
+        );
+//output to json format
+        echo json_encode($output);
+    }
 
     public function paymentList()
     {
@@ -657,7 +863,9 @@ class ServerFilterController extends CI_Controller
                 $action='<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/receiveVoucherView/' . $receive->Accounts_VoucherMst_AutoID) . '">
     <i class="ace-icon fa fa-search-plus bigger-130"></i></a>
     <a class="btn btn-icon-only red financeEditPermission" href="' . site_url($this->project . '/receiveVoucherEdit/' . $receive->Accounts_VoucherMst_AutoID) . '">
-        <i class="ace-icon fa fa-pencil bigger-130"></i></a>';
+        <i class="ace-icon fa fa-pencil bigger-130"></i></a>
+        <a class="btn btn-icon-only red" href="javascript:void(0)" onclick="deleteVoucher(2,' .$receive->Accounts_VoucherMst_AutoID . ')">
+                <i class="fa fa-trash-o bigger-130"></i></a>';
                 $Narration=$receive->Narration;
             }else{
 
@@ -722,7 +930,9 @@ class ServerFilterController extends CI_Controller
                 $action='<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/receiveVoucherView/' . $receive->Accounts_VoucherMst_AutoID) . '">
     <i class="ace-icon fa fa-search-plus bigger-130"></i></a>
     <a class="btn btn-icon-only red financeEditPermission" href="' . site_url($this->project . '/receiveVoucherEdit/' . $receive->Accounts_VoucherMst_AutoID) . '">
-        <i class="ace-icon fa fa-pencil bigger-130"></i></a>';
+        <i class="ace-icon fa fa-pencil bigger-130"></i></a>
+         <a class="btn btn-icon-only red" href="javascript:void(0)" onclick="deleteVoucher(2,' .$receive->Accounts_VoucherMst_AutoID . ')">
+                <i class="fa fa-trash-o bigger-130"></i></a>';
                 $Narration=$receive->Narration;
             }else{
 
@@ -844,7 +1054,9 @@ class ServerFilterController extends CI_Controller
                 $action='<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/journalVoucherView/' . $journal->Accounts_VoucherMst_AutoID) . '">
     <i class="ace-icon fa fa-search-plus bigger-130"></i></a>
     <a class="btn btn-icon-only red financeEditPermission" href="' . site_url($this->project . '/journalVoucherEdit/' . $journal->Accounts_VoucherMst_AutoID) . '">
-        <i class="ace-icon fa fa-pencil bigger-130"></i></a>';
+        <i class="ace-icon fa fa-pencil bigger-130"></i></a>
+        <a class="btn btn-icon-only red" href="javascript:void(0)" onclick="deleteVoucher(2,' .$journal->Accounts_VoucherMst_AutoID . ')">
+                <i class="fa fa-trash-o bigger-130"></i></a>';
                 $Narration=$journal->Narration;
             }else{
 

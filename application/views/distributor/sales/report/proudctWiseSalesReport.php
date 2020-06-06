@@ -267,8 +267,6 @@ endif;
                                     $priice = 0;
                                     $brandNameArray = array();
                                     $productWiseSales = $this->Sales_Model->getProductWiseSalesReport2($this->dist_id, $productId, $start_date, $end_date, $branch_id);
-                                    echo "<pre>";
-                                    print_r($this->db->last_query());
 
 
                                     foreach ($productWiseSales as $key => $each_product):
@@ -290,7 +288,7 @@ endif;
 
 
                                                 <td><a class="blue"
-                                                       href="<?php echo site_url('salesInvoice_view/' . $each_product->sales_invoice_id); ?>"><?php echo $each_product->invoice_no; ?></a>
+                                                       href="<?php echo site_url($this->project.'/viewLpgCylinder/' . $each_product->sales_invoice_id); ?>"><?php echo $each_product->invoice_no; ?></a>
                                                 </td>
 
                                                 <td><?php echo $each_product->customerName . ' [ ' . $each_product->customerID . ' ]'; ?></td>
@@ -323,10 +321,10 @@ endif;
 
 
                                                 <td><a class="blue"
-                                                       href="<?php echo site_url('salesInvoice_view/' . $each_product->sales_invoice_id); ?>"><?php echo $each_product->invoice_no; ?></a>
+                                                       href="<?php echo site_url($this->project.'/salesInvoice_view/' . $each_product->sales_invoice_id); ?>"><?php echo $each_product->invoice_no; ?></a>
                                                 </td>
 
-                                                <td><?php echo $this->Inventory_Model->getCustomerOrSupplierIdByGeneralId($each_product->customer_id); ?></td>
+                                                <td><?php echo $each_product->customerName . ' [ ' . $each_product->customerID . ' ]'; ?></td>
 
                                                 <td align="right"><?php
                                                     echo $each_product->quantity;

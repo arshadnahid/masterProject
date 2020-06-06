@@ -365,7 +365,7 @@ var findTotalCal = function () {
     calculatePartialPayment();
 };
 function checkStockOverQty(givenStock){
-    /* var orgiStock=parseFloat($("#stockQty").val());
+     var orgiStock=parseFloat($("#stockQty").val());
      var givenStock= parseFloat(givenStock);
      if(isNaN(givenStock)){
          givenStock=0;
@@ -373,12 +373,12 @@ function checkStockOverQty(givenStock){
      if(isNaN(orgiStock)){
          orgiStock=0;
      }
-     //  alert(orgiStock);
+       alert(orgiStock);
      if(orgiStock < givenStock){
          $(".quantity").val('');
          $(".quantity").val(parseFloat(orgiStock));
-         productItemValidation("Stock Quantity Not Available.");
-     }*/
+        // productItemValidation("Stock Quantity Not Available.");
+     }
 
 }
 
@@ -515,7 +515,7 @@ $(document).ready(function () {
                         '<input type="hidden"  name="product_id_'+ slNo +'" value="' + productID + '">' +
                         '</td>' +
                         '<td align="right">' +
-                        '<input type="text" id="qty_'+ j +'" class="form-control text-right add_quantity decimal" onkeyup="checkStockOverQty(this.value)" name="quantity_'+ slNo +'" value="' + quantity + '">' +
+                        '<input type="text" id="qty_'+ j +'" class="form-control text-right add_quantity decimal"  name="quantity_'+ slNo +'" value="' + quantity + '">' +
                         '</td>' +
                         '<td align="right"><input type="text" class="add_ReturnQuantity  text-right form-control decimal" name="returnQuantity[]" value="' + returnQuantity + '">' +
                         '</td>' +
@@ -543,7 +543,7 @@ $(document).ready(function () {
                         '<input type="hidden"  name="product_id[]" value="' + productID + '">' +
                         '</td>' +
                         '<td align="right">' +
-                        '<input type="text" id="qty_'+ j +'" class="form-control text-right add_quantity decimal" onkeyup="checkStockOverQty(this.value)" name="quantity[]" value="' + quantity + '">' +
+                        '<input type="text" id="qty_'+ j +'" class="form-control text-right add_quantity decimal"  name="quantity[]" value="' + quantity + '">' +
                         '</td>' +
                         '<td align="right">' +
                         '<input type="text" class="add_ReturnQuantity  text-right form-control decimal" name="returnQuantity[]" value="' + returnQuantity + '" readonly>' +

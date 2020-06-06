@@ -818,7 +818,7 @@ class FinaneController extends CI_Controller
                 $this->load->helper('file');
                 $file = $_FILES['customerOpening']['tmp_name'];
                 $importFile = fopen($file, "r");
-                $this->db->trans_start();
+
                 $row = 0;
                 $storeData = array();
                 $allCus = array();
@@ -867,6 +867,7 @@ class FinaneController extends CI_Controller
                     $row++;
                 }
             }
+
 
             if (!empty($_FILES['customerOpeningExcel']['name'])) {
 
@@ -940,6 +941,7 @@ class FinaneController extends CI_Controller
             }
 
             if (!empty($insertDataOpeningAccount)){
+
                 $this->db->insert_batch('opening_balance', $insertDataOpeningAccount);
             }
 
@@ -1535,10 +1537,10 @@ class FinaneController extends CI_Controller
     public
     function getPayUserList()
     {
-        $payid = $this->input->post('payid');
+
         $payid = $this->input->post('payid');
         $condition = array(
-            'dist_id' => $this->dist_id,
+            //'dist_id' => $this->dist_id,
             'status' => 1,
         );
         $data['payType'] = $payid;
@@ -1546,6 +1548,9 @@ class FinaneController extends CI_Controller
             return $this->load->view('distributor/ajax/payList', $data);
         } elseif ($payid == 2) {
             $data['payList'] = $this->Common_model->get_data_list_by_many_columns('customer', $condition);
+
+
+
             return $this->load->view('distributor/ajax/payList', $data);
         } else {
             $data['payList'] = $this->Common_model->get_data_list_by_many_columns('supplier', $condition);

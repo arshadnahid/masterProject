@@ -568,7 +568,7 @@
                         <label class="col-md-5 control-label" style="white-space: nowrap;font-size:11px"><strong><?php echo get_phrase('Discount')?> (-)
                                 :</strong></label>
                         <div class="col-md-7">
-                            <input type="text" onkeyup="calDiscount()" id="disCount" name="discount" value="<?php
+                            <input type="text" onkeyup="calDiscount()" id="" name="discount" value="<?php
                             if (!empty($editInvoice->discount_amount) && $editInvoice->discount_amount >= 1): echo $editInvoice->discount_amount;
                             endif;
                             ?>" autocomplete="off" style="text-align: right" class="form-control" placeholder="0.00" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"/>

@@ -588,6 +588,8 @@ function getProductPrice(product_id) {
     $('.is_same').val('0');
     $('#productID2').removeAttr("disabled");
     $('.quantity').val('');
+    $('.property_1').val('');
+    $('.property_2').val('');
     $('.returnAble').val('');
     $('.rate').val('');
     $('.price').val('');
@@ -595,6 +597,8 @@ function getProductPrice(product_id) {
 
     var productCatID = $('#productID').find('option:selected').attr('categoryId');
     var ispackage = $('#productID').find('option:selected').attr('ispackage');
+    var property_1 = $('#productID').find('option:selected').attr('property_1');
+    var property_2 = $('#productID').find('option:selected').attr('property_2');
     if (productCatID == 2) {
         $(".returnAble").attr('readonly', false);
         $('#productID2').val('').prop('disabled', false).trigger("chosen:updated");
@@ -649,6 +653,9 @@ function getProductPrice(product_id) {
             }
         }
     });
+
+    $('.property_1').val(property_1);
+    $('.property_2').val(property_2);
 }
 
 

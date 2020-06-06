@@ -30,6 +30,7 @@
     }
 </style>
 
+
 <?php
 $property_1 = get_property_list_for_show_hide(1);
 $property_2 = get_property_list_for_show_hide(2);
@@ -46,6 +47,97 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
 ?>
 <div class="row">
 
+    <div class="col-sm-7">
+        <?php
+        foreach ($customer_money_revcive as $key => $value) {
+            $customer_money_revcive_info = array();
+            $customer_money_revcive_info = explode("&^&", $key);
+
+            ?>
+            <form id="billTobillForm_<?php echo $customer_money_revcive_info[0] ?>"
+                  action="<?php echo base_url() ?>lpg/SalesInvoiceEditController/delete_bill_to_bill_collection"
+                  method="post" class="form-horizontal" name="billTobillForm_<?php echo $customer_money_revcive_info[0] ?>">
+
+                <table class="table table-bordered table-striped table-condensed flip-content">
+
+                    <thead>
+
+                    <tr>
+                        <td class="text-center">
+                            <strong>
+                                <?php echo get_phrase('Voucher No') ?>:
+                                <?php echo get_phrase($customer_money_revcive_info[1]) ?>
+
+                            </strong>
+                        </td>
+
+                        <td class="text-center">
+                            <strong>
+                                <?php echo get_phrase('Date') ?>:
+                                <?php echo get_phrase($customer_money_revcive_info[2]) ?>
+
+                            </strong>
+                        </td>
+
+                        <td class="text-right">
+                            <input type="text" name="due_collection_info_id" id="due_collection_info_id"
+                                   value="<?php echo $customer_money_revcive_info[0] ?> "/>
+                            <input type="text" name="invoice_id" id="invoice_id"
+                                   value="<?php echo $editInvoice->sales_invoice_id ?> "/>
+
+                            <button onclick="return isconfirm3()" id="" class="btn btn-xs red" type="button">
+                                <i class="fa fa-trash-o bigger-130"></i>
+                                <?php echo get_phrase('Save') ?>
+                            </button>
+
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td class="text-center"><?php echo get_phrase('Sales_invoice_no') ?>
+                        </td>
+                        <td class="text-center"><?php echo get_phrase('Sales_invoice_amount') ?>
+                        </td>
+                        <td class="text-center"><?php echo get_phrase('paid_amount') ?>
+                        </td>
+                    </tr>
+
+
+                    </thead>
+                    <tbody>
+
+                    <?php foreach ($value as $key1 => $value1) { ?>
+                        <tr>
+                            <td class="text-center">
+                                <input type="text" name="due_collection_details_id[]"
+                                       value="<?php echo $value1->cus_due_collection_details_id ?> "/>
+                                <input type="text" name="sales_invoice_id[]"
+                                       value="<?php echo $value1->sales_invoice_id ?> "/>
+                                <input type="text" name="invoice_no[]" value="<?php echo $value1->invoice_no ?> "/>
+
+                                <?php echo $value1->invoice_no ?>
+                            </td>
+                            <td class="text-center"><?php echo $value1->invoice_amount ?>
+                            </td>
+                            <td class="text-center"><?php echo $value1->paid_amount ?>
+                            </td>
+                        </tr>
+
+                    <?php } ?>
+
+                    </tbody>
+
+
+                </table>
+            </form>
+        <?php } ?>
+
+    </div>
+
+</div>
+<div class="row">
+
+
     <form id="publicForm" action="" method="post" class="form-horizontal" name="publicForm">
         <div class="col-sm-12 col-md-4" style="margin-top: 10px;">
             <div class="form-group">
@@ -53,8 +145,9 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                             style="color:red;">*</span><strong><?php echo get_phrase('Sales_Date') ?></strong></label>
                 <div class="col-sm-7">
                     <div class="input-group">
-                        <input class="form-control date-picker-sales" name="saleDate" id="saleDate" type="text"
-                               value="<?php echo date('d-m-Y'); ?>" data-date-format="dd-mm-yyyy" autocomplete="off"/>
+                        <input class="form-control date-picker" name="saleDate" id="saleDate" type="text"
+                               value="<?php echo date('d-m-Y', strtotime($editInvoice->invoice_date)); ?>"
+                               data-date-format="dd-mm-yyyy" autocomplete="off"/>
                         <span class="input-group-addon">
                             <i class="fa fa-calendar bigger-110"></i>
                         </span>
@@ -71,9 +164,15 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                                 data-placeholder="Select Customer Name">
                             <option></option>
                             <?php foreach ($customerList as $key => $each_info): ?>
-                                <option value="<?php echo $each_info->customer_id; ?>"><?php echo $each_info->customerName . '&nbsp&nbsp[ ' . $each_info->typeTitle . ' ] '; ?></option>
-                                <!--   <!---->
-                                <option value="<?php /* echo $each_info->customer_id; */ ?>"><?php /* echo $each_info->typeTitle . ' - ' . $each_info->customerID . ' [ ' . $each_info->customerName . ' ] '; */ ?></option>-->
+                                <option
+
+                                    <?php
+                                    if ($editInvoice->customer_id == $each_info->customer_id) {
+                                        echo "selected";
+                                    }
+                                    ?>
+                                        value="<?php echo $each_info->customer_id; ?>"><?php echo $each_info->customerName . '&nbsp&nbsp[ ' . $each_info->typeTitle . ' ] '; ?></option>
+
                             <?php endforeach; ?>
                         </select>
                         <span class="input-group-btn" id="newCustomerHide">
@@ -92,7 +191,13 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                             data-placeholder="Select Reference Name">
                         <option></option>
                         <?php foreach ($referenceList as $key => $each_ref): ?>
-                            <option value="<?php echo $each_ref->reference_id; ?>"><?php echo $each_ref->referenceName; ?></option>
+                            <option
+                                <?php
+                                if ($editInvoice->refference_person_id == $each_ref->reference_id) {
+                                    echo "selected";
+                                }
+                                ?>
+                                    value="<?php echo $each_ref->reference_id; ?>"><?php echo $each_ref->referenceName; ?></option>
                         <?php endforeach; ?>
                     </select>
 
@@ -103,34 +208,6 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                 <label class="col-sm-3 control-label formfonterp" for="form-field-1"> <strong>Customer
                         Info</strong></label>
                 <div class="col-sm-7">
-                    <!--                    <table class="table table-bordered table-striped table-condensed flip-content">-->
-                    <!--                        -->
-                    <!--                        <tbody>-->
-                    <!--                        <tr>-->
-                    <!--                            <td class="text-right" style="width: 30%"><strong>--><?php //echo get_phrase('Address') ?>
-                    <!--                                    :</strong></td>-->
-                    <!--                            <td class="text-left"><span id="customer_address_span"> </span></td>-->
-                    <!--                        </tr>-->
-                    <!--                        <tr>-->
-                    <!--                            <td class="text-right" style="width: 30%"><strong>--><?php //echo get_phrase('Phone') ?>
-                    <!--                                    :</strong></td>-->
-                    <!--                            <td class="text-left"><span id="customer_phone_span"> </span></td>-->
-                    <!--                        </tr>-->
-                    <!--                        <tr>-->
-                    <!--                            <td class="text-right" style="width: 30%"><strong-->
-                    <!--                                        id="previousDueText">-->
-                    <?php //echo get_phrase('Due') ?><!--:</strong>-->
-                    <!--                            </td>-->
-                    <!--                            <td class="text-left">-->
-                    <!--                                <span style="display: none" id="previousDue">0.00</span>-->
-                    <!--                                <span style="" id="previousDueSpan">0.00</span>-->
-                    <!--                            </td>-->
-                    <!--                            <input type="text" value="0" id="CreditLimit"/>-->
-                    <!--                        </tr>-->
-                    <!--                        </tbody>-->
-                    <!--                    </table>-->
-
-
                     <table class="table table-bordered table-striped table-condensed flip-content">
                         <!--<thead>
                         <tr>
@@ -177,19 +254,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                     </table>
 
 
-                    <!--<div class="col-md-9"><p class="form-control-static"> Customer Cylinder Due</p></div>
-                        <input type="text" name="type_id" value="2" id="type_idcylinderTypeReport"/>
-                        <input type="hidden" name="searchId" value="" id="searchIdcylinderTypeReport"/>
 
-
-                        <input type="hidden" name="start_date" id="start_datecylinderTypeReport" value="<?php /*echo date('d-m-Y'); */ ?>"/>
-                        <input type="hidden" name="end_date"  id="end_datecylinderTypeReport"value="<?php /*echo date('d-m-Y'); */ ?>"/>
-                        <button type="submit" class="btn btn-info btn-sm btn-link"
-                                style="cursor:pointer;"></button>
--->
-
-                    <a class=" " href="" target="_blank" id="cmdSaveValue">
-                        <span id="cmdSaveValueSpan"></span></i></a>
 
                 </div>
             </div>
@@ -202,6 +267,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                        style="white-space: nowrap;"><strong><?php echo get_phrase('Delivery_Address') ?></strong></label>
                 <div class="col-sm-7">
                     <input class="form-control" placeholder="Delivery Address" name="shippingAddress"
+                           value="<?php echo $editInvoice->delivery_address ?>"
                            autocomplete="off"/>
                 </div>
             </div>
@@ -210,7 +276,18 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                 <label class="col-sm-3 control-label formfonterp" for="form-field-1"
                        style="white-space: nowrap;"><strong><?php echo get_phrase('Delivery_Date') ?></strong></label>
                 <div class="col-sm-7">
-                    <input class="form-control date-picker" value="<?php echo date('d-m-Y'); ?>"
+
+                    <?php
+                    $delivery_date = "";
+
+                    if ($editInvoice->delivery_date != "0000-00-00" && $editInvoice->delivery_date != 'NULL') {
+                        $delivery_date = date('d-m-Y', strtotime($editInvoice->delivery_date));
+                    }
+
+
+                    ?>
+                    <input class="form-control date-picker"
+                           value="<?php echo $delivery_date ?>"
                            data-date-format="dd-mm-yyyy" autocomplete="off" placeholder="Delivery Date"
                            name="delivery_date"/>
                 </div>
@@ -223,9 +300,19 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                         :</strong></label>
                 <div class="col-md-7">
                     <!--id="dueDate"-->
+
+                    <?php
+                    $due_date = "";
+
+                    if ($editInvoice->due_date != "0000-00-00" && $editInvoice->due_date != 'NULL') {
+                        $due_date = date('d-m-Y', strtotime($editInvoice->due_date));
+                    }
+
+
+                    ?>
                     <input class="form-control date-picker" name="creditDueDate"
                            style=""
-                           type="text" value="<?php echo date('d-m-Y'); ?>" data-date-format="dd-mm-yyyy"
+                           type="text" value="<?php echo $due_date ?>" data-date-format="dd-mm-yyyy"
                            autocomplete="off"/>
 
                 </div>
@@ -238,10 +325,24 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                     <select onchange="showBankinfo(this.value)" name="paymentType" class="chosen-select form-control"
                             id="paymentType" data-placeholder="Select Payment Type">
                         <option></option>
-                        <!--<option value="1">Full Cash</option>-->
-                        <option selected value="4"><?php echo get_phrase('Cash') ?></option>
-                        <option value="2"><?php echo get_phrase('Credit') ?></option>
-                        <option value="3"><?php echo get_phrase('Cheque_DD_PO') ?></option>
+
+                        <option
+                            <?php
+                            if ($editInvoice->payment_type == 4) {
+                                echo "selected";
+                            }
+                            ?> value="4"
+                        ><?php echo get_phrase('Cash') ?></option>
+                        <option <?php
+                        if ($editInvoice->payment_type == 2) {
+                            echo "selected";
+                        }
+                        ?> value="2"><?php echo get_phrase('Credit') ?></option>
+                        <option <?php
+                        if ($editInvoice->payment_type == 3) {
+                            echo "selected";
+                        }
+                        ?> value="3"><?php echo get_phrase('Cheque_DD_PO') ?></option>
                     </select>
                 </div>
             </div>
@@ -249,10 +350,9 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
             <div class="form-group partisals">
                 <label class="col-sm-3 control-label no-padding-right formfonterp" for="form-field-1"><span
                             style="color:red;"> *</span><strong><?php echo get_phrase('Account') ?></strong></label>
-                <div class="col-sm-7" id="">
-
+                <div class="col-sm-7">
                     <select style="width:100%!important;" name="accountCrPartial"
-                            class="chosen-select   checkAccountBalance chosenRefesh" id="partialHead"
+                            class="chosen-select   checkAccountBalance" id="partialHead"
                             data-placeholder="Select Account Head">
                         <option value=""></option>
                         <?php
@@ -266,7 +366,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                                     /*log_message('error','this is the account hade list'.print_r($eachLedger["parent_name"],true));*/
                                     ?>
                                     <option <?php
-                                    if ($head['parent_id'] == '28') {
+                                    if ($eachLedger["id"] == $sale_invoice_cash_ledger_id) {
                                         echo "selected";
                                     }
                                     ?> value="<?php echo $eachLedger["id"]; ?>"><?php echo get_phrase($eachLedger["parent_name"]) . " ( " . $eachLedger["code"] . " ) "; ?></option>
@@ -277,7 +377,6 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                         }
                         ?>
                     </select>
-
                 </div>
             </div>
 
@@ -288,11 +387,13 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                        for="form-field-1"><strong> <?php echo get_phrase('Invoice_No') ?>.</strong></label>
                 <div class="col-sm-8">
                     <div class="input-group">
-                        <input type="text" name="userInvoiceId" value="" class="form-control" placeholder="Invoice No"
+                        <input type="text" name="userInvoiceId" value="<?php echo $editInvoice->customer_invoice_no; ?>"
+                               class="form-control" placeholder="Invoice No"
                                autocomplete="off"/>
                         <span class="input-group-addon" style="background-color:#fff">
-                            <?php echo $voucherID; ?>
-                            <input type="hidden" id="" name="voucherid" readonly value="<?php echo $voucherID; ?>"/>
+                            <?php echo $editInvoice->invoice_no; ?>
+                            <input type="hidden" id="" name="voucherid" readonly
+                                   value="<?php echo $editInvoice->invoice_no; ?>"/>
                         </span>
                     </div>
                 </div>
@@ -305,7 +406,11 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                             data-placeholder="Select  Loader">
                         <option></option>
                         <?php foreach ($employeeList as $key => $eachEmp): ?>
-                            <option value="<?php echo $eachEmp->id; ?>"><?php echo $eachEmp->name . '   &nbsp&nbsp[' . $eachEmp->personalMobile . ']'; ?></option>
+                            <option <?php
+                            if ($editInvoice->loader_emp_id == $eachEmp->id) {
+                                echo "selected";
+                            }
+                            ?> value="<?php echo $eachEmp->id; ?>"><?php echo $eachEmp->name . '   &nbsp&nbsp[' . $eachEmp->personalMobile . ']'; ?></option>
                             <!--<option value="<?php /* echo $eachEmp->id; */ ?>"><?php /* echo $eachEmp->personalMobile . ' [ ' . $eachEmp->name . ']'; */ ?></option>-->
                         <?php endforeach; ?>
                     </select>
@@ -319,7 +424,11 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                             data-placeholder="Select Transportation">
                         <option></option>
                         <?php foreach ($vehicleList as $key => $eachVehicle): ?>
-                            <option value="<?php echo $eachVehicle->id; ?>"><?php echo $eachVehicle->vehicleName . ' [ ' . $eachVehicle->vehicleModel . ' ]'; ?></option>
+                            <option <?php
+                            if ($editInvoice->tran_vehicle_id == $eachVehicle->id) {
+                                echo "selected";
+                            }
+                            ?> value="<?php echo $eachVehicle->id; ?>"><?php echo $eachVehicle->vehicleName . ' [ ' . $eachVehicle->vehicleModel . ' ]'; ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -333,7 +442,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                             id="BranchAutoId" data-placeholder="Select Branch">
                         <option value=""></option>
                         <?php
-                        echo branch_dropdown(null, null);
+                        echo branch_dropdown(null, $editInvoice->branch_id);
                         ?>
 
 
@@ -354,7 +463,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                         <select name="bankName" class=" form-control" id="bankName"
                                 data-placeholder="Bank Account  Name">
                             <?php
-                            echo bank_account_info_dropdown();
+                            echo bank_account_info_dropdown($editInvoice->bank_branch_id);
                             ?>
                         </select>
                     </div>
@@ -382,7 +491,8 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                     <label class="col-sm-4 formfonterp"
                            style="white-space: nowrap;padding-top: 7px;"><strong><?php echo get_phrase('Check_No') ?></strong></label>
                     <div class="col-sm-8">
-                        <input type="text" value="" class="form-control" id="checkNo" name="checkNo"
+                        <input type="text" value="<?php echo $editInvoice->check_no ?>" class="form-control"
+                               id="checkNo" name="checkNo"
                                placeholder="Check NO" autocomplete="off"/>
                     </div>
                 </div>
@@ -393,7 +503,9 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                            style="white-space: nowrap;padding-top: 7px;"><strong><?php echo get_phrase('Check_Date') ?></strong></label>
                     <div class="col-sm-8">
                         <input class="form-control date-picker" name="checkDate" name="purchasesDate" id="checkDate"
-                               type="text" value="<?php echo date('d-m-Y'); ?>" data-date-format="dd-mm-yyyy"/>
+                               type="text"
+                               value="<?php echo $editInvoice->check_date != '' ? date('d-m-Y', strtotime($editInvoice->check_date)) : ''; ?>"
+                               data-date-format="dd-mm-yyyy"/>
                     </div>
                 </div>
             </div>
@@ -424,11 +536,13 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                     <th style="white-space:nowrap; width:100px; vertical-align:top;">
                         <strong><?php echo get_phrase('Quantity') ?> <span
                                     style="color:red;"> *</span></strong></th>
-                    <th nowrap style="display: none"><strong><?php echo get_phrase('Receivable_Qty') ?></strong></th>
+
                     <th nowrap><strong><?php echo get_phrase('Unit_Price') ?>(<?php echo get_phrase('BDT') ?>) <span
                                     style="color:red;"> *</span></strong></th>
                     <th nowrap><strong><?php echo get_phrase('Total Price') ?>(<?php echo get_phrase('BDT') ?>) <span
                                     style="color:red;"> *</span></strong></th>
+
+
                     <th nowrap
                         style="text-align: center;width:17%;border-radius:10px;<?php echo $property_1 == 'dont_have_this_property' ? 'display: none' : '' ?>">
                         <strong><?php echo $property_1; ?> </strong>
@@ -470,7 +584,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                                 }
                             }
                             ?>
-
+                            <option value="package">Package</option>
                             <?php
                             $categoryArray = array('1', '2');
                             foreach ($productCat as $eachInfo) {
@@ -496,22 +610,15 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                                                                              onkeyup="checkStockOverQty(this.value)"
                                                                              class="form-control text-right quantity decimal"
                                                                              placeholder="0"></td>
-                    <td style="display: none"><input type="hidden" value="" id="returnStockQty"/><input type="text"
-                                                                                                        readonly
-                                                                                                        onclick="this.select();"
-                                                                                                        class="form-control text-right returnQuantity decimal"
-                                                                                                        placeholder="0">
-                    </td>
-                    <td><input type="text" onclick="this.select();" class="form-control text-right rate decimal"
+                     <td><input type="text" onclick="this.select();" class="form-control text-right rate decimal"
                                placeholder="0.00"></td>
-                    <td>
-                        <input type="text" onclick="this.select();" class="form-control text-right price decimal"
+                    <td><input type="text" onclick="this.select();" class="form-control text-right price decimal"
                                placeholder="0.00"
-                               readonly="readonly">
-                    </td>
+                               readonly="readonly"></td>
+
                     <td style="<?php echo $property_1 == 'dont_have_this_property' ? 'display: none' : '' ?>">
                         <input type="text" onclick="this.select();" class="form-control text-right property_1 "
-                               placeholder="<?php echo $property_1; ?>" />
+                               placeholder="<?php echo $property_1; ?>"/>
                     </td>
                     <td style="<?php echo $property_2 == 'dont_have_this_property' ? 'display: none' : '' ?>">
 
@@ -530,6 +637,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                         <input type="text" onclick="this.select();" class="form-control text-right property_5 "
                                placeholder="<?php echo $property_5; ?>"/>
                     </td>
+
                     <td>
                         <a id="add_item" class="btn blue form-control" href="javascript:void(0);" title="Add Item">
                             <i class="fa fa-plus" style="margin-top: 6px;margin-left: 8px;"></i>&nbsp;&nbsp;
@@ -538,7 +646,122 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                 </tr>
 
                 </tbody>
-                <tfoot></tfoot>
+                <tfoot>
+                <?php
+                $tqty = 0;
+                $trate = 0;
+                $tprice = 0;
+                $j = 10001;
+                $slNo = 20001;
+
+                $option .= '<option value=""></option>';
+                foreach ($cylinderProduct as $eachProduct):
+                    $productPreFix = substr($eachProduct->productName, 0, 5);
+                    if ($eachProduct->category_id == 1):
+
+                        $option .= '<option categoryName2="' . $eachProduct->productCat . '"brand_id="' . $eachProduct->brand_id . '"productName2="' . $eachProduct->productName . ' ' . $eachProduct->unitTtile . ' [ ' . $eachProduct->brandName . ']"' . 'value=' . $eachProduct->product_id . ' >' . $eachProduct->productName . ' [ ' . $eachProduct->brandName . ' ] ' . '</option>';
+
+
+                    endif;
+                endforeach;
+
+
+                foreach ($editStock[$editInvoice->sales_invoice_id] as $key => $each_info):
+                    $slNo++;
+                    $refillEmptyCylinder = "";
+                    $tqty += $each_info['quantity'];
+                    $trate += $each_info['unit_price'];
+                    $tprice += $each_info['unit_price'] * $each_info['quantity'];
+                    $package = '';
+                    if ($each_info['is_package'] == 1) {
+                        $package = 'Package ';
+                    }
+                    if ($each_info['category_id'] == 2 && $each_info['is_package'] == 0) {
+                        $refillEmptyCylinder = '<tr>';
+                        $refillEmptyCylinder .= '<td>' . '<select class="chosen-select form-control returnedProducted returnedProduct_' . $slNo . '" id="' . $slNo . '" data-placeholder="Search by product name">' . $option . '</select>';
+                        $refillEmptyCylinder .= '</td>';
+
+                        $refillEmptyCylinder .= '<td style="width: 27%">';
+                        $refillEmptyCylinder .= '<div class="input-group"><input type="text" class="form-control text-right returnedProductQty_' . $slNo . '" /> </div>';
+                        $refillEmptyCylinder .= '</td>';
+                        $refillEmptyCylinder .= '<td style="width: 27%">';
+                        $refillEmptyCylinder .= '<div class="input-group"><input type="text" class="form-control text-right returnedProductPrice_' . $slNo . '" /><a href="javascript:void(0)" id="' . $slNo . '" class="btn blue AddreturnedProduct  input-group-addon"><i class="fa fa-plus" style=" color:#fff"></i> </a> </div>';
+                        $refillEmptyCylinder .= '</td>';
+                        $refillEmptyCylinder .= '</tr>';
+                    }
+
+                    ?>
+
+
+                    <tr class="new_item<?php echo $j ?>">
+                        <td colspan="2">
+                            <input type="hidden" name="slNo[<?php echo $slNo ?>]" value="<?php echo $slNo ?>"/>
+                            <input type="hidden" name="brand_id[]" value="<?php echo $each_info['brand_id'] ?>"/>
+                            <input type="hidden" id="is_package_<?php echo $slNo ?>"
+                                   name="is_package_<?php echo $slNo ?>"
+                                   value="<?php echo $each_info['is_package'] ?>"/>
+                            <input type="hidden" name="category_id[]" value="<?php echo $each_info['category_id'] ?>"/>
+                            <input type="hidden" id="product_id_<?php echo $slNo ?>"
+                                   name="product_id_<?php echo $slNo ?>"
+                                   value="<?php echo $each_info['product_id'] ?>"/>
+                            <?php
+                            echo $package . ' ' . $each_info['productName'] . '' . $each_info['unitTtile'] . '[' . $each_info['brandName'] . ']';
+                            ?>
+
+                        </td>
+
+                        <td>
+                            <input type="text" attr-main-qty="<?php echo $each_info['quantity'] ?>"
+                                   id="qty_<?php echo $j ?>" class="form-control text-right add_quantity "
+                                   style="height: 33px;"
+                                   name="quantity_<?php echo $slNo ?>" value="<?php echo $each_info['quantity'] ?>"/>
+                        </td>
+
+                        <td>
+                            <input type="text" id="rate_<?php echo $j ?>"
+                                   class="form-control add_rate text-right decimal"
+                                   name="rate_<?php echo $slNo ?>" value="<?php echo $each_info['unit_price'] ?>"/>
+                        </td>
+                        <td>
+                            <input readonly type="text" class="add_price text-right form-control"
+                                   id="tprice_<?php echo $j ?>"
+                                   name="price[]" value="<?php echo $each_info['unit_price'] ?>"/>
+
+                        </td>
+                        <td style="<?php echo $property_1 == 'dont_have_this_property' ? 'display: none' : '' ?>">
+                            <input type="text" onclick="this.select();" class="form-control text-right property_1 "
+                                   placeholder="<?php echo $property_1; ?>" name="property_1_<?php echo $slNo ?>" value="<?php echo $each_info['property_1'] ?>"/>
+                        </td>
+                        <td style="<?php echo $property_2 == 'dont_have_this_property' ? 'display: none' : '' ?>">
+
+                            <input type="text" onclick="this.select();" class="form-control text-right property_2 "
+                                   placeholder="<?php echo $property_2; ?>" name="property_2_<?php echo $slNo ?>" value="<?php echo $each_info['property_2'] ?>"/>
+                        </td>
+                        <td style="<?php echo $property_3 == 'dont_have_this_property' ? 'display: none' : '' ?>">
+                            <input type="text" onclick="this.select();" class="form-control text-right property_3 "
+                                   placeholder="<?php echo $property_3; ?>" name="property_3_<?php echo $slNo ?>" value="<?php echo $each_info['property_3'] ?>"/>
+                        </td>
+                        <td style="<?php echo $property_4 == 'dont_have_this_property' ? 'display: none' : '' ?>">
+                            <input type="text" onclick="this.select();" class="form-control text-right property_4 "
+                                   placeholder="<?php echo $property_4; ?>" name="property_4_<?php echo $slNo ?>" value="<?php echo $each_info['property_4'] ?>"/>
+                        </td>
+                        <td style="<?php echo $property_5 == 'dont_have_this_property' ? 'display: none' : '' ?>">
+                            <input type="text" onclick="this.select();" class="form-control text-right property_5 "
+                                   placeholder="<?php echo $property_5; ?>" name="property_5_<?php echo $slNo ?>" value="<?php echo $each_info['property_5'] ?>"/>
+                        </td>
+
+
+                        <td><a del_id="<?php echo $j ?>" class="delete_item btn form-control btn-danger"
+                               href="javascript:;" title=""><i class="fa fa-times"
+                                                               style="margin-top: 4px;margin-left: 6px;"></i>&nbsp;</a>
+                        </td>
+                    </tr>
+                    <?php
+
+
+                    $j++;
+                endforeach; ?>
+                </tfoot>
             </table>
 
             <table class="table table-bordered table-hover table-success">
@@ -558,8 +781,6 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                         <i class="ace-icon fa fa-check bigger-110"></i>
                         <?php echo get_phrase('Save') ?>
                     </button>
-                    <span id="errorMsg" style="color:red;display: none;"><i
-                                class="ace-icon fa fa-spinner fa-spin orange bigger-120"></i> &nbsp;&nbsp;Customer Credit Limit over!!</span>
 
                 </div>
             </div>
@@ -578,8 +799,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                                style="font-size:11px"><strong><?php echo get_phrase('Total') ?> :</strong></label>
                         <div class="col-md-7">
 
-                            <input type="text" id="total_price" class="form-control total_price" readonly="true"
-                                   value=""/>
+                            <input type="text" id="total_price" class="form-control total_price" readonly="true"/>
                         </div>
                     </div>
                     <div class="form-group">
@@ -588,7 +808,8 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                                 (-)
                                 :</strong></label>
                         <div class="col-md-7">
-                            <input type="text" onkeyup="calDiscount()" id="disCount" name="discount" value=""
+                            <input type="text" onkeyup="calDiscount()" id="disCount" name="discount"
+                                   value="<?php echo $editInvoice->discount_amount ?>"
                                    onclick="this.select();"
                                    autocomplete="off"
                                    style="text-align: right" class="form-control" placeholder="0.00"
@@ -629,7 +850,9 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                         <div class="col-md-7">
                             <input type="text" id="loader" onkeyup="calcutateFinal()" style="text-align: right"
                                    onclick="this.select();"
-                                   name="loaderAmount" value="" class="form-control" placeholder="0.00"
+                                   name="loaderAmount"
+                                   value="<?php echo $editInvoice->loader_charge//;discount_amount//transport_charge?>"
+                                   class="form-control" placeholder="0.00"
                                    autocomplete="off"/>
 
                         </div>
@@ -641,7 +864,9 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                         <div class="col-md-7">
                             <input type="text" id="transportation" onkeyup="calcutateFinal()" style="text-align: right"
                                    onclick="this.select();"
-                                   name="transportationAmount" value="" class="form-control" placeholder="0.00"
+                                   name="transportationAmount"
+                                   value="<?php echo $editInvoice->transport_charge//;discount_amount//transport_charge?>"
+                                   class="form-control" placeholder="0.00"
                                    autocomplete="off"/>
 
                         </div>
@@ -677,22 +902,26 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                             <input type="text" id="payment" onkeyup="calculatePartialPayment()" onclick="this.select();"
                                    style="text-align: right"
                                    autocomplete="off"
-                                   name="partialPayment" value="" class="form-control" autocomplete="off"
+                                   name="partialPayment" value="<?php echo $editInvoice->paid_amount ?>"
+                                   class="form-control" autocomplete="off"
                                    placeholder="0.00"
                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"/>
 
                         </div>
                     </div>
-
-                    <!--<div class="form-group">
-                        <label class="col-md-5 control-label" style="white-space: nowrap; font-size:11px;"><strong>Due Amount :</strong></label>
+                    <div class="form-group creditDate" style="display:none;">
+                        <label class="col-md-5 control-label"
+                               style="white-space: nowrap; font-size:11px;"><strong><?php echo get_phrase('Due_Date') ?>
+                                :</strong></label>
                         <div class="col-md-7">
-                            <input type="text" id="payment" onkeyup="calculatePartialPayment()" style="text-align: right"
-                                   name="partialPayment" value="" class="form-control" autocomplete="off" placeholder="0.00"
-                                   oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"/>
+                            <input class="form-control date-picker" name="creditDueDate" id="dueDate"
+                                   style="text-align: right"
+                                   type="text" value="<?php echo date('d-m-Y'); ?>" data-date-format="dd-mm-yyyy"
+                                   autocomplete="off"/>
 
                         </div>
-                    </div>-->
+                    </div>
+
 
                     <div class="form-group">
                         <label class="col-md-5 control-label"
@@ -706,15 +935,6 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
 
                         </div>
                     </div>
-                    <!--<div class="form-group">
-                        <label class="col-md-5 control-label" style="white-space: nowrap; font-size:11px;"><strong>Total Due :</strong></label>
-                        <div class="col-md-7">
-                            <input type="text" id="totalDue" readonly name="" value="" style="text-align: right"
-                                   class="form-control" autocomplete="off" placeholder="0.00"
-                                   oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"/>
-
-                        </div>
-                    </div>-->
 
 
                 </div>
@@ -725,46 +945,69 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
 
 <script>
 
+    $(document).ready(function () {
+        showBankinfo('<?php echo $editInvoice->payment_type;?>');
+        $('.add_quantity').blur(function () {
+            var branchId = $('#BranchAutoId').val();
+            var id_arr = $(this).attr('name');
+            var add_quantity_id = $(this).attr('id');
+            var givenStock = $(this).val();
+            var mainStockBeforeEdit = $(this).attr('attr-main-qty');
+            var id = id_arr.split("_");
+            //alert(id);
+            var product_id = $('#product_id_' + id[1]).val();
+            var ispackage = $('#is_package_' + id[1]).val();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + 'lpg/InvProductController/getProductStock',
+                data: {product_id: product_id, category_id: '', ispackage: ispackage, branchId: branchId},
+                success: function (data) {
 
-    var salesRateLock;
-    window.salesRateLock = '<?php echo check_parmission_by_user_role(3002)?>';
+                    var mainStock = parseFloat(data);
+                    if (isNaN(mainStock)) {
+                        mainStock = 0;
+                    }
 
 
-    function checkSalesRateLockPermission() {
+                    if (mainStock < givenStock) {
 
-        if (salesRateLock != 0) {
+                        $('#' + add_quantity_id).val(1112323);
+                        $('#' + add_quantity_id).attr("placeholder", mainStock);
+                        $('#' + add_quantity_id).val(mainStockBeforeEdit);
 
-            $(".rate").attr("readonly", true);
-            $(".add_rate").attr("readonly", true);
-        } else {
-            $(".rate").attr("readonly", false);
-            $(".add_rate").attr("readonly", false);
-        }
-    }
+                    }
+                }
+            });
 
-    function load_account_ledgers(selectedLedgerId="") {
 
-        var url = baseUrl + "lpg/SalesLpgController/load_account_ledgers";
-
-        $.ajax({
-            type: 'POST',
-            url: url,
-            data: {'ledgerId': selectedLedgerId},
-            success: function (data) {
-                console.log('data');
-                console.log(data);
-                $("#account_ledger").html(data);
-                $("#oldValue").hide(1000);
-                $('.chosenRefesh').chosen();
-                $(".chosenRefesh").trigger("chosen:updated");
+            //alert('LLL');
+            var rate = parseFloat($(this).val());
+            if (isNaN(rate)) {
+                rate = 0;
             }
+            $(this).val(parseFloat(rate).toFixed(2));
         });
 
-    }
+        $('.rate').blur(function () {
+            var rate = parseFloat($(this).val());
+            if (isNaN(rate)) {
+                rate = 0;
+            }
+            $(this).val(parseFloat(rate).toFixed(2));
+        });
 
+
+        $('.quantity').keyup(function () {
+            priceCal();
+        });
+
+        $('.rate').keyup(function () {
+            priceCal();
+        });
+    });
 
     function showBankinfo(id) {
-        $("#payment").val('');
+        //$("#payment").val('');
         calcutateFinal();
         //calculateCustomerDue();
         $(".chaque_amount_class").hide(10);
@@ -790,14 +1033,8 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
     }
 
     var calculateCustomerDue = function () {
-
-        var previousDueText = "Due";
-        $('#previousDue').html('');
-        $('#previousDueSpan').html('');
-        $('#previousDueText').html('');
         $('#searchIdcylinderTypeReport').val('');
-
-        $('#CreditLimit').html('');
+        $('#previousDue').html('');
         $('#customer_address_span').html('');
         $('#customer_phone_span').html('');
 
@@ -822,9 +1059,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
             data: {
                 customerId: customerid
             },
-            success: function (data) {
-
-                var data = JSON.parse(data);
+            success: function (data) {  var data = JSON.parse(data);
                 console.log(data);
                 var due;
                 due = parseFloat(data.customer_due);
@@ -925,7 +1160,8 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
     window.cylinderProduct = '<?php echo json_encode($cylinderProduct); ?>';
     var option = "";
     option += "<option value='" + '' + "'>---Select Name---</option>";
-
+    console.log('cylinderProduct');
+    console.log(cylinderProduct);
     $.each(JSON.parse(cylinderProduct), function (key, value) {
         if (value.category_id == 1) {
             option += "<option returnProductUnit='" + value.unitTtile + "' categoryName2='" + value.productCat + "' brand_id='" + value.brand_id + "' productName2='" + value.productName + ' ' + value.unitTtile + ' [ ' + value.brandName + ' ]' + "' value='" + value.product_id + "'  >" + value.productName + " " + value.unitTtile + ' [' + value.brandName + ' ]' + "</option>";
@@ -957,14 +1193,10 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
         if (isNaN(totalPrice)) {
             totalPrice = 0;
         }
-        var CreditLimit = checkCustomerCreditLimit();
-
         if (customerid == '') {
             swal("Select Customer Name!", "Validation Error!", "error");
         } else if (saleDate == '') {
             swal("Select Sale Date!", "Validation Error!", "error");
-        } else if (CreditLimit == 'CreditLimitOver') {
-            swal("Credit Limit Over!", "Validation Error!", "error");
         } else if (paymentType == '') {
             swal("Select Payment Type", "Validation Error!", "error");
         } else if (paymentType == 2 && dueDate == '') {
@@ -1008,14 +1240,43 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
         }
     }
 
+    function isconfirm3() {
+        var due_collection_info_id = $('#due_collection_info_id').val();
+
+        if (due_collection_info_id == "") {
+            swal("Select Due Collection Info Id !", "Validation Error!", "error");
+        } else {
+            swal({
+                    title: "Are you sure ?",
+                    text: "You won't be able to revert this!",
+                    showCancelButton: true,
+                    confirmButtonColor: '#73AE28',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes',
+                    cancelButtonText: "No",
+                    closeOnConfirm: true,
+                    closeOnCancel: true,
+                    type: 'success'
+                },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        $("#billTobillForm_"+due_collection_info_id).submit();
+                    } else {
+                        return false;
+                    }
+                });
+        }
+    }
+
+    $(function () {
+
+    });
     $(document).ready(function () {
-        //load_account_ledgers();
-
-        checkSalesRateLockPermission();
-
+        $('.add_quantity').trigger('keyup');
         var j = 0;
         var slNo = 1;
         $("#add_item").click(function () {
+
 
 
             var productCatID = $('#productID').find('option:selected').attr('categoryId');
@@ -1034,15 +1295,14 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                 received_cylilder_price = 0;
             }
 
-            var quantity = $('.quantity').val();
-            var rate = $('.rate').val();
-
             var property_1 = $('.property_1').val();
             var property_2 = $('.property_2').val();
             var property_3 = $('.property_3').val();
             var property_4 = $('.property_4').val();
             var property_5 = $('.property_5').val();
 
+            var quantity = $('.quantity').val();
+            var rate = $('.rate').val();
             var price = $('.price').val();
             var returnQuantity = $('.returnQuantity').val();
             var returnQuantity2 = $('.returnQuantity2').val();
@@ -1074,48 +1334,130 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
 
                 var tab;
 
+                if (productCatID == 2) {
+                    //refill cylinder
+                    if ($('.is_same').val() == 0) {
+                        alert('Ok');
 
-                slNo++;
-                tab = '<tr class="new_item' + j + '">' +
-                    '<input type="hidden" name="slNo[' + slNo + ']" value="' + slNo + '"/>' +
-                    '<input type="hidden" name="brand_id[]" value="' + brand_id + '"/>' +
-                    '<input type="hidden" name="is_package_' + slNo + '" value="0">' +
-                    '<input type="hidden" name="category_id[]" value="' + productCatID + '">' +
-                    '<td style="padding-left:15px;" colspan="2"> [ ' + productCatName + '] - ' + productName +
-                    '<input type="hidden"  name="product_id_' + slNo + '" value="' + productID + '">' +
-                    '</td>' +
-                    '<td align="right">' +
-                    '<input type="text" id="qty_' + j + '" class="form-control text-right add_quantity decimal" onkeyup="checkStockOverQty(this.value)" name="quantity_' + slNo + '" value="' + quantity + '">' +
-                    '</td>' +
-                    '<td align="right" style="display: none"><input type="text" class="add_ReturnQuantity  text-right form-control decimal" name="returnQuantity[]" value="' + returnQuantity + '">' +
-                    '</td>' +
-                    '<td align="right"><input type="text" id="rate_' + j + '" class="form-control add_rate text-right decimal" name="rate_' + slNo + '" value="' + rate + '">' +
-                    '</td>' +
-                    '<td align="right"><input readonly type="text" class="add_price text-right form-control" id="tprice_' + j + '" name="price[]" value="' + price + '">' +
-                    '</td>' +
-                    '<td align="right" style="<?php echo $property_1 == 'dont_have_this_property' ? 'display: none' : ''?>" >' +
-                    '<input  type="text" class="add_property_1 text-right form-control" id="property_1' + j + '" name="property_1_' + slNo + '" value="' + property_1 + '">' +
-                    '</td>' +
-                    '<td align="right" style="<?php echo $property_2 == 'dont_have_this_property' ? 'display: none' : ''?>" >' +
-                    '<input  type="text" class="add_property_2 text-right form-control" id="property_2' + j + '" name="property_2_' + slNo + '" value="' + property_2 + '">' +
-                    '</td>' +
-                    '<td align="right" style="<?php echo $property_3 == 'dont_have_this_property' ? 'display: none' : ''?>" >' +
-                    '<input  type="text" class="add_property_3 text-right form-control" id="property_3' + j + '" name="property_3_' + slNo + '" value="' + property_3 + '">' +
-                    '</td>' +
-                    '<td align="right" style="<?php echo $property_4 == 'dont_have_this_property' ? 'display: none' : ''?>" >' +
-                    '<input  type="text" class="add_property_4 text-right form-control" id="property_4' + j + '" name="property_4_' + slNo + '" value="' + property_4 + '">' +
-                    '</td>' +
-                    '<td align="right" style="<?php echo $property_5 == 'dont_have_this_property' ? 'display: none' : ''?> ">' +
-                    '<input  type="text" class="add_property_5 text-right form-control" id="property_5' + j + '" name="property_5_' + slNo + '" value="' + property_5 + '">' +
-                    '</td>' +
-                    '<td>' +
-                    '<a del_id="' + j + '" class="delete_item btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times"></i>&nbsp;</a>' +
-                    '</td>' +
-                    '</tr>';
-
-                $("#show_item tfoot").append(tab);
+                        slNo++;
+                        // for return cylender
+                        var returnedCylender = '';
+                        if (returnQuantity2 > 0) {
+                            returnedCylender = '<tr>' +
+                                '<td style="width: 46%;">' +
+                                '<input type="hidden" class="text-right form-control" id="" readonly name="returnproduct_' + slNo + '[]" value="' + package_id2 + '">' +
+                                productName2 +
+                                '</td>' +
+                                '<td style="width: 27%;">' +
+                                '<div class="input-group"><input type="text" class="text-right form-control" id="" readonly name="returnedQuantity_' + slNo + '[]" value="' + returnQuantity2 + '"></div>' +
+                                '</td>' +
+                                '<td>' +
+                                '<div class="input-group"><input type="text" class="text-right form-control" id="" readonly name="returnedQuantityPrice_' + slNo + '[]" value="' + received_cylilder_price + '"><a href="javascript:void(0)" id="2" class="btn red remove_returnable  input-group-addon"><i class="fa fa-minus-circle " style="color:#fff"></i> </a> </div>' +
+                                '</td>' +
+                                '</tr>';
+                        }
 
 
+                        tab = '<tr class="new_item' + j + '">' +
+                            '<input type="hidden" name="slNo[' + slNo + ']" value="' + slNo + '"/>' +
+                            '<input type="hidden" name="brand_id[]" value="' + brand_id + '"/>' +
+                            '<input type="hidden" id="is_package_' + slNo + '" name="is_package_' + slNo + '"  value="0">' +
+                            '<input type="hidden" name="category_id[]"  value="' + productCatID + '">' +
+                            '<td style="padding-left:15px;" colspan="2"> [ ' + productCatName + '] - ' + productName +
+                            '<input type="hidden" id="product_id_' + slNo + '"  name="product_id_' + slNo + '" value="' + productID + '">' +
+                            '</td>' +
+                            '<td align="right">' +
+                            '<input type="text" id="qty_' + j + '" class="form-control text-right add_quantity decimal" style="height: 33px;"  name="quantity_' + slNo + '" value="' + quantity + '">' +
+                            '</td>' +
+
+                            '<td align="right"><input type="text" id="rate_' + j + '" class="form-control add_rate text-right decimal" name="rate_' + slNo + '" value="' + rate + '">' +
+                            '</td>' +
+                            '<td align="right"><input readonly type="text" class="add_price text-right form-control" id="tprice_' + j + '" name="price[]" value="' + price + '">' +
+                            '</td>' +
+                            '<td colspan="3">' +
+                            '<table class="table table-bordered table-hover" style="margin-bottom: 0px;" id="return_product_' + slNo + '">' +
+                            '<tr>' +
+                            '<td>' +
+                            '<select   class="chosen-select form-control returnedProducted returnedProduct_' + slNo + '"  id="' + slNo + '" data-placeholder="Search by product name"> ' +
+                            option +
+                            '</select>' +
+                            '</td>' +
+                            '<td style="width: 27%">' +
+                            '<div class="input-group"><input type="text" class="form-control text-right returnedProductQty_' + slNo + '" /> </div>' +
+                            '</td>' +
+                            '<td style="width: 40%">' +
+                            '<div class="input-group"><input type="text" class="form-control text-right returnedProductPrice_' + slNo + '" /><a href="javascript:void(0)" id="' + slNo + '" class="btn blue AddreturnedProduct  input-group-addon"><i class="fa fa-plus" style=" color:#fff"></i> </a> </div>' +
+                            '</td>' +
+                            '</tr>' +
+                            returnedCylender +
+                            '</table>' +
+                            '</td>' +
+                            '<td>' +
+                            '<a del_id="' + j + '" class="delete_item btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times" style="margin-top: 4px;margin-left: 6px;"></i>&nbsp;</a>' +
+                            '</td>' +
+                            '</tr>';
+
+                        $("#show_item tfoot").append(tab);
+                    } else {
+                        slNo;
+                        var tab2 = "<tr>" +
+                            "<td>" +
+                            '<input type="hidden" class="text-right form-control" id="" readonly name="returnproduct_' + slNo + '[]" value="' + package_id2 + '">' +
+                            productName2 +
+                            "</td>" +
+                            "<td>" +
+                            '<div class="input-group"><input type="text" class="text-right form-control" id="" readonly name="returnedQuantity_' + slNo + '[]" value="' + returnQuantity2 + '"><a href="javascript:void(0)" id="2" class="btn red remove_returnable  input-group-addon"><i class="fa fa-minus-circle " style=" color:#fff"></i> </a> </div>' +
+                            "</td>" +
+                            "</tr>";
+
+                        $("#return_product_" + slNo).append(tab2);
+
+                    }
+
+
+                    $('.is_same').val('1')
+                } else {
+                    slNo++;
+                    tab = '<tr class="new_item' + j + '">' +
+                        '<input type="hidden" name="slNo[' + slNo + ']" value="' + slNo + '"/>' +
+                        '<input type="hidden" name="brand_id[]" value="' + brand_id + '"/>' +
+                        '<input type="hidden" id="is_package_' + slNo + '" name="is_package_' + slNo + '" value="0">' +
+                        '<input type="hidden" name="category_id[]" value="' + productCatID + '">' +
+                        '<td style="padding-left:15px;" colspan="2"> [ ' + productCatName + '] - ' + productName +
+                        '<input type="hidden" id="product_id_' + slNo + '"  name="product_id_' + slNo + '" value="' + productID + '">' +
+                        '</td>' +
+                        '<td align="right">' +
+                        '<input type="text" id="qty_' + j + '" class="form-control text-right add_quantity decimal"  name="quantity_' + slNo + '" value="' + quantity + '">' +
+                        '</td>' +
+
+                        '<td align="right"><input type="text" id="rate_' + j + '" class="form-control add_rate text-right decimal" name="rate_' + slNo + '" value="' + rate + '">' +
+                        '</td>' +
+                        '<td align="right"><input readonly type="text" class="add_price text-right form-control" id="tprice_' + j + '" name="price[]" value="' + price + '">' +
+                        '</td>' +
+                        '<td align="right" style="<?php echo $property_1 == 'dont_have_this_property' ? 'display: none' : ''?>" >' +
+                        '<input  type="text" class="add_property_1 text-right form-control" id="property_1' + j + '" name="property_1_' + slNo + '" value="' + property_1 + '">' +
+                        '</td>' +
+                        '<td align="right" style="<?php echo $property_2 == 'dont_have_this_property' ? 'display: none' : ''?>" >' +
+                        '<input  type="text" class="add_property_2 text-right form-control" id="property_2' + j + '" name="property_2_' + slNo + '" value="' + property_2 + '">' +
+                        '</td>' +
+                        '<td align="right" style="<?php echo $property_3 == 'dont_have_this_property' ? 'display: none' : ''?>" >' +
+                        '<input  type="text" class="add_property_3 text-right form-control" id="property_3' + j + '" name="property_3_' + slNo + '" value="' + property_3 + '">' +
+                        '</td>' +
+                        '<td align="right" style="<?php echo $property_4 == 'dont_have_this_property' ? 'display: none' : ''?>" >' +
+                        '<input  type="text" class="add_property_4 text-right form-control" id="property_4' + j + '" name="property_4_' + slNo + '" value="' + property_4 + '">' +
+                        '</td>' +
+                        '<td align="right" style="<?php echo $property_5 == 'dont_have_this_property' ? 'display: none' : ''?> ">' +
+                        '<input  type="text" class="add_property_5 text-right form-control" id="property_5' + j + '" name="property_5_' + slNo + '" value="' + property_5 + '">' +
+                        '</td>' +
+                        '<td>' +
+                        '<a del_id="' + j + '" class="delete_item btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times"></i>&nbsp;</a>' +
+                        '</td>' +
+                        '</tr>';
+
+                    $("#show_item tfoot").append(tab);
+
+
+                }
                 findTotalCal();
                 setTimeout(function () {
                     ///calculateCustomerDue();
@@ -1138,9 +1480,9 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
 
                             slNo++;
                             rowspan = '2';
-                            $("#show_item tfoot").append('<tr class="new_item' + j + '    packageDeleteRow_' + value['package_id'] + '"><input type="hidden" name="slNo[' + slNo + ']" value="' + slNo + '"/><input type="hidden" name="is_package_' + slNo + '" value="1"><input type="hidden" name="category_id_' + slNo + '" value="' + value['category_id'] + '">' +
+                            $("#show_item tfoot").append('<tr class="new_item' + j + '    packageDeleteRow_' + value['package_id'] + '"><input type="hidden" name="slNo[' + slNo + ']" value="' + slNo + '"/><input type="hidden" id="is_package_' + slNo + '" name="is_package_' + slNo + '" value="1"><input type="hidden" name="category_id_' + slNo + '" value="' + value['category_id'] + '">' +
                                 '<td style="padding-left:15px;" colspan="2"> [ ' + value['title'] + '] - ' + value['productName'] + '&nbsp;' + value['unitTtile'] + '&nbsp;[ ' + value['brandName'] + " ]" +
-                                ' <input type="hidden"  name="product_id_' + slNo + '" value="' + value['product_id'] + '"></td>' +
+                                ' <input type="hidden" id="product_id_' + slNo + '"  name="product_id_' + slNo + '" value="' + value['product_id'] + '"></td>' +
                                 '</td><td align="right"><input type="text" class="add_quantity decimal form-control text-right" id="qtyPackage_' + j + '" name="quantity_' + slNo + '" value="' + quantity + '"></td><td align="right"><input type="text" class="add_return form-control text-right decimal "  id="qtyReturn_' + j + '"   name="add_returnAble[]" value=""  readonly></td><td align="right"><input type="text" id="ratePackage_' + j + '" class="add_rate_package form-control decimal text-right" name="rate_' + slNo + '" value="' + rate + '"></td><td align="right"><input type="text" class="add_price  text-right form-control" id="tpricePackage_' + j + '" readonly name="price[]" value="' + price + '"></td><td></td><td></td><td style="' + style + '"   rowspan="' + rowspan + '"><a del_id="' + j + '" package_id_delete="' + value['package_id'] + '"class="delete_item btn form-control btn-danger" href="javascript:void(0);" title=""><i class="fa fa-times"></i>&nbsp;</a></td></tr>');
                             j++;
                             style = 'display:none';
@@ -1182,8 +1524,6 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
             $('.property_3').val('');
             $('.property_4').val('');
             $('.property_5').val('');
-
-            checkSalesRateLockPermission();
         })
 
 
@@ -1236,12 +1576,8 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
         var productName = $('#productID').find('option:selected').attr('productName');
         $("#stockQty").val('');
         $(".quantity").val('');
-        $(".property_1").val('');
-        $(".property_2").val('');
         $('.is_same').val('0');
         var productCatID = parseFloat($('#productID').find('option:selected').attr('categoryId'));
-        var property_1 = $('#productID').find('option:selected').attr('property_1');
-        var property_2 = $('#productID').find('option:selected').attr('property_2');
         var branchId = $('#BranchAutoId').val();
 
 
@@ -1292,14 +1628,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
             url: baseUrl + 'lpg/InvProductController/getProductPriceForSale',
             data: 'product_id=' + product_id,
             success: function (data) {
-
-
-                var rate = parseFloat(data);
-                if (isNaN(rate)) {
-                    rate = 0;
-                }
-
-                $('.rate').val(rate);
+                $('.rate').val('');
             }
         });
         $.ajax({
@@ -1331,8 +1660,6 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                 }
             }
         });
-        $(".property_1").val(property_1);
-        $(".property_2").val(property_2);
     }
 
     $(document).on('change', '.returnedProducted', function () {
@@ -1446,186 +1773,6 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
         $('[data-toggle="tooltip"]').tooltip();
     });
 
-    $("#productNameAutocomplete").autocomplete({
-        source: function (request, response) {
-            $.getJSON(baseUrl + "SalesController/get_product_list_by_dist_id", {term: request.term},
-                response);
-        },
-        minLength: 1,
-        delay: 100,
-        response: function (event, ui) {
-            if (ui.content) {
-                if (ui.content.length == 1) {
-                    addRowProduct(ui.content[0].id, ui.content[0].productName, ui.content[0].category_id, ui.content[0].productCatName, ui.content[0].brand_id, ui.content[0].brandName, ui.content[0].unit_id, ui.content[0].unitTtile)
-                    var dataIns = $(this).val();
-                    $(this).val('');
-                    $(this).focus();
-                    $(this).autocomplete('close');
-                    return false;
-
-                } else if (ui.content.length == 0) {
-                    $(this).val('');
-                    $(this).focus();
-                    $(this).autocomplete('close');
-                    return false;
-                } else {
-                    // alert("This Character and code have no item!!");
-                }
-            }
-        },
-        select: function (event, ui) {
-            addRowProduct(ui.item.id, ui.item.productName, ui.item.category_id, ui.item.productCatName, ui.item.brand_id, ui.item.brandName, ui.item.unit_id, ui.item.unitTtile)
-            $(this).val('');
-            return false;
-        },
-        open: function (e, ui) {
-            // create the scrollbar each time autocomplete menu opens/updates
-
-            $(".ui-autocomplete").mCustomScrollbar({
-                setHeight: 182,
-                theme: "minimal-dark",
-                autoExpandScrollbar: true
-                //scrollbarPosition:"outside"
-            });
-        },
-        focus: function (e, ui) {
-            //* scroll via keyboard
-            if (!ui.item) {
-                var first = $(".ui-autocomplete li:first");
-                first.trigger("mouseenter");
-                $(this).val(first.data("uiAutocompleteItem").label);
-            }
-            /*var el = $(".ui-state-focus").parent();
-             if (!el.is(":mcsInView") && !el.is(":hover")) {
-             $(".ui-autocomplete").mCustomScrollbar("scrollTo", el, {scrollInertia: 0, timeout: 0});
-             }*/
-        },
-        close: function (e, ui) {
-            // destroy the scrollbar each time autocomplete menu closes
-            $(".ui-autocomplete").mCustomScrollbar("destroy");
-        }
-
-    });
-
-    function addRowProduct(productID, productName, productCatID, productCatName, productBrandID, productBrandName, productUnit, unitName) {// quantity,returnQuantity, rate, price
-        var quantity = 1;
-        var MainQuantity;
-
-        var productCatID = productCatID;
-        var productCatName = productCatName;
-
-        var productID = productID;
-        var productName = productName;
-
-        var productUnit = productUnit;
-        var unitName = unitName;
-        var BranchAutoId = $("#BranchAutoId").val();
-        var rate = 0;
-        var price = 0;
-        var returnQuantity = $('.returnQuantity').val();
-        $.ajax({
-            type: "POST",
-            url: baseUrl + 'lpg/InvProductController/getProductStock',
-            //url: baseUrl + "getProductStock",
-            //data: 'product_id=' + productID,
-            data: {product_id: productID, category_id: productCatID, ispackage: 0, branchId: BranchAutoId},
-            success: function (data) {
-                MainQuantity = parseFloat(data);
-                $("#stockQty").val(MainQuantity);
-
-                // quantity = 2;
-            }, complete: function () {
-
-                var previousProductID = parseFloat($('#PRODUCTID_' + productID).val());
-                $.ajax({
-                    type: "POST",
-                    url: baseUrl + "lpg/InvProductController/getProductPriceForSale",
-                    data: 'product_id=' + productID,
-                    success: function (data) {
-                        // quantity = 2;
-                        if (data != '') {
-                            rate = data;
-
-                        }
-                    }, complete: function () {
-
-                        if ($('#PRODUCTID_' + productID).val() == productID) {
-                            quantity = parseInt($('#qty_' + productID).val()) + 1;
-                        }
-                        if (quantity <= MainQuantity) {
-                            var givenQuantity = 1;
-                            var previousProductQuantity = parseInt($('#qty_' + productID).val());
-                            if (previousProductID == productID) {
-                                givenQuantity = givenQuantity + previousProductQuantity;
-                                $('#qty_' + productID).val(givenQuantity);
-                                return true;
-                            }
-                            var tab = "";
-                            tab = '<tr class="new_item' + productID + '">' +
-                                '<input type="hidden" name="slNo[' + productID + ']" value="' + productID + '"/>' +
-                                '<input type="hidden" name="brand_id[]" value="' + productBrandID + '"/>' +
-                                '<input type="hidden" name="is_package_' + productID + '" value="0">' +
-                                '<input type="hidden" name="category_id[]" value="' + productCatID + '">' +
-                                '<td style="padding-left:15px;" colspan="2"> [ ' + productCatName + '] - ' + productName + '[ ' + productBrandName + ' ]' +
-                                '<input type="hidden" id="PRODUCTID_' + productID + '"  name="product_id_' + productID + '" value="' + productID + '">' +
-                                '</td>' +
-                                '<td align="right">' +
-                                '<input type="text" id="qty_' + productID + '" placeholder="' + MainQuantity + '" attr-pid="' + productID + '" class="form-control text-right add_quantity decimal"  name="quantity_' + productID + '" value="' + quantity + '">' +
-                                '</td>' +
-                                '<td align="right"><input type="text" id="rate_' + productID + '" class="form-control add_rate text-right decimal" name="rate_' + productID + '" value="' + rate + '">' +
-                                '</td>' +
-                                '<td align="right"><input readonly type="text" class="add_price text-right form-control" id="tprice_' + productID + '" name="price[]" value="' + price + '">' +
-                                '</td>' +
-                                '<td>' +
-                                '<a del_id="' + productID + '" class="delete_item btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times"></i>&nbsp;</a>' +
-                                '</td>' +
-                                '</tr>';
-
-                            $("#show_item tfoot").append(tab);
-                            $("#subBtn").attr('disabled', false);
-                            $('.add_quantity').trigger('keyup');
-                            findTotalCal();
-                            checkSalesRateLockPermission();
-
-                        } else {
-                            swal("Stock Quantity Not Available!", "Validation Error!", "error");
-                            return false;
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-    function checkCustomerCreditLimit() {
-        var CreditLimit = parseFloat($('#CreditLimit').val());
-        var previousDue = parseFloat($('#previousDue').html());
-
-        var currentDue = parseFloat($('#currentDue').val());
-        if (isNaN(CreditLimit)) {
-            CreditLimit = 0;
-        }
-        if (isNaN(previousDue)) {
-            previousDue = 0;
-        }
-        if (isNaN(currentDue)) {
-            currentDue = 0;
-        }
-        var salesInvoiceCreditLimitBlockPermition = '<?php echo !empty($salesInvoiceCreditLimitBlockPermition) ? 'yes' : 'no'?>';
-        if (salesInvoiceCreditLimitBlockPermition=="yes") {
-            if (CreditLimit < (previousDue + currentDue)) {
-                $('#subBtn').prop('disabled', true);
-                $('#errorMsg').show(1000);
-                return "CreditLimitOver";
-            } else {
-                $('#subBtn').prop('disabled', false);
-                $('#errorMsg').hide(1000);
-                return "1"
-            }
-        }
-
-    }
-
 
 </script>
 
@@ -1662,8 +1809,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                                             data-placeholder="Search by Customer Type">
                                         <option>-Select Type-</option>
                                         <?php foreach ($customerType as $key => $eachType): ?>
-                                            <option value="<?php echo $eachType->type_id; ?>"
-                                                    selected><?php echo $eachType->typeTitle; ?></option>
+                                            <option value="<?php echo $eachType->type_id; ?>"><?php echo $eachType->typeTitle; ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
@@ -1694,7 +1840,7 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                                            onblur="checkDuplicatePhone(this.value)" name="customerPhone"
                                            placeholder="Customer Phone" class="form-control"/>
                                     <span id="errorMsg" style="color:red;display: none;"><i
-                                                class="ace-icon fa fa-spinner fa-spin orange bigger-120"></i> &nbsp;&nbsp;Customer Credit limit Over!!</span>
+                                                class="ace-icon fa fa-spinner fa-spin orange bigger-120"></i> &nbsp;&nbsp;Phone Number already Exits!!</span>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -1713,28 +1859,6 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                                               name="customerAddress"></textarea>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label no-padding-right"
-                                       for="credit_limit"> <?php echo get_phrase('Credit Limit') ?> </label>
-                                <div class="col-sm-6">
-                                    <!--<textarea id="editor1" cols="10" rows="5" name="comp_add"></textarea>-->
-                                    <input type="text" id="credit_limit" name="credit_limit" placeholder="Credit Limit"
-                                           autocomplete="off"
-                                           class="form-control"/>
-                                </div>
-                            </div>
-
-
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label no-padding-right"
-                                       for="credit_days"> <?php echo get_phrase('Credit Days') ?> </label>
-                                <div class="col-sm-6">
-                                    <!--<textarea id="editor1" cols="10" rows="5" name="comp_add"></textarea>-->
-                                    <input type="text" id="credit_days" name="credit_days" placeholder="Credit Days"
-                                           autocomplete="off"
-                                           class="form-control"/>
-                                </div>
-                            </div>
                             <div class="clearfix form-actions">
                                 <div class="col-md-offset-3 col-md-9">
 
@@ -1750,19 +1874,18 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
                                         Reset
                                     </button>
                                 </div>
-                            </div>
-                            <div class="modal-dialog">
+                                <div class="modal-dialog">
 
-                                <!-- /.modal-content -->
+                                    <!-- /.modal-content -->
+                                </div>
                             </div>
+                        </form>
                     </div>
-                    </form>
                 </div>
             </div>
-        </div>
-        <div class="modal-footer">
+            <div class="modal-footer">
+            </div>
         </div>
     </div>
 </div>
-</div>
-<script type="text/javascript" src="<?php echo base_url('assets/sales_mobile/saleInvoice.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo base_url('assets/sales_lpg/saleInvoiceEdit.js'); ?>"></script>

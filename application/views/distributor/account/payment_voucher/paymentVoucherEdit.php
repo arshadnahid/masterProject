@@ -501,17 +501,33 @@
 
 
 <script>
+    function selectledgerid(ele) {
+        var ledger_id = $('.chosenRefesh option:selected').attr('attr-ledger-id');
+        $('.paytoAccount ').val(ledger_id);
+        $('.paytoAccount').trigger("chosen:updated");
 
+
+    }
     var url = '<?php echo site_url("FinaneController/getPayUserListForUpdate") ?>';
 
-    /*$.ajax({
+    $.ajax({
 
         type: 'POST',
 
         url: url,
 
         data: {
-            'payid': $('#payType').val(),
+            'payid': $('#payType').val(), payUserId: '<?php
+
+                if (!empty($editVoucher->miscellaneous)) {
+                    echo $editVoucher->miscellaneous;
+                } elseif (!empty($editVoucher->customer_id)) {
+                    echo $editVoucher->customer_id;
+                } else {
+                    echo $editVoucher->supplier_id;
+                }
+
+                ?>'
         },
 
         success: function (data) {
@@ -526,7 +542,7 @@
 
         }
 
-    });*/
+    });
 
     function isconfirm2() {
 

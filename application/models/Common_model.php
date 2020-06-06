@@ -279,6 +279,8 @@ ORDER BY b.branch_id DESC";
         tb_subcategory.SubCatName,
         tb_model.Model,
         tb_color.Color,
+        product.property_1,
+        product.property_2,
         tb_size.Size');
         $this->db->from('product');
         $this->db->join('brand', 'brand.brandId = product.brand_id', 'left');
@@ -835,7 +837,6 @@ ORDER BY acl.parent_id ASC";
         foreach ($result as $key => $eachID) {
             $data2[$eachID->parent_id]['parentName'] = $eachID->parentName;
             $data2[$eachID->parent_id]['parent_id'] = $eachID->parent_id;
-
             $data2[$eachID->parent_id]['Accountledger'][]=array(
                 'parent_name'=>$eachID->ledger_name,
                 'id'=>$eachID->id,
@@ -1602,6 +1603,7 @@ WHERE
                     purchase_details.property_3,
                     purchase_details.property_4,
                     purchase_details.property_5,
+                    purchase_details.product_details,
                     
                     purchase_details.package_id,
                     purchase_details.unit_price,
@@ -1658,6 +1660,7 @@ WHERE
                     sales_details.property_3,
                     sales_details.property_4,
                     sales_details.property_5,
+                    sales_details.product_details,
                     
                     sales_details.returnable_quantity as tt_returnable_quantity,
                     sales_return_details.product_id AS return_product_id,

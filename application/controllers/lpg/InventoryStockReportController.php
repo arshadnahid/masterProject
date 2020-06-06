@@ -20,6 +20,7 @@ class InventoryStockReportController extends CI_Controller {
     public $link_icon_list;
 
     public $project;
+    public $business_type;
 
     public function __construct() {
         parent::__construct();
@@ -47,6 +48,7 @@ class InventoryStockReportController extends CI_Controller {
         $this->db_username = $this->session->userdata('db_username');
         $this->db_password = $this->session->userdata('db_password');
         $this->db_name = $this->session->userdata('db_name');
+        $this->business_type = $this->session->userdata('business_type');
         $this->db->close();
         $config_app = switch_db_dinamico($this->db_username, $this->db_password, $this->db_name);
         $this->db = $this->load->database($config_app, TRUE);
@@ -93,6 +95,7 @@ class InventoryStockReportController extends CI_Controller {
             /*echo "<pre>";
             print_r($_POST);*/
 
+            $model_id = isset($_POST['model_id'])?$_POST['model_id']:'all';
             $branch_id = $this->input->post('branch_id');
             $productCatagory = $this->input->post('category_id');
             $productBrand = $this->input->post('brandId');
@@ -103,7 +106,7 @@ class InventoryStockReportController extends CI_Controller {
             $startDate = date('Y-m-d', strtotime($this->input->post('start_date')));
             $endDate = date('Y-m-d', strtotime($this->input->post('end_date')));
 
-            $data['stockBranch']=$this->InventoryStockReport_Model->stock_report_with_branch($branch_id,$productCatagory,$productBrand,$productId,$startDate,$endDate,$subcategory,$color,$size);
+            $data['stockBranch']=$this->InventoryStockReport_Model->stock_report_with_branch($branch_id,$productCatagory,$productBrand,$productId,$startDate,$endDate,$subcategory,$color,$size,$model_id);
 //echo"<pre>";
 //echo $this->db->last_query();
 //print_r($data['stockBranch']);
@@ -127,7 +130,13 @@ class InventoryStockReportController extends CI_Controller {
         $data['size'] = $this->db->where('IsActive', '1')->get('tb_size')->result();
         /*page navbar details*/
         $data['companyInfo'] = $this->Common_model->get_single_data_by_single_column('system_config', '1', 1);
-        $data['mainContent'] = $this->load->view('distributor/inventory/report/current_stock_report_with_branch', $data, true);
+
+        if ($this->business_type == "MOTORCYCLE") {
+            $data['mainContent'] = $this->load->view('distributor/inventory/report/current_stock_report_with_branch_motorcycle', $data, true);
+        }else{
+            $data['mainContent'] = $this->load->view('distributor/inventory/report/current_stock_report_with_branch', $data, true);
+        }
+
         $this->load->view('distributor/masterTemplate', $data);
         $this->output->enable_profiler(false);
     }

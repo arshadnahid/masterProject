@@ -31,6 +31,97 @@
 </style>
 <div class="row">
 
+    <div class="col-sm-7">
+        <?php
+        foreach ($customer_money_revcive as $key => $value) {
+            $customer_money_revcive_info = array();
+            $customer_money_revcive_info = explode("&^&", $key);
+
+            ?>
+            <form id="billTobillForm_<?php echo $customer_money_revcive_info[0] ?>"
+                  action="<?php echo base_url() ?>lpg/SalesInvoiceEditController/delete_bill_to_bill_collection"
+                  method="post" class="form-horizontal" name="billTobillForm_<?php echo $customer_money_revcive_info[0] ?>">
+
+                <table class="table table-bordered table-striped table-condensed flip-content">
+
+                    <thead>
+
+                    <tr>
+                        <td class="text-center">
+                            <strong>
+                                <?php echo get_phrase('Voucher No') ?>:
+                                <?php echo get_phrase($customer_money_revcive_info[1]) ?>
+
+                            </strong>
+                        </td>
+
+                        <td class="text-center">
+                            <strong>
+                                <?php echo get_phrase('Date') ?>:
+                                <?php echo get_phrase($customer_money_revcive_info[2]) ?>
+
+                            </strong>
+                        </td>
+
+                        <td class="text-right">
+                            <input type="text" name="due_collection_info_id" id="due_collection_info_id"
+                                   value="<?php echo $customer_money_revcive_info[0] ?> "/>
+                            <input type="text" name="invoice_id" id="invoice_id"
+                                   value="<?php echo $editInvoice->sales_invoice_id ?> "/>
+
+                            <button onclick="return isconfirm3()" id="" class="btn btn-xs red" type="button">
+                                <i class="fa fa-trash-o bigger-130"></i>
+                                <?php echo get_phrase('Save') ?>
+                            </button>
+
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td class="text-center"><?php echo get_phrase('Sales_invoice_no') ?>
+                        </td>
+                        <td class="text-center"><?php echo get_phrase('Sales_invoice_amount') ?>
+                        </td>
+                        <td class="text-center"><?php echo get_phrase('paid_amount') ?>
+                        </td>
+                    </tr>
+
+
+                    </thead>
+                    <tbody>
+
+                    <?php foreach ($value as $key1 => $value1) { ?>
+                        <tr>
+                            <td class="text-center">
+                                <input type="text" name="due_collection_details_id[]"
+                                       value="<?php echo $value1->cus_due_collection_details_id ?> "/>
+                                <input type="text" name="sales_invoice_id[]"
+                                       value="<?php echo $value1->sales_invoice_id ?> "/>
+                                <input type="text" name="invoice_no[]" value="<?php echo $value1->invoice_no ?> "/>
+
+                                <?php echo $value1->invoice_no ?>
+                            </td>
+                            <td class="text-center"><?php echo $value1->invoice_amount ?>
+                            </td>
+                            <td class="text-center"><?php echo $value1->paid_amount ?>
+                            </td>
+                        </tr>
+
+                    <?php } ?>
+
+                    </tbody>
+
+
+                </table>
+            </form>
+        <?php } ?>
+
+    </div>
+
+</div>
+<div class="row">
+
+
     <form id="publicForm" action="" method="post" class="form-horizontal" name="publicForm">
         <div class="col-sm-12 col-md-4" style="margin-top: 10px;">
             <div class="form-group">
@@ -86,7 +177,7 @@
                         <?php foreach ($referenceList as $key => $each_ref): ?>
                             <option
                                 <?php
-                                if ($editInvoice->reference == $each_ref->reference_id) {
+                                if ($editInvoice->refference_person_id == $each_ref->reference_id) {
                                     echo "selected";
                                 }
                                 ?>
@@ -148,19 +239,43 @@
                 <div class="col-sm-7">
 
                     <?php
-                    $delivery_date="";
+                    $delivery_date = "";
 
-                    if( $editInvoice->delivery_date!="0000-00-00" && $editInvoice->delivery_date != 'NULL'){
-                           $delivery_date=date('d-m-Y', strtotime($editInvoice->delivery_date));
+                    if ($editInvoice->delivery_date != "0000-00-00" && $editInvoice->delivery_date != 'NULL') {
+                        $delivery_date = date('d-m-Y', strtotime($editInvoice->delivery_date));
                     }
-
 
 
                     ?>
                     <input class="form-control date-picker"
-                           value="<?php echo  $delivery_date?>"
+                           value="<?php echo $delivery_date ?>"
                            data-date-format="dd-mm-yyyy" autocomplete="off" placeholder="Delivery Date"
                            name="delivery_date"/>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <!--creditDate-->
+            <div class="form-group ">
+                <label class="col-sm-3 control-label formfonterp"
+                       style="white-space: nowrap; "><strong><?php echo get_phrase('Due_Date') ?>
+                        :</strong></label>
+                <div class="col-md-7">
+                    <!--id="dueDate"-->
+
+                    <?php
+                    $due_date = "";
+
+                    if ($editInvoice->due_date != "0000-00-00" && $editInvoice->due_date != 'NULL') {
+                        $due_date = date('d-m-Y', strtotime($editInvoice->due_date));
+                    }
+
+
+                    ?>
+                    <input class="form-control date-picker" name="creditDueDate"
+                           style=""
+                           type="text" value="<?php echo $due_date ?>" data-date-format="dd-mm-yyyy"
+                           autocomplete="off"/>
+
                 </div>
             </div>
             <div class="clearfix"></div>
@@ -180,10 +295,10 @@
                             ?> value="4"
                         ><?php echo get_phrase('Cash') ?></option>
                         <option <?php
-                                if ($editInvoice->payment_type == 2) {
-                                    echo "selected";
-                                }
-                                ?> value="2"><?php echo get_phrase('Credit') ?></option>
+                        if ($editInvoice->payment_type == 2) {
+                            echo "selected";
+                        }
+                        ?> value="2"><?php echo get_phrase('Credit') ?></option>
                         <option <?php
                         if ($editInvoice->payment_type == 3) {
                             echo "selected";
@@ -204,7 +319,7 @@
                         <?php
                         foreach ($accountHeadList as $key => $head) {
 
-                                ?>
+                            ?>
                             <optgroup
                                     label="<?php echo get_phrase($head['parentName']); ?>">
                                 <?php
@@ -212,13 +327,13 @@
                                     /*log_message('error','this is the account hade list'.print_r($eachLedger["parent_name"],true));*/
                                     ?>
                                     <option <?php
-                                    if ($head['parent_id'] == '28') {
+                                    if ($eachLedger["id"] == $sale_invoice_cash_ledger_id) {
                                         echo "selected";
                                     }
                                     ?> value="<?php echo $eachLedger["id"]; ?>"><?php echo get_phrase($eachLedger["parent_name"]) . " ( " . $eachLedger["code"] . " ) "; ?></option>
                                 <?php endforeach; ?>
                             </optgroup>
-                                <?php
+                            <?php
 
                         }
                         ?>
@@ -337,7 +452,8 @@
                     <label class="col-sm-4 formfonterp"
                            style="white-space: nowrap;padding-top: 7px;"><strong><?php echo get_phrase('Check_No') ?></strong></label>
                     <div class="col-sm-8">
-                        <input type="text" value="<?php echo  $editInvoice->check_no?>" class="form-control" id="checkNo" name="checkNo"
+                        <input type="text" value="<?php echo $editInvoice->check_no ?>" class="form-control"
+                               id="checkNo" name="checkNo"
                                placeholder="Check NO" autocomplete="off"/>
                     </div>
                 </div>
@@ -348,7 +464,9 @@
                            style="white-space: nowrap;padding-top: 7px;"><strong><?php echo get_phrase('Check_Date') ?></strong></label>
                     <div class="col-sm-8">
                         <input class="form-control date-picker" name="checkDate" name="purchasesDate" id="checkDate"
-                               type="text" value="<?php echo $editInvoice->check_date != '' ? date('d-m-Y', strtotime($editInvoice->check_date)) : ''; ?>" data-date-format="dd-mm-yyyy"/>
+                               type="text"
+                               value="<?php echo $editInvoice->check_date != '' ? date('d-m-Y', strtotime($editInvoice->check_date)) : ''; ?>"
+                               data-date-format="dd-mm-yyyy"/>
                     </div>
                 </div>
             </div>
@@ -497,7 +615,7 @@
                 $trate = 0;
                 $tprice = 0;
                 $j = 10001;
-                $slNo=20001;
+                $slNo = 20001;
 
                 $option .= '<option value=""></option>';
                 foreach ($cylinderProduct as $eachProduct):
@@ -523,14 +641,14 @@
                     }
                     if ($each_info['category_id'] == 2 && $each_info['is_package'] == 0) {
                         $refillEmptyCylinder = '<tr>';
-                        $refillEmptyCylinder .= '<td>' . '<select class="chosen-select form-control returnedProducted returnedProduct_'.$slNo.'" id="'.$slNo.'" data-placeholder="Search by product name">' . $option . '</select>';
+                        $refillEmptyCylinder .= '<td>' . '<select class="chosen-select form-control returnedProducted returnedProduct_' . $slNo . '" id="' . $slNo . '" data-placeholder="Search by product name">' . $option . '</select>';
                         $refillEmptyCylinder .= '</td>';
 
                         $refillEmptyCylinder .= '<td style="width: 27%">';
-                        $refillEmptyCylinder .= '<div class="input-group"><input type="text" class="form-control text-right returnedProductQty_'.$slNo.'" /> </div>';
+                        $refillEmptyCylinder .= '<div class="input-group"><input type="text" class="form-control text-right returnedProductQty_' . $slNo . '" /> </div>';
                         $refillEmptyCylinder .= '</td>';
                         $refillEmptyCylinder .= '<td style="width: 27%">';
-                        $refillEmptyCylinder .= '<div class="input-group"><input type="text" class="form-control text-right returnedProductPrice_'.$slNo.'" /><a href="javascript:void(0)" id="'.$slNo.'" class="btn blue AddreturnedProduct  input-group-addon"><i class="fa fa-plus" style=" color:#fff"></i> </a> </div>';
+                        $refillEmptyCylinder .= '<div class="input-group"><input type="text" class="form-control text-right returnedProductPrice_' . $slNo . '" /><a href="javascript:void(0)" id="' . $slNo . '" class="btn blue AddreturnedProduct  input-group-addon"><i class="fa fa-plus" style=" color:#fff"></i> </a> </div>';
                         $refillEmptyCylinder .= '</td>';
                         $refillEmptyCylinder .= '</tr>';
                     }
@@ -538,13 +656,16 @@
                     ?>
 
 
-                    <tr class="new_item<?php echo $j?>">
+                    <tr class="new_item<?php echo $j ?>">
                         <td colspan="2">
-                            <input type="hidden" name="slNo[<?php echo $slNo?>]" value="<?php echo $slNo?>"/>
+                            <input type="hidden" name="slNo[<?php echo $slNo ?>]" value="<?php echo $slNo ?>"/>
                             <input type="hidden" name="brand_id[]" value="<?php echo $each_info['brand_id'] ?>"/>
-                            <input type="hidden" name="is_package_<?php echo $slNo?>" value="<?php echo $each_info['is_package'] ?>"/>
+                            <input type="hidden" id="is_package_<?php echo $slNo ?>"
+                                   name="is_package_<?php echo $slNo ?>"
+                                   value="<?php echo $each_info['is_package'] ?>"/>
                             <input type="hidden" name="category_id[]" value="<?php echo $each_info['category_id'] ?>"/>
-                            <input type="hidden" name="product_id_<?php echo $slNo?>"
+                            <input type="hidden" id="product_id_<?php echo $slNo ?>"
+                                   name="product_id_<?php echo $slNo ?>"
                                    value="<?php echo $each_info['product_id'] ?>"/>
                             <?php
                             echo $package . ' ' . $each_info['productName'] . '' . $each_info['unitTtile'] . '[' . $each_info['brandName'] . ']';
@@ -553,27 +674,30 @@
                         </td>
 
                         <td>
-                            <input type="text" id="qty_<?php echo $j?>" class="form-control text-right add_quantity decimal"
-                                   style="height: 33px;" onkeyup="checkStockOverQty(this.value)"
-                                   name="quantity_<?php echo $slNo?>" value="<?php echo $each_info['quantity'] ?>"/>
+                            <input type="text" attr-main-qty="<?php echo $each_info['quantity'] ?>"
+                                   id="qty_<?php echo $j ?>" class="form-control text-right add_quantity "
+                                   style="height: 33px;"
+                                   name="quantity_<?php echo $slNo ?>" value="<?php echo $each_info['quantity'] ?>"/>
                         </td>
                         <td>
                             <input type="text" class="add_ReturnQuantity  text-right form-control decimal"
-                                   name="returnQuantity[<?php echo $slNo?>]"
+                                   name="returnQuantity[<?php echo $slNo ?>]"
                                    value="<?php echo $each_info['tt_returnable_quantity'] ?>"/>
                         </td>
                         <td>
-                            <input type="text" id="rate_<?php echo $j?>" class="form-control add_rate text-right decimal"
-                                   name="rate_<?php echo $slNo?>" value="<?php echo $each_info['unit_price'] ?>"/>
+                            <input type="text" id="rate_<?php echo $j ?>"
+                                   class="form-control add_rate text-right decimal"
+                                   name="rate_<?php echo $slNo ?>" value="<?php echo $each_info['unit_price'] ?>"/>
                         </td>
                         <td>
-                            <input readonly type="text" class="add_price text-right form-control" id="tprice_<?php echo $j?>"
+                            <input readonly type="text" class="add_price text-right form-control"
+                                   id="tprice_<?php echo $j ?>"
                                    name="price[]" value="<?php echo $each_info['unit_price'] ?>"/>
 
                         </td>
                         <td colspan="3">
                             <table class="table table-bordered table-hover" style="margin-bottom: 0px;"
-                                   id="return_product_<?php echo $slNo?>">
+                                   id="return_product_<?php echo $slNo ?>">
                                 <?php echo $refillEmptyCylinder ?>
 
 
@@ -582,12 +706,28 @@
                                     foreach ($value1 as $key2 => $value2) {
                                         ?>
                                         <tr>
-                                            <td><input type="hidden" class="text-right form-control" id="" readonly name="returnproduct_<?php echo $slNo?>[]" value="<?php echo $value2['return_product_id']?>"><?php echo $value2['return_product_name'] . ' ' . $value2['return_product_unit'] . '[ ' . $value2['return_product_brand'] . ' ]' ?></td>
-                                            <td>
-                                                <div class="input-group"><input type="text" class="text-right form-control" id="" readonly="" name="returnedQuantity_<?php echo $slNo?>[]" value="<?php echo $value2['returnable_quantity'] ?>"></div>
+                                            <td><input type="hidden" class="text-right form-control" id="" readonly
+                                                       name="returnproduct_<?php echo $slNo ?>[]"
+                                                       value="<?php echo $value2['return_product_id'] ?>"><?php echo $value2['return_product_name'] . ' ' . $value2['return_product_unit'] . '[ ' . $value2['return_product_brand'] . ' ]' ?>
                                             </td>
                                             <td>
-                                                <div class="input-group"><input type="text" class="text-right form-control" id="" readonly="" name="returnedQuantityPrice_<?php echo $slNo?>[]" value="1000"><a href="javascript:void(0)" id="2" class="btn red remove_returnable  input-group-addon"><i class="fa fa-minus-circle " style="color:#fff"></i> </a> </div>
+                                                <div class="input-group"><input type="text"
+                                                                                class="text-right form-control" id=""
+                                                                                readonly=""
+                                                                                name="returnedQuantity_<?php echo $slNo ?>[]"
+                                                                                value="<?php echo $value2['returnable_quantity'] ?>">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="input-group"><input type="text"
+                                                                                class="text-right form-control" id=""
+                                                                                readonly=""
+                                                                                name="returnedQuantityPrice_<?php echo $slNo ?>[]"
+                                                                                value="1000"><a
+                                                            href="javascript:void(0)" id="2"
+                                                            class="btn red remove_returnable  input-group-addon"><i
+                                                                class="fa fa-minus-circle " style="color:#fff"></i> </a>
+                                                </div>
                                             </td>
                                         </tr>
 
@@ -600,10 +740,12 @@
                             </table>
                         </td>
 
-                        <td><a del_id="<?php echo $j?>" class="delete_item btn form-control btn-danger" href="javascript:;" title=""><i class="fa fa-times" style="margin-top: 4px;margin-left: 6px;"></i>&nbsp;</a></td>
+                        <td><a del_id="<?php echo $j ?>" class="delete_item btn form-control btn-danger"
+                               href="javascript:;" title=""><i class="fa fa-times"
+                                                               style="margin-top: 4px;margin-left: 6px;"></i>&nbsp;</a>
+                        </td>
                     </tr>
-                <?php
-
+                    <?php
 
 
                     $j++;
@@ -655,7 +797,8 @@
                                 (-)
                                 :</strong></label>
                         <div class="col-md-7">
-                            <input type="text" onkeyup="calDiscount()" id="disCount" name="discount" <?php echo $editInvoice->discount_amount//transport_charge?>
+                            <input type="text" onkeyup="calDiscount()" id="disCount" name="discount"
+                                   value="<?php echo $editInvoice->discount_amount ?>"
                                    onclick="this.select();"
                                    autocomplete="off"
                                    style="text-align: right" class="form-control" placeholder="0.00"
@@ -696,7 +839,9 @@
                         <div class="col-md-7">
                             <input type="text" id="loader" onkeyup="calcutateFinal()" style="text-align: right"
                                    onclick="this.select();"
-                                   name="loaderAmount" value="<?php echo $editInvoice->loader_charge//;discount_amount//transport_charge?>" class="form-control" placeholder="0.00"
+                                   name="loaderAmount"
+                                   value="<?php echo $editInvoice->loader_charge//;discount_amount//transport_charge?>"
+                                   class="form-control" placeholder="0.00"
                                    autocomplete="off"/>
 
                         </div>
@@ -708,7 +853,9 @@
                         <div class="col-md-7">
                             <input type="text" id="transportation" onkeyup="calcutateFinal()" style="text-align: right"
                                    onclick="this.select();"
-                                   name="transportationAmount" value="<?php echo $editInvoice->transport_charge//;discount_amount//transport_charge?>" class="form-control" placeholder="0.00"
+                                   name="transportationAmount"
+                                   value="<?php echo $editInvoice->transport_charge//;discount_amount//transport_charge?>"
+                                   class="form-control" placeholder="0.00"
                                    autocomplete="off"/>
 
                         </div>
@@ -744,7 +891,8 @@
                             <input type="text" id="payment" onkeyup="calculatePartialPayment()" onclick="this.select();"
                                    style="text-align: right"
                                    autocomplete="off"
-                                   name="partialPayment" value="<?php echo $editInvoice->paid_amount?>" class="form-control" autocomplete="off"
+                                   name="partialPayment" value="<?php echo $editInvoice->paid_amount ?>"
+                                   class="form-control" autocomplete="off"
                                    placeholder="0.00"
                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"/>
 
@@ -789,18 +937,50 @@
     $(document).ready(function () {
         showBankinfo('<?php echo $editInvoice->payment_type;?>');
         $('.add_quantity').blur(function () {
-            alert('LLL');
+            var branchId = $('#BranchAutoId').val();
+            var id_arr = $(this).attr('name');
+            var add_quantity_id = $(this).attr('id');
+            var givenStock = $(this).val();
+            var mainStockBeforeEdit = $(this).attr('attr-main-qty');
+            var id = id_arr.split("_");
+            //alert(id);
+            var product_id = $('#product_id_' + id[1]).val();
+            var ispackage = $('#is_package_' + id[1]).val();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + 'lpg/InvProductController/getProductStock',
+                data: {product_id: product_id, category_id: '', ispackage: ispackage, branchId: branchId},
+                success: function (data) {
+
+                    var mainStock = parseFloat(data);
+                    if (isNaN(mainStock)) {
+                        mainStock = 0;
+                    }
+
+
+                    if (mainStock < givenStock) {
+
+                        $('#' + add_quantity_id).val(1112323);
+                        $('#' + add_quantity_id).attr("placeholder", mainStock);
+                        $('#' + add_quantity_id).val(mainStockBeforeEdit);
+
+                    }
+                }
+            });
+
+
+            //alert('LLL');
             var rate = parseFloat($(this).val());
-            if(isNaN(rate)){
-                rate=0;
+            if (isNaN(rate)) {
+                rate = 0;
             }
             $(this).val(parseFloat(rate).toFixed(2));
         });
 
         $('.rate').blur(function () {
             var rate = parseFloat($(this).val());
-            if(isNaN(rate)){
-                rate=0;
+            if (isNaN(rate)) {
+                rate = 0;
             }
             $(this).val(parseFloat(rate).toFixed(2));
         });
@@ -1036,7 +1216,36 @@
                 });
         }
     }
-    $(function() {
+
+    function isconfirm3() {
+        var due_collection_info_id = $('#due_collection_info_id').val();
+
+        if (due_collection_info_id == "") {
+            swal("Select Due Collection Info Id !", "Validation Error!", "error");
+        } else {
+            swal({
+                    title: "Are you sure ?",
+                    text: "You won't be able to revert this!",
+                    showCancelButton: true,
+                    confirmButtonColor: '#73AE28',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes',
+                    cancelButtonText: "No",
+                    closeOnConfirm: true,
+                    closeOnCancel: true,
+                    type: 'success'
+                },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        $("#billTobillForm_"+due_collection_info_id).submit();
+                    } else {
+                        return false;
+                    }
+                });
+        }
+    }
+
+    $(function () {
 
     });
     $(document).ready(function () {
@@ -1121,13 +1330,13 @@
                         tab = '<tr class="new_item' + j + '">' +
                             '<input type="hidden" name="slNo[' + slNo + ']" value="' + slNo + '"/>' +
                             '<input type="hidden" name="brand_id[]" value="' + brand_id + '"/>' +
-                            '<input type="hidden" name="is_package_' + slNo + '"  value="0">' +
+                            '<input type="hidden" id="is_package_' + slNo + '" name="is_package_' + slNo + '"  value="0">' +
                             '<input type="hidden" name="category_id[]"  value="' + productCatID + '">' +
                             '<td style="padding-left:15px;" colspan="2"> [ ' + productCatName + '] - ' + productName +
-                            '<input type="hidden"  name="product_id_' + slNo + '" value="' + productID + '">' +
+                            '<input type="hidden" id="product_id_' + slNo + '"  name="product_id_' + slNo + '" value="' + productID + '">' +
                             '</td>' +
                             '<td align="right">' +
-                            '<input type="text" id="qty_' + j + '" class="form-control text-right add_quantity decimal" style="height: 33px;" onkeyup="checkStockOverQty(this.value)" name="quantity_' + slNo + '" value="' + quantity + '">' +
+                            '<input type="text" id="qty_' + j + '" class="form-control text-right add_quantity decimal" style="height: 33px;"  name="quantity_' + slNo + '" value="' + quantity + '">' +
                             '</td>' +
                             '<td align="right"><input type="text" class="add_ReturnQuantity  text-right form-control decimal" name="returnQuantity[' + slNo + ']" value="' + returnQuantity + '">' +
                             '</td>' +
@@ -1182,13 +1391,13 @@
                     tab = '<tr class="new_item' + j + '">' +
                         '<input type="hidden" name="slNo[' + slNo + ']" value="' + slNo + '"/>' +
                         '<input type="hidden" name="brand_id[]" value="' + brand_id + '"/>' +
-                        '<input type="hidden" name="is_package_' + slNo + '" value="0">' +
+                        '<input type="hidden" id="is_package_' + slNo + '" name="is_package_' + slNo + '" value="0">' +
                         '<input type="hidden" name="category_id[]" value="' + productCatID + '">' +
                         '<td style="padding-left:15px;" colspan="2"> [ ' + productCatName + '] - ' + productName +
-                        '<input type="hidden"  name="product_id_' + slNo + '" value="' + productID + '">' +
+                        '<input type="hidden" id="product_id_' + slNo + '"  name="product_id_' + slNo + '" value="' + productID + '">' +
                         '</td>' +
                         '<td align="right">' +
-                        '<input type="text" id="qty_' + j + '" class="form-control text-right add_quantity decimal" onkeyup="checkStockOverQty(this.value)" name="quantity_' + slNo + '" value="' + quantity + '">' +
+                        '<input type="text" id="qty_' + j + '" class="form-control text-right add_quantity decimal"  name="quantity_' + slNo + '" value="' + quantity + '">' +
                         '</td>' +
                         '<td align="right"><input type="text" class="add_ReturnQuantity  text-right form-control decimal" name="returnQuantity[]" value="' + returnQuantity + '">' +
                         '</td>' +
@@ -1237,9 +1446,9 @@
 
                             slNo++;
                             rowspan = '2';
-                            $("#show_item tfoot").append('<tr class="new_item' + j + '    packageDeleteRow_' + value['package_id'] + '"><input type="hidden" name="slNo[' + slNo + ']" value="' + slNo + '"/><input type="hidden" name="is_package_' + slNo + '" value="1"><input type="hidden" name="category_id_' + slNo + '" value="' + value['category_id'] + '">' +
+                            $("#show_item tfoot").append('<tr class="new_item' + j + '    packageDeleteRow_' + value['package_id'] + '"><input type="hidden" name="slNo[' + slNo + ']" value="' + slNo + '"/><input type="hidden" id="is_package_' + slNo + '" name="is_package_' + slNo + '" value="1"><input type="hidden" name="category_id_' + slNo + '" value="' + value['category_id'] + '">' +
                                 '<td style="padding-left:15px;" colspan="2"> [ ' + value['title'] + '] - ' + value['productName'] + '&nbsp;' + value['unitTtile'] + '&nbsp;[ ' + value['brandName'] + " ]" +
-                                ' <input type="hidden"  name="product_id_' + slNo + '" value="' + value['product_id'] + '"></td>' +
+                                ' <input type="hidden" id="product_id_' + slNo + '"  name="product_id_' + slNo + '" value="' + value['product_id'] + '"></td>' +
                                 '</td><td align="right"><input type="text" class="add_quantity decimal form-control text-right" id="qtyPackage_' + j + '" name="quantity_' + slNo + '" value="' + quantity + '"></td><td align="right"><input type="text" class="add_return form-control text-right decimal "  id="qtyReturn_' + j + '"   name="add_returnAble[]" value=""  readonly></td><td align="right"><input type="text" id="ratePackage_' + j + '" class="add_rate_package form-control decimal text-right" name="rate_' + slNo + '" value="' + rate + '"></td><td align="right"><input type="text" class="add_price  text-right form-control" id="tpricePackage_' + j + '" readonly name="price[]" value="' + price + '"></td><td></td><td></td><td style="' + style + '"   rowspan="' + rowspan + '"><a del_id="' + j + '" package_id_delete="' + value['package_id'] + '"class="delete_item btn form-control btn-danger" href="javascript:void(0);" title=""><i class="fa fa-times"></i>&nbsp;</a></td></tr>');
                             j++;
                             style = 'display:none';

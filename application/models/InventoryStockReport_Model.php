@@ -2068,15 +2068,18 @@ SELECT
 
        
     (
-SELECT   
-        sr.product_id, sr.branch_id, SUM(sr.return_quantity)  Srt_quantity
-      , SUM(sr.return_quantity * sr.unit_price) / NULLIF(SUM(sr.return_quantity),0) AS Srt_UPrice       
-     ,(SUM(sr.return_quantity * sr.unit_price) / NULLIF(SUM(sr.return_quantity),0))*(SUM(sr.return_quantity) )  Srt_Amount
-       
-  FROM sales_return sr   
-       
-       WHERE  sr.is_active='Y' AND sr.is_delete='N'    
-       AND sr.return_date < '".$startDate."'  
+        SELECT
+        sr.product_id, 
+        sr.branch_id, 
+        SUM(sr.quantity)  Srt_quantity,
+        SUM(sr.quantity * sr.price) / NULLIF(SUM(sr.quantity),0) AS Srt_UPrice ,
+        (SUM(sr.quantity * sr.price) / NULLIF(SUM(sr.quantity),0))*(SUM(sr.quantity) )  Srt_Amount
+        FROM
+            stock sr
+        WHERE
+            sr.form_id = 5
+        AND sr.type=1 
+       AND sr.invoice_date < '".$startDate."'  
          
        
        GROUP BY sr.product_id ,sr.branch_id
@@ -2148,16 +2151,19 @@ SELECT
        ) purchase ON  BaseT.product_id= purchase.product_id AND BaseT.branch_id= purchase.branch_id   LEFT  OUTER JOIN
        
     (
-SELECT   
-        sr.product_id,sr.branch_id , SUM(sr.return_quantity)  Srt_quantity
-      , SUM(sr.return_quantity * sr.unit_price) / NULLIF(SUM(sr.return_quantity),0) AS Srt_UPrice       
-     ,(SUM(sr.return_quantity * sr.unit_price) / NULLIF(SUM(sr.return_quantity),0))*(SUM(sr.return_quantity) )  Srt_Amount
-       
-  FROM sales_return sr   
-       
-       WHERE  sr.is_active='Y' AND sr.is_delete='N'    
-       AND sr.return_date >= '".$startDate."'
-       AND sr.return_date <= '".$endDate."'  
+        SELECT
+        sr.product_id, 
+        sr.branch_id, 
+        SUM(sr.quantity)  Srt_quantity,
+        SUM(sr.quantity * sr.price) / NULLIF(SUM(sr.quantity),0) AS Srt_UPrice ,
+        (SUM(sr.quantity * sr.price) / NULLIF(SUM(sr.quantity),0))*(SUM(sr.quantity) )  Srt_Amount
+        FROM
+            stock sr
+        WHERE
+            sr.form_id = 5
+        AND sr.type=1   
+       AND sr.invoice_date >= '".$startDate."'
+       AND sr.invoice_date <= '".$endDate."'  
          
        
        GROUP BY sr.product_id,sr.branch_id 

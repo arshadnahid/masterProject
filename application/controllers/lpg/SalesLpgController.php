@@ -39,6 +39,7 @@ class SalesLpgController extends CI_Controller
         $this->load->model('Finane_Model');
         $this->load->model('Inventory_Model');
         $this->load->model('Sales_Model');
+        $this->load->model('JsonDb_Model');
         $this->timestamp = date('Y-m-d H:i:s');
         $this->admin_id = $this->session->userdata('admin_id');
         $this->dist_id = $this->session->userdata('dis_id');
@@ -98,6 +99,10 @@ class SalesLpgController extends CI_Controller
     {
         $this->load->helper('sales_invoice_no_helper');
         $this->load->helper('branch_dropdown_helper');
+
+
+
+
 
         if (isPostBack()) {
 
@@ -1089,6 +1094,10 @@ class SalesLpgController extends CI_Controller
                     $this->session->set_flashdata('error', $msg);
                     redirect(site_url($this->project . '/salesLpgInvoice_add/'));
                 } else {
+
+
+                    $this->JsonDb_Model->sales_input_back_up($invoice_no, $sales_inv);
+
                     $msg = 'sales Invoice ' . ' ' . $this->config->item("save_success_message");
                     $this->session->set_flashdata('success', $msg);
                     redirect(site_url($this->project . '/viewLpgCylinder/' . $this->invoice_id));

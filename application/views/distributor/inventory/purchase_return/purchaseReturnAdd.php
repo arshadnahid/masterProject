@@ -70,16 +70,16 @@ $property_5 = get_property_list_for_show_hide(5);
 
                                             <div class="form-group">
                                                 <label class="col-sm-3 control-label formfonterp" for="form-field-1">
-                                                    Customer Name</label>
+                                                    Supplier Name</label>
                                                 <div class="col-sm-7">
                                                     <div class="input-group">
-                                                        <select id="customerid" name="customer_id"
+                                                        <select id="supplierid" name="supplier_id"
                                                                 class="chosen-select form-control"
 
-                                                                data-placeholder="Select Customer Name">
+                                                                data-placeholder="Select Supplier Name">
                                                             <option></option>
-                                                            <?php foreach ($customerList as $key => $each_info): ?>
-                                                                <option value="<?php echo $each_info->customer_id; ?>"><?php echo $each_info->customerName . '&nbsp&nbsp[ ' . $each_info->typeTitle . ' ] '; ?></option>
+                                                            <?php foreach ($supplierList as $key => $each_info): ?>
+                                                                <option value="<?php echo $each_info->sup_id; ?>"><?php echo $each_info->supName . '&nbsp&nbsp[ ' . $each_info->supID . ' ] '; ?></option>
                                                             <?php endforeach; ?>
                                                         </select>
 
@@ -112,7 +112,7 @@ $property_5 = get_property_list_for_show_hide(5);
                                             <div class="form-group">
                                                 <div class="col-sm-7">
 
-                                                    <button onclick="filter_sales_invoice_for_return()" id="subBtn2"
+                                                    <button onclick="filter_purchase_invoice_for_return()" id="subBtn2"
                                                             class="btn btn-info" type="button">
                                                         <i class="ace-icon fa fa-check bigger-110"></i>
                                                         Search
@@ -137,7 +137,7 @@ $property_5 = get_property_list_for_show_hide(5);
                             <div class="portlet box blue">
                                 <div class="portlet-title" style="min-height:21px">
                                     <div class="caption" style="font-size: 14px;padding:1px 0 1px;">
-                                        Sales Invoice List
+                                        Purchase Invoice List
                                     </div>
 
                                 </div>
@@ -146,7 +146,7 @@ $property_5 = get_property_list_for_show_hide(5);
 
 
                                     <table class="mytable table-responsive table table-bordered"
-                                           id="sales_invoice_for_return">
+                                           id="purchase_invoice_for_return">
                                         <thead>
                                         <tr>
                                             <th>
@@ -312,7 +312,7 @@ $property_5 = get_property_list_for_show_hide(5);
 <script>
     function isconfirm2() {
 
-        var customerid = $("#customerid").val();
+        var supplierid = $("#supplierid").val();
         var return_date = $("#return_date").val();
         var numberOfChecked = 0;
         $.each($('.checkbox_for_return'), function (i, elem) {
@@ -323,8 +323,8 @@ $property_5 = get_property_list_for_show_hide(5);
 
 
 
-         if (customerid == '') {
-            swal("Select Customer Name!", "Validation Error!", "error");
+         if (supplierid == '') {
+            swal("Select Supplier Name!", "Validation Error!", "error");
         } else if (return_date == '') {
             swal("Select Return Date", "Validation Error!", "error");
         } else if (numberOfChecked < 1) {
@@ -354,7 +354,7 @@ $property_5 = get_property_list_for_show_hide(5);
 
     $(document).ready(function () {
         var table;
-        window.table = $('#sales_invoice_for_return').DataTable();
+        window.table = $('#purchase_invoice_for_return').DataTable();
         $('.date-picker').datepicker({
             autoclose: true,
             todayHighlight: true
@@ -375,18 +375,18 @@ $property_5 = get_property_list_for_show_hide(5);
 
     }
 
-    function filter_sales_invoice_for_return() {
-        var customerid = $('#customerid').val();
+    function filter_purchase_invoice_for_return() {
+        var supplierid = $('#supplierid').val();
         var BranchAutoId = $('#BranchAutoId').val();
 
-        $("#sales_invoice_for_return").dataTable().fnDestroy();
+        $("#purchase_invoice_for_return").dataTable().fnDestroy();
 
-        if (customerid == "") {
+        if (supplierid == "") {
             swal("Select Customer Name!", "Validation Error!", "error");
         } else if (BranchAutoId == '') {
             swal("Select Branch Name!", "Validation Error!", "error");
         } else {
-            var table = $('#sales_invoice_for_return').DataTable({
+            var table = $('#purchase_invoice_for_return').DataTable({
                 "paging": false,
                 "processing": false,
                 "serverSide": true,
@@ -396,12 +396,12 @@ $property_5 = get_property_list_for_show_hide(5);
                 "info": false,
                 // Load data for the table's content from an Ajax source
                 "ajax": {
-                    url: "<?php echo site_url('lpg/ReturnDagameController/getInvoiceProductList2'); ?>",
+                    url: "<?php echo site_url('lpg/ReturnDagameController/getpurchaseInvoiceList'); ?>",
                     "type": "POST",
                     "data": function (data) {
                         data.startDate = $('#startDate').val();
                         data.endDate = $('#endDate').val();
-                        data.customerid = $('#customerid').val();
+                        data.supplierid = $('#supplierid').val();
                         data.BranchAutoId = $('#BranchAutoId').val();
 
                     }
@@ -467,47 +467,7 @@ $property_5 = get_property_list_for_show_hide(5);
     });*/
 
 
-    function saveNewCustomer() {
-        $('#CreditLimit').val(0);
-        var customerName = $("#customerName").val();
-        var customerType = $("#customerType").val();
-        var customerId = $("#customerId").val();
-        var credit_limit = $("#credit_limit").val();
 
-        if (isNaN(credit_limit)) {
-            credit_limit = 0;
-        }
-        if (customerName == '') {
-            alert("Customer Name Can't be empty!!");
-            return false;
-        } else if (customerType == '') {
-            alert("customer Type  Can't be empty!!");
-            return false;
-        } else if (customerId == '') {
-            alert("Customer Id Can't be empty!!");
-            return false;
-        }
-        else if (credit_limit < 0) {
-            alert("Customer Credit Limit Can't be empty!!");
-            return false;
-        } else {
-            var url = baseUrl + "lpg/CustomerController/saveNewCustomer";
-            $.ajax({
-                type: 'POST',
-                url: url,
-                data: $("#publicForm2").serializeArray(),
-                success: function (data) {
-                    $('#CreditLimit').val(parseFloat(credit_limit));
-                    $('#myModal').modal('toggle');
-                    $('#newCustomerHide').hide();
-                    $('#customerid').chosen();
-                    //$('#customerid option').remove();
-                    $('#customerid').append($(data));
-                    $("#customerid").trigger("chosen:updated");
-                }
-            });
-        }
-    };
 
 
     $(document).on('click', '.checkbox_for_return', function () {
@@ -524,7 +484,7 @@ $property_5 = get_property_list_for_show_hide(5);
     $(document).on('keyup', '.quantity', function () {
         var quantity = parseFloat($(this).val());
         var actual_quantity = parseFloat($(this).attr('attr-actual-quantity'));
-        var id = $(this).attr('attr-sales-details-id');
+        var id = $(this).attr('attr-purchase-details-id');
 
 
         if (actual_quantity < quantity) {
@@ -536,7 +496,7 @@ $property_5 = get_property_list_for_show_hide(5);
     $(document).on('keyup', '.unit_price', function () {
         var unit_price = parseFloat($(this).val());
 
-        var id = $(this).attr('attr-sales-details-id');
+        var id = $(this).attr('attr-purchase-details-id');
 
 
         calculateTotal(id);

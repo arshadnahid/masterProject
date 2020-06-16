@@ -307,10 +307,71 @@ class ServerFilterModel extends CI_Model
             $this->db->order_by('sales_invoice_info.invoice_date', 'desc');
         }
     }
-
-    function get_sales_return_datatables()
+    private function _get_so_po_datatables_query()
     {
-        $this->_get_sales_return_datatables_query();
+        $this->db->select("so_po_info.id,
+        so_po_info.so_po_no,
+        so_po_info.status,
+        so_po_info.narration,
+        DATE_FORMAT(so_po_info.so_po_date, '%b %e, %Y') as so_po_date,
+        DATE_FORMAT(so_po_info.delivery_date, '%b %e, %Y') as delivery_date,
+       
+        customer.customerID,
+        customer.customerName,
+        customer.customer_id,
+        GROUP_CONCAT(so_po_productes.property_1 SEPARATOR ', ') as property_1,
+        GROUP_CONCAT(so_po_productes.property_2 SEPARATOR ', ') as property_2,
+        GROUP_CONCAT(so_po_productes.property_3 SEPARATOR ', ') as property_3,
+        GROUP_CONCAT(so_po_productes.property_4 SEPARATOR ', ') as property_4,
+        GROUP_CONCAT(so_po_productes.property_5 SEPARATOR ', ')as property_5
+       
+        ");
+        $this->db->from("so_po_info");
+        $this->db->join('customer', 'customer.customer_id=so_po_info.customer_id');
+        $this->db->join('so_po_productes', 'so_po_productes.id=so_po_info.id');
+
+        // $this->db->where('sales_invoice_info.dist_id', $this->dist_id);
+        $this->db->where('so_po_info.is_active', 'Y');
+        //$this->db->where('so_po_info.invoice_for !=', '3');
+
+        if (!empty($this->input->post('property_1'))) {
+            $this->db->like('so_po_productes.property_1', $this->input->post('property_1'), 'both');
+        }
+        if (!empty($this->input->post('property_2'))) {
+            $this->db->like('so_po_productes.property_2', $this->input->post('property_2'), 'both');
+        }
+        if (!empty($this->input->post('property_3'))) {
+            $this->db->like('so_po_productes.property_3', $this->input->post('property_3'), 'both');
+        }
+        $this->db->group_by("so_po_info.id");
+        $i = 0;
+        foreach ($this->column_search as $item) { // loop column
+            if ($_POST['search']['value']) { // if datatable send POST for search
+                if ($i === 0) { // first loop
+                    $this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
+                    $this->db->like($item, $_POST['search']['value']);
+                } else {
+                    $this->db->or_like($item, $_POST['search']['value']);
+                }
+
+                if (count($this->column_search) - 1 == $i) //last loop
+                    $this->db->group_end(); //close bracket
+            }
+            $i++;
+        }
+
+        if (isset($_POST['order'])) { // here order processing
+            $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        } else if (isset($this->order)) {
+            //$order = $this->order;
+            $this->db->order_by('so_po_info.id', 'desc');
+            $this->db->order_by('so_po_info.so_po_date', 'desc');
+        }
+    }
+
+    function get_return_datatables()
+    {
+        $this->_get_return_datatables_query();
         if ($_POST['length'] != -1)
             $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();
@@ -318,7 +379,7 @@ class ServerFilterModel extends CI_Model
     }
 
 
-    private function _get_sales_return_datatables_query()
+    private function _get_return_datatables_query()
     {
         $this->db->select("return_info.id,
         return_info.return_invoice_no,
@@ -345,8 +406,15 @@ class ServerFilterModel extends CI_Model
 
         // $this->db->where('sales_invoice_info.dist_id', $this->dist_id);
         $this->db->where('return_info.is_active', 'Y');
-        $this->db->where('return_info.return_type ', '2');
-        $this->db->where('stock.form_id ', '5');
+
+
+        if (!empty($this->input->post('invoice_type'))) {
+            $this->db->where('return_info.return_type', $this->input->post('invoice_type'));
+            $this->db->where('stock.form_id ', '6');
+        }else{
+            $this->db->where('return_info.return_type ', '2');
+            $this->db->where('stock.form_id ', '5');
+        }
 
         if (!empty($this->input->post('property_1'))) {
             $this->db->like('stock.property_1', $this->input->post('property_1'), 'both');
@@ -1067,6 +1135,14 @@ class ServerFilterModel extends CI_Model
     function get_sales_datatables()
     {
         $this->_get_sales_datatables_query();
+        if ($_POST['length'] != -1)
+            $this->db->limit($_POST['length'], $_POST['start']);
+        $query = $this->db->get();
+        return $query->result();
+    }
+    function get_so_po_datatables()
+    {
+        $this->_get_so_po_datatables_query();
         if ($_POST['length'] != -1)
             $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();

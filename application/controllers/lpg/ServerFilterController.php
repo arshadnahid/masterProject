@@ -394,8 +394,9 @@ class ServerFilterController extends CI_Controller
             /*$row[] = number_format((float) $this->Sales_Model->getGpAmountByInvoiceId($this->dist_id, $sale->sales_invoice_id), 2, '.', ',');*/
             $row[] = '<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/viewLpgCylinder/' . $sale->sales_invoice_id) . '">
     <i class="fa fa-search-plus bigger-130"></i></a>
-    <a class="btn btn-icon-only red" href="' . site_url($this->project . '/salesInvoice_edit/' . $sale->sales_invoice_id) . '"><i class="fa fa-edit"></i></a>
-    ';
+    <a class="btn btn-icon-only green" href="' . site_url($this->project . '/salesInvoice_edit/' . $sale->sales_invoice_id) . '"><i class="fa fa-edit"></i></a>
+    <button class="btn btn-icon-only red " data-loading-text="<i class=\'fa fa-spinner fa-spin \'></i> Processing " id="deletesalesinvoice_'.$sale->sales_invoice_id.'" href="javascript:void(0)" onclick="deletesalesinvoice(2,' . $sale->sales_invoice_id . ')">
+                <i class="fa fa-trash-o bigger-130"></i></button>';
             /* <a class="btn btn-icon-only red" href="' . site_url($this->project . '/salesInvoice_edit/' . $sale->sales_invoice_id) . '">*/
             $data[] = $row;
         }
@@ -424,7 +425,7 @@ class ServerFilterController extends CI_Controller
             array("DATE_FORMAT(return_info.return_date, '%b %e, %Y') ", 'return_info.return_invoice_no', 'customer.customerID', 'customer.customerName', 'return_info.narration'),
             array("DATE_FORMAT(return_info.return_date, '%b %e, %Y') ", 'return_info.return_invoice_no', 'customer.customerID', 'customer.customerName', 'return_info.narration'),
             array("DATE_FORMAT(return_info.return_date, '%b %e, %Y') ", 'return_info.return_invoice_no', 'customer.customerID', 'customer.customerName', 'return_info.narration'), $this->dist_id);
-        $list = $this->Filter_Model->get_sales_return_datatables();
+        $list = $this->Filter_Model->get_return_datatables();
         log_message('error','ReturnDamageModel '.print_r($this->db->last_query(),true));
         $data = array();
         $no = $_POST['start'];
@@ -460,10 +461,17 @@ class ServerFilterController extends CI_Controller
 
 
             $row[] = $sale->narration;
-            /*$row[] = number_format((float) $this->Sales_Model->getGpAmountByInvoiceId($this->dist_id, $sale->sales_invoice_id), 2, '.', ',');*/
-            $row[] = '<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/viewSalesReturn/' . $sale->id) . '">
+            if($this->input->post('invoice_type')==5){
+                $row[] = '<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/viewSalesReturn/' . $sale->id) . '">
     <i class="fa fa-search-plus bigger-130"></i></a>
      ';
+            }else{
+                $row[] = '<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/viewPurchaseReturn/' . $sale->id) . '">
+    <i class="fa fa-search-plus bigger-130"></i></a>
+     ';
+            }
+            /*$row[] = number_format((float) $this->Sales_Model->getGpAmountByInvoiceId($this->dist_id, $sale->sales_invoice_id), 2, '.', ',');*/
+
             /* <a class="btn btn-icon-only red" href="' . site_url($this->project . '/salesInvoice_edit/' . $sale->sales_invoice_id) . '">*/
             $data[] = $row;
         }
@@ -791,7 +799,7 @@ class ServerFilterController extends CI_Controller
                 <i class="ace-icon fa fa-search-plus bigger-130"></i></a>
                 <a class="btn btn-icon-only red green financeEditPermission" href="' . site_url($this->project . '/paymentVoucherEdit/' . $payment->Accounts_VoucherMst_AutoID) . '">
                 <i class="ace-icon fa fa-pencil bigger-130"></i></a>
-                <a class="btn btn-icon-only red" href="javascript:void(0)" onclick="deleteVoucher(2,' .$payment->Accounts_VoucherMst_AutoID . ')">
+                <a class="btn btn-icon-only red" href="javascript:void(0)" data-loading-text="<i class=\'fa fa-spinner fa-spin \'></i> Processing " id="delete_'.$payment->Accounts_VoucherMst_AutoID.'"onclick="deleteVoucher(2,' .$payment->Accounts_VoucherMst_AutoID . ')">
                 <i class="fa fa-trash-o bigger-130"></i></a>';
                 $Narration=$payment->Narration;
             }else{
@@ -929,10 +937,10 @@ class ServerFilterController extends CI_Controller
             if($receive->for ==0){
                 $action='<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/receiveVoucherView/' . $receive->Accounts_VoucherMst_AutoID) . '">
     <i class="ace-icon fa fa-search-plus bigger-130"></i></a>
-    <a class="btn btn-icon-only red financeEditPermission" href="' . site_url($this->project . '/receiveVoucherEdit/' . $receive->Accounts_VoucherMst_AutoID) . '">
+    <a class="btn btn-icon-only green financeEditPermission" href="' . site_url($this->project . '/receiveVoucherEdit/' . $receive->Accounts_VoucherMst_AutoID) . '">
         <i class="ace-icon fa fa-pencil bigger-130"></i></a>
-         <a class="btn btn-icon-only red" href="javascript:void(0)" onclick="deleteVoucher(2,' .$receive->Accounts_VoucherMst_AutoID . ')">
-                <i class="fa fa-trash-o bigger-130"></i></a>';
+         <button class="btn btn-icon-only red" href="javascript:void(0)" data-loading-text="<i class=\'fa fa-spinner fa-spin \'></i> Processing " id="delete_'.$receive->Accounts_VoucherMst_AutoID.'" onclick="deleteVoucher(2,' .$receive->Accounts_VoucherMst_AutoID . ')">
+                <i class="fa fa-trash-o bigger-130"></i></button>';
                 $Narration=$receive->Narration;
             }else{
 
@@ -1053,10 +1061,10 @@ class ServerFilterController extends CI_Controller
             if($journal->for ==0){
                 $action='<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/journalVoucherView/' . $journal->Accounts_VoucherMst_AutoID) . '">
     <i class="ace-icon fa fa-search-plus bigger-130"></i></a>
-    <a class="btn btn-icon-only red financeEditPermission" href="' . site_url($this->project . '/journalVoucherEdit/' . $journal->Accounts_VoucherMst_AutoID) . '">
+    <a class="btn btn-icon-only green financeEditPermission" href="' . site_url($this->project . '/journalVoucherEdit/' . $journal->Accounts_VoucherMst_AutoID) . '">
         <i class="ace-icon fa fa-pencil bigger-130"></i></a>
-        <a class="btn btn-icon-only red" href="javascript:void(0)" onclick="deleteVoucher(2,' .$journal->Accounts_VoucherMst_AutoID . ')">
-                <i class="fa fa-trash-o bigger-130"></i></a>';
+        <button class="btn btn-icon-only red" href="javascript:void(0)" data-loading-text="<i class=\'fa fa-spinner fa-spin \'></i> Processing " id="delete_'.$journal->Accounts_VoucherMst_AutoID.'" onclick="deleteVoucher(2,' .$journal->Accounts_VoucherMst_AutoID . ')">
+                <i class="fa fa-trash-o bigger-130"></i></button>';
                 $Narration=$journal->Narration;
             }else{
 
@@ -1329,6 +1337,78 @@ class ServerFilterController extends CI_Controller
 //output to json format
         echo json_encode($output);
     }
+    public function so_po_list()
+    {
 
+        $property_1=get_property_list_for_show_hide(1);
+        $property_2=get_property_list_for_show_hide(2);
+        $property_3=get_property_list_for_show_hide(3);
+        $property_4=get_property_list_for_show_hide(4);
+        $property_5=get_property_list_for_show_hide(5);
+
+        $this->Filter_Model->filterData('so_po_info',
+            array("DATE_FORMAT(so_po_info.so_po_date, '%b %e, %Y') ", 'so_po_info.so_po_no', 'customer.customerID', 'customer.customerName', 'so_po_info.narration', 'so_po_info.status', "DATE_FORMAT(so_po_info.delivery_date, '%b %e, %Y') "),
+            array("DATE_FORMAT(so_po_info.so_po_date, '%b %e, %Y') ", 'so_po_info.so_po_no', 'customer.customerID', 'customer.customerName', 'so_po_info.narration', 'so_po_info.status', "DATE_FORMAT(so_po_info.delivery_date, '%b %e, %Y') "),
+            array("DATE_FORMAT(so_po_info.so_po_date, '%b %e, %Y') ", 'so_po_info.so_po_no', 'customer.customerID', 'customer.customerName', 'so_po_info.narration', 'so_po_info.status', "DATE_FORMAT(so_po_info.delivery_date, '%b %e, %Y') "), $this->dist_id);
+        $list = $this->Filter_Model->get_so_po_datatables();
+        //log_message('error','ReturnDamageModel '.print_r($this->db->last_query(),true));
+        $data = array();
+        $no = $_POST['start'];
+        foreach ($list as $so_pos_list) {
+            if ($so_pos_list->status == 1) {
+                $payment_type ='<a class=" btn btn-xs green" href="javascript:void(0)">Completed</a>';
+            }  else {
+                $payment_type ='<a class=" btn btn-xs red" href="javascript:void(0)">painding</a>';
+
+            }
+            $no++;
+            $row = array();
+            $row[] = $no;
+            $row[] = $so_pos_list->so_po_date;
+            $row[] = '<a title="view invoice" href="' . site_url($this->project . '/so_po_view/' . $so_pos_list->id) . '">' . $so_pos_list->so_po_no . '</a></td>';
+            //$row[] = $sale->name;
+            $row[] = '<a title="View Customer Dashboard" href="javascript:void(0)">' . $so_pos_list->customerID . ' [ ' . $so_pos_list->customerName . ' ] ' . '</a>';
+            $row[] = $payment_type;
+
+            $row[] = $so_pos_list->delivery_date;
+
+            /*if($property_1 !='dont_have_this_property'){
+                $row[]=$so_pos_list->property_1;
+            }
+            if($property_2 !='dont_have_this_property'){
+                $row[]=$so_pos_list->property_2;
+            }
+            if($property_3 !='dont_have_this_property'){
+                $row[]=$so_pos_list->property_3;
+            }
+            if($property_4 !='dont_have_this_property'){
+                $row[]=$so_pos_list->property_4;
+            }
+            if($property_5 !='dont_have_this_property'){
+                $row[]=$so_pos_list->property_5;
+            }*/
+
+
+
+            $row[] = $so_pos_list->narration;
+            /*$row[] = number_format((float) $this->Sales_Model->getGpAmountByInvoiceId($this->dist_id, $sale->sales_invoice_id), 2, '.', ',');*/
+            $row[] = '<a class="btn btn-icon-only blue" href="' . site_url($this->project . '/so_po_view/' . $so_pos_list->id) . '">
+    <i class="fa fa-search-plus bigger-130"></i></a>
+    <a class="btn btn-icon-only green" href="' . site_url($this->project . '/sales_order_edit/' . $so_pos_list->id) . '"><i class="fa fa-edit"></i></a>
+    <button class="btn btn-icon-only red " data-loading-text="<i class=\'fa fa-spinner fa-spin \'></i> Processing " id="deletesalesinvoice_'.$so_pos_list->id.'" href="javascript:void(0)" onclick="deletesalesinvoice(2,' . $so_pos_list->id . ')">
+                <i class="fa fa-trash-o bigger-130"></i></button>';
+            /* <a class="btn btn-icon-only red" href="' . site_url($this->project . '/salesInvoice_edit/' . $sale->sales_invoice_id) . '">*/
+            $data[] = $row;
+        }
+
+        $output = array(
+            "draw" => $_POST['draw'],
+            "recordsTotal" => $this->Filter_Model->count_all_sales(),
+            "recordsFiltered" => $this->Filter_Model->count_filtered_sales(),
+            "data" => $data,
+        );
+//output to json format
+        echo json_encode($output);
+    }
 
 }

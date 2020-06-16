@@ -1019,11 +1019,9 @@ $salesInvoiceCreditLimitBlockPermition = $this->Common_model->get_single_data_by
 
 
             var productCatID = $('#productID').find('option:selected').attr('categoryId');
-
             var productCatName = $('#productID').find('option:selected').attr('categoryName');
             var productID = $('#productID').val();
             var productName = $('#productID').find('option:selected').attr('productName');
-
             var ispackage = $('#productID').find('option:selected').attr('ispackage');
             var package_id2 = $('#productID2').val();
             var productCatName2 = $('#productID2').find('option:selected').attr('categoryName2');

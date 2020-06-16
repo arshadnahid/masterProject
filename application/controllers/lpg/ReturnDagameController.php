@@ -152,6 +152,7 @@ class ReturnDagameController extends CI_Controller
 
     }
 
+
     function showAllInvoiceListByDate()
     {
         if ($this->input->is_ajax_request()) {
@@ -752,6 +753,371 @@ ENGINE=InnoDB
         $data['mainContent'] = $this->load->view('distributor/sales/salesReturn/salesReturnAdd', $data, true);
         $this->load->view('distributor/masterTemplate', $data);
     }
+    function purchaseReturnAdd()
+    {
 
+        if (isPostBack()) {
+
+
+
+
+            $purchase_invoice_id = $this->input->post('purchase_invoice_id');
+            $purchase_details_id = $this->input->post('purchase_details_id');
+            $supplier_id = $this->input->post('supplier_id');
+            $quantity = $this->input->post('quantity');
+            $unit_price = $this->input->post('unit_price');
+            $branch_id = $this->input->post('branch_id');
+            $naration = $this->input->post('naration');
+            $return_date=date('Y-m-d', strtotime($this->input->post('return_date')));
+            //$return_date = date('Y-m-d');
+
+
+            $this->db->trans_start();
+
+
+            $query = $this->db->field_exists('parent_invoice_id', 'stock');
+            if ($query != TRUE) {
+                $this->load->dbforge();
+                $fields = array(
+                    'parent_invoice_id' => array(
+                        'constraint' => 11,
+                        'unsigned' => TRUE,
+                        'default' => '0',
+                        'null' => TRUE
+                    )
+                );
+                $this->dbforge->add_column('stock', $fields);
+            }
+
+
+
+            $condition_sales_invoice_info = array(
+                'for' => 8,
+
+            );
+            $number_of_sales_return_voucher = $this->Common_model->get_single_data_by_many_columns('ac_accounts_vouchermst', $condition_sales_invoice_info);
+            if (empty($number_of_sales_return_voucher)) {
+                $query = "ALTER TABLE `ac_accounts_vouchermst` CHANGE `for` `for` INT(11) NOT NULL DEFAULT '0' COMMENT '1->purchase invoice,2->sales invoice,3->purchase invoice supplier Payment money recive,4->purchase invoice supplier Pending Caque money recive,5->Sales invoice Customer Payment money recive,6->sales invoice customer Pending Cheque money recive ,7->sales return,8->purchase return';
+";
+                $this->db->query($query);
+            }
+
+
+            if ($this->db->table_exists('return_info') == false) {
+
+
+                $sql = "CREATE TABLE `return_info` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`return_invoice_no` VARCHAR(255) NOT NULL,
+	`return_type` INT(2) NOT NULL COMMENT '1->purchase_return,2->sales_return',
+	`sup_cus_id` INT(11) NOT NULL COMMENT 'supplier/customer id',
+	`return_date` DATE NOT NULL,
+	`narration` TEXT NULL,
+	`insert_by` INT(11) NULL DEFAULT NULL,
+	`insert_date` TIMESTAMP NULL DEFAULT NULL,
+	`update_by` INT(11) NULL DEFAULT NULL,
+	`update_date` DATETIME NULL DEFAULT NULL,
+	`delete_by` INT(11) NULL DEFAULT NULL,
+	`delete_date` DATETIME NULL DEFAULT NULL,
+	`is_active` VARCHAR(10) NULL DEFAULT 'Y',
+	`is_delete` VARCHAR(10) NULL DEFAULT 'N',
+	PRIMARY KEY (`id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+;";
+                $this->db->query($sql);
+            }
+
+
+            $sql = "SELECT COUNT(id) AS purchase_return_number FROM return_info WHERE return_type =1";
+            //$result = row_array($sql);
+
+            $query = $this->db->query($sql);
+            $result = $query->row_array();
+
+            if (!empty($result['purchase_return_number'])):
+                $total_purchase_return_number = $result['purchase_return_number'];
+            else:
+                $total_purchase_return_number = 0;
+            endif;
+
+            $purchase_return_invoice_no = "PUR" . date('y') . date('m') . str_pad(($total_purchase_return_number) + 1, 4, "0", STR_PAD_LEFT);
+
+            $purchase_return_invoiceTable['return_invoice_no'] = $purchase_return_invoice_no;
+            $purchase_return_invoiceTable['return_type'] = 1;
+            $purchase_return_invoiceTable['sup_cus_id'] = $supplier_id;
+            $purchase_return_invoiceTable['return_date'] = $return_date;
+            $purchase_return_invoiceTable['insert_by'] = $this->admin_id;
+            $purchase_return_invoiceTable['insert_date'] = $this->timestamp;
+            $purchase_return_invoiceTable['is_active'] = 'Y';
+            $purchase_return_invoiceTable['is_delete'] = "N";
+            $purchase_return_invoiceTable['narration'] = $naration;
+            $purchase_return_invoice_id = $this->Common_model->save_and_check('return_info', $purchase_return_invoiceTable);
+
+
+            $voucher_no = create_journal_voucher_no();
+            $AccouVoucherType_AutoID = 3;
+
+            $accountingMasterTable['AccouVoucherType_AutoID'] = $AccouVoucherType_AutoID;
+            $accountingMasterTable['Accounts_Voucher_No'] = $voucher_no;
+            $accountingMasterTable['Accounts_Voucher_Date'] = $return_date;
+            $accountingMasterTable['BackReferenceInvoiceNo'] = $purchase_return_invoice_no;
+            $accountingMasterTable['BackReferenceInvoiceID'] = $purchase_return_invoice_id;
+            $accountingMasterTable['Narration'] = $naration;
+            $accountingMasterTable['CompanyId'] = $this->dist_id;
+            $accountingMasterTable['BranchAutoId'] = $branch_id;
+            $accountingMasterTable['customer_id'] = $supplier_id;
+            $accountingMasterTable['IsActive'] = 1;
+            $accountingMasterTable['Created_By'] = $this->admin_id;
+            $accountingMasterTable['Created_Date'] = $this->timestamp;
+            $accountingMasterTable['for'] = 8;
+            $accountingVoucherId = $this->Common_model->save_and_check('ac_accounts_vouchermst', $accountingMasterTable);
+
+            foreach ($purchase_details_id as $a => $value) {
+
+                $condition_purchase_details_id = array(
+
+                    'purchase_details_id' => $value
+                );
+                $purchase_details = $this->Common_model->get_single_data_by_many_columns('purchase_details', $condition_purchase_details_id);
+                $product_id = $purchase_details->product_id;
+                $category_id = $this->Common_model->get_single_data_by_single_column('product', 'product_id', $purchase_details->product_id)->category_id;
+                $product_ledger_condition = array(
+                    'related_id' => $product_id,
+                    'related_id_for' => 1,
+                    'is_active' => "Y",
+                );
+                $ac_account_product_ledger_coa_info = $this->Common_model->get_single_data_by_many_columns('ac_account_ledger_coa', $product_ledger_condition);
+                /*Inventory stock=>20*/
+                $accountingDetailsTable = array();
+                $accountingDetailsTable['Accounts_VoucherMst_AutoID'] = $accountingVoucherId;
+                $accountingDetailsTable['TypeID'] = '1';//Dr
+                $accountingDetailsTable['CHILD_ID'] = $ac_account_product_ledger_coa_info->id;
+                $accountingDetailsTable['GR_DEBIT'] = '0.00';
+                $accountingDetailsTable['GR_CREDIT'] = $quantity[$value] * $unit_price[$value];
+                $accountingDetailsTable['Reference'] = 'Purchase Rerurn Produnt Out';
+                $accountingDetailsTable['IsActive'] = 1;
+                $accountingDetailsTable['Created_By'] = $this->admin_id;
+                $accountingDetailsTable['Created_Date'] = $this->timestamp;
+                $accountingDetailsTable['BranchAutoId'] = $branch_id;
+                $accountingDetailsTable['date'] = $return_date;
+
+                //$finalDetailsArray[] = $accountingDetailsTable;
+
+                $ac_tb_accounts_voucherdtl_id = $this->Common_model->insert_data('ac_tb_accounts_voucherdtl', $accountingDetailsTable);
+
+
+                $lastPurchasepriceArray = $this->db->where('product_id', $product_id)
+                    ->where('branch_id', $branch_id)
+                    ->order_by('purchase_details_id', "desc")
+                    ->limit(1)
+                    ->get('purchase_details')
+                    ->row();
+                $lastPurchaseprice = !empty($lastPurchasepriceArray) ? $lastPurchasepriceArray->unit_price : 0;
+
+
+                $stockNewTable = array();
+                $stockNewTable['parent_stock_id'] = $value;
+                $stockNewTable['invoice_id'] = $purchase_return_invoice_id;
+                $stockNewTable['form_id'] = 6;
+                $stockNewTable['type'] = 2;
+                $stockNewTable['Accounts_VoucherMst_AutoID'] = $accountingVoucherId;
+                $stockNewTable['Accounts_VoucherDtl_AutoID'] = $ac_tb_accounts_voucherdtl_id;
+                $stockNewTable['customer_id'] = 0;
+                $stockNewTable['supplier_id'] = $supplier_id;
+                $stockNewTable['branch_id'] = $branch_id;
+                $stockNewTable['invoice_date'] = $return_date;
+                $stockNewTable['category_id'] = $category_id;
+                $stockNewTable['product_id'] = $product_id;
+                $stockNewTable['empty_cylinder_id'] = 0;
+                $stockNewTable['is_package'] = 0;
+                $stockNewTable['show_in_invoice'] = 0;
+                $stockNewTable['unit'] = getProductUnit($product_id);
+
+                $stockNewTable['quantity'] = $quantity[$value];
+                $stockNewTable['quantity_out'] = 0;
+                $stockNewTable['quantity_in'] = $quantity[$value];
+                $stockNewTable['returnable_quantity'] = 0;
+                $stockNewTable['return_quentity'] = 0;
+                $stockNewTable['due_quentity'] = 0;
+                $stockNewTable['advance_quantity'] = 0;
+                $stockNewTable['price'] = $unit_price[$value];
+                $stockNewTable['price_in'] = $unit_price[$value];
+                $stockNewTable['price_out'] = 0;
+                $stockNewTable['last_purchase_price'] = $lastPurchaseprice;
+                $stockNewTable['product_details'] = "";
+                $stockNewTable['property_1'] = $purchase_details->property_1;
+                $stockNewTable['property_2'] = $purchase_details->property_2;
+                $stockNewTable['property_3'] = $purchase_details->property_3;
+                $stockNewTable['property_4'] = $purchase_details->property_4;
+                $stockNewTable['property_5'] = $purchase_details->property_5;
+                $stockNewTable['openingStatus'] = 0;
+                $stockNewTable['insert_by'] = $this->admin_id;
+                $stockNewTable['insert_date'] = $this->timestamp;
+                $stockNewTable['update_by'] = '';
+                $stockNewTable['update_date'] = '';
+                $stockNewTable['parent_invoice_id'] = $purchase_invoice_id[$value];
+
+                $this->Common_model->insert_data('stock', $stockNewTable);
+
+
+                $condtion = array(
+                    'related_id' => $supplier_id,
+                    'related_id_for' => 2,
+                    'is_active' => "Y",
+                );
+                $supplier_ledger = $this->Common_model->get_single_data_by_many_columns('ac_account_ledger_coa', $condtion);
+                $accountingDetailsTable = array();
+                $accountingDetailsTable['Accounts_VoucherMst_AutoID'] = $accountingVoucherId;
+                $accountingDetailsTable['TypeID'] = '1';//Dr
+                $accountingDetailsTable['CHILD_ID'] = $supplier_ledger->id;//Supplier_Payables'34';
+                $accountingDetailsTable['GR_DEBIT'] = $quantity[$value] * $unit_price[$value];
+                $accountingDetailsTable['GR_CREDIT'] = '0.00';
+                $accountingDetailsTable['Reference'] = 'Supplier Paid Balance for Purchase Return';
+                $accountingDetailsTable['IsActive'] = 1;
+                $accountingDetailsTable['Created_By'] = $this->admin_id;
+                $accountingDetailsTable['Created_Date'] = $this->timestamp;
+                $accountingDetailsTable['BranchAutoId'] = $branch_id;
+                $accountingDetailsTable['date'] = $return_date;
+                $this->Common_model->insert_data('ac_tb_accounts_voucherdtl', $accountingDetailsTable);
+
+
+            }
+
+
+            $this->db->trans_complete();
+
+            if ($this->db->trans_status() === FALSE):
+                $msg = 'Your data can not be inserted';
+                $this->session->set_flashdata('error', $msg);
+                redirect(site_url($this->project . '/purchaseReturnAdd'));
+            else:
+                $msg = 'Your data successfully inserted into database';
+                $this->session->set_flashdata('success', $msg);
+                redirect(site_url($this->project . '/purchaseReturnAdd'));
+            endif;
+
+
+        }
+        /*page navbar details*/
+        $data['title'] = get_phrase('Purchase Return Add');
+        $data['page_type'] = get_phrase('Purchase');
+        $data['link_page_name'] = get_phrase('Purchase Return List');
+        $data['link_page_url'] = $this->project . '/purchaseReturn';
+        $data['link_icon'] = "<i class='fa fa-list'></i>";
+        /*page navbar details*/
+        $data['dist_id'] = $this->dist_id;
+        $data['supplierList'] = $this->Common_model->getPublicSupplier($this->dist_id);
+        $data['companyInfo'] = $this->Common_model->get_single_data_by_single_column('system_config', 'dist_id', $this->dist_id);
+        $data['mainContent'] = $this->load->view('distributor/inventory/purchase_return/purchaseReturnAdd', $data, true);
+        $this->load->view('distributor/masterTemplate', $data);
+    }
+    function getpurchaseInvoiceList()
+    {
+
+
+        $json = array();
+        $list = $this->ReturnDamageModel->get_purchase_invoice_details_for_return();
+
+
+        $property_1 = get_property_list_for_show_hide(1);
+        $property_2 = get_property_list_for_show_hide(2);
+        $property_3 = get_property_list_for_show_hide(3);
+        $property_4 = get_property_list_for_show_hide(4);
+        $property_5 = get_property_list_for_show_hide(5);
+
+
+        $data = array();
+        foreach ($list as $element) {
+            $condition = array(
+                'form_id' => 6,
+                'type' => 2,
+                'parent_stock_id' => $element['purchase_details_id'],
+                'product_id' => $element['product_id'],
+            );
+            $purchase_return_qty = $this->ReturnDamageModel->get_product_total_return_qty($condition);
+            $product_id=$element['product_id'];
+            $category_id=$element['category_id'];
+            $ispackage=0;
+            $branchId=$element['branch_id'];
+
+            $productStock = $this->Sales_Model->getProductStock($product_id, $category_id, $ispackage, $branchId);
+
+            $quantity = $element['quantity'] - $purchase_return_qty;
+            if ($element['quantity'] - $purchase_return_qty == 0) {
+                $check_box = "";
+            } else {
+                $check_box = "<input class='form-check-input checkbox_for_return' name='purchase_details_id[]' type='checkbox' value='" . $element['purchase_details_id'] . "' id='defaultCheck1" . $element['purchase_details_id'] . "'>";
+
+            }
+
+            $row = array();
+            $row[] = $element['purchase_details_id'];
+            $row[] = $element['invoice_no'];
+            $row[] = $element['invoice_date'];
+            $row[] = $element['productName'] . "<input type='hidden'  id='purchase_invoice_id_" . $element['purchase_invoice_id'] . "' name='purchase_invoice_id[" . $element['purchase_details_id'] . "]' value='" . $element['purchase_invoice_id'] . "'/>";;
+            $row[] = "<input type='hidden' id='stock_qty_" . $element['purchase_details_id'] . "' value='".$productStock."'/><input type='text' class='form-control quantity decimal' attr-purchase-details-id='" . $element['purchase_details_id'] . "'  id='quantity_" . $element['purchase_details_id'] . "' name='quantity[" . $element['purchase_details_id'] . "]' value='" . $quantity . "' placeholder='" . $element['quantity'] . "' attr-actual-quantity='" . $element['quantity'] . "' readonly='true'  onclick='this.select();'/>";
+            $row[] = "<input type='text' class='form-control unit_price decimal' attr-purchase-details-id='" . $element['purchase_details_id'] . "' id='unit_price_" . $element['purchase_details_id'] . "' name='unit_price[" . $element['purchase_details_id'] . "]' value='" . $element['unit_price'] . "' placeholder='" . $element['unit_price'] . "' arrt-actual-unit-price='" . $element['unit_price'] . "' readonly='true' onclick='this.select();'/>";;
+            $row[] = "<input type='text' class='form-control tt_price decimal' attr-purchase-details-id='" . $element['purchase_details_id'] . "' id='tt_price_" . $element['purchase_details_id'] . "' name='tt_price[" . $element['purchase_details_id'] . "]' value='" . $quantity * $element['unit_price'] . "' placeholder='" . $element['quantity'] * $element['unit_price'] . "' readonly='true' onclick='this.select();'/>";
+            if ($property_1 != 'dont_have_this_property') {
+                $row[] = $element['property_1'];
+            }
+            if ($property_2 != 'dont_have_this_property') {
+                $row[] = $element['property_2'];
+            }
+            if ($property_3 != 'dont_have_this_property') {
+                $row[] = $element['property_3'];
+            }
+            if ($property_4 != 'dont_have_this_property') {
+                $row[] = $element['property_4'];
+            }
+            if ($property_5 != 'dont_have_this_property') {
+                $row[] = $element['property_5'];
+            }
+            $row[] = $check_box;
+            $data[] = $row;
+        }
+
+        $json['data'] = array(
+            "draw" => $_POST['draw'],
+            "recordsTotal" => $this->ReturnDamageModel->countAll(),
+            "recordsFiltered" => $this->ReturnDamageModel->countFiltered(),
+            "data" => $data,
+        );
+        //output to json format
+        $this->output->set_header('Content-Type: application/json');
+        echo json_encode($json['data']);
+    }
+    function purchaseReturn()
+    {
+
+        /*page navbar details*/
+        $data['title'] = get_phrase('Purchase Return ');
+        $data['page_type'] = get_phrase($this->page_type);
+        $data['link_page_name'] = get_phrase('New_Purchase_return_Invoice');
+        $data['link_page_url'] = $this->project . '/purchaseReturnAdd';
+        $data['link_icon'] = "<i class='ace-icon fa fa-plus'></i>";
+        /*page navbar details*/
+        $data['mainContent'] = $this->load->view('distributor/inventory/purchase_return/purchase_return', $data, true);
+
+        $this->load->view('distributor/masterTemplate', $data);
+
+
+    }
+
+    function viewPurchaseReturn($id)
+    {
+        $data['title'] = 'Purchase Return View';
+        $data['pageTitle'] = 'Purchase Return ';
+        $data['dist_id'] = $this->dist_id;
+        $data['saleReturnInfo'] = $this->ReturnDamageModel->purchaseReturnInfo($id, $this->dist_id);
+
+        $data['salesDetailsInfo'] = $this->ReturnDamageModel->purchaseDetailsInfo($id, $this->dist_id);
+
+        $data['companyInfo'] = $this->Common_model->get_single_data_by_single_column('system_config', 'dist_id', $this->dist_id);
+        $data['mainContent'] = $this->load->view('distributor/inventory/purchase_return/purchaseReturnView', $data, true);
+        $this->load->view('distributor/masterTemplate', $data);
+    }
 
 }

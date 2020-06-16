@@ -276,11 +276,16 @@ ORDER BY b.branch_id DESC";
         product.dist_id,product.status,
         brand.brandName,
         unit.unitTtile,
+        unit.unit_id,
         tb_subcategory.SubCatName,
         tb_model.Model,
         tb_color.Color,
         product.property_1,
         product.property_2,
+        product.property_3,
+        product.property_4,
+        product.property_5,
+        product.salesPrice,
         tb_size.Size');
         $this->db->from('product');
         $this->db->join('brand', 'brand.brandId = product.brand_id', 'left');
@@ -2043,7 +2048,71 @@ ORDER BY acl.parent_id ASC";
 
         return $data2;
     }
+    public function get_product_list_for_auto_complete($distId, $q = '', $status = NULL)
+    {
+        $this->db->select('product.product_id,
+        product.productName,
+        product.brand_id,
+        product.category_id,productcategory.title as productCatName,
+        unit.unitTtile,product.unit_id,
+        product.product_code,brand.brandName,
+        product.property_1,
+        product.property_2,
+        product.property_3,
+        product.property_4,
+        product.property_5,
+        ');
+        $this->db->from('product');
+        $this->db->join('brand', 'brand.brandId = product.brand_id', 'left');
+        $this->db->join('productcategory', 'productcategory.category_id = product.category_id', 'left');
+        $this->db->join('unit', 'unit.unit_id = product.unit_id', 'left');
+        $this->db->group_start();
+        $this->db->where('product.dist_id', $distId);
+        $this->db->or_where('product.dist_id', 1);
+        $this->db->group_end();
+        $this->db->where('product.status', 1);
+        $this->db->group_start();
+        $this->db->like('product.productName', $q);
+        $this->db->or_like('product.product_code', $q);
+        $this->db->or_like('brand.brandName', $q);
+        $this->db->group_end();
+        if (!empty($status)) {
+            $this->db->where('product.category_id', 2);
+        }
+        $this->db->limit("30");
+        $this->db->order_by("product.product_id", "ASC");
+        $result = $this->db->get()->result_array();
+        $r=1;
+        if (count($result) > 0) {
+            $data = array();
+            foreach ($result as $key => $value) {
+                $c = uniqid(mt_rand(), true);
 
+                $data[$key]['row_id'] = sha1($c . $r);
+                $data[$key]['id'] = $result[$key]['product_id'];
+                $data[$key]['productName'] = $result[$key]['productName'];
+                $data[$key]['brandName'] = $result[$key]['brandName'];
+                $data[$key]['category_id'] = $result[$key]['category_id'];
+                $data[$key]['productCatName'] = $result[$key]['productCatName'];
+                $data[$key]['unitTtile'] = $result[$key]['unitTtile'];
+                $data[$key]['unit_id'] = $result[$key]['unit_id'];
+                $data[$key]['brandName'] = $result[$key]['brandName'];
+                $data[$key]['brand_id'] = $result[$key]['brand_id'];
+                $data[$key]['property_1'] = $result[$key]['property_1'];
+                $data[$key]['property_2'] = $result[$key]['property_2'];
+                $data[$key]['property_3'] = $result[$key]['property_3'];
+                $data[$key]['property_4'] = $result[$key]['property_4'];
+                $data[$key]['property_5'] = $result[$key]['property_5'];
+                //$data[$key]['label'] = $result[$key]['brand_id'];
+                //$data[$key]['productWholeSalePrice'] = $result[$key]['productWholeSalePrice'];
+                $data[$key]['value'] = $result[$key]['productCatName'] . ' - ' . $result[$key]['productName'] . ' [ ' . $result[$key]['brandName'] . ' ]';
+                //$data[$key]['productModel'] = ($result[$key]['productModel']!='')? $result[$key]['productModel']:'' ;
+                $r++;
+            }
+            return $data;
+        }
+        // return $getProductList;
+    }
     //End Here Invoice Adjustmwnt
 }
 ?>

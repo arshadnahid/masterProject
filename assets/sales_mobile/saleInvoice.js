@@ -718,6 +718,7 @@ function getProductPrice2(product_id) {
 
 }
 
+
 function getProductList2(cat_id) {
     $.ajax({
         type: "POST",

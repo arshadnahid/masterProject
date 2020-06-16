@@ -43,6 +43,11 @@ class HomeController extends CI_Controller
     public function moduleDashboard()
     {
 
+
+
+
+
+
         $query = $this->db->field_exists('due_collection_details_id', 'ac_accounts_vouchermst');
         if ($query != TRUE) {
             $this->load->dbforge();

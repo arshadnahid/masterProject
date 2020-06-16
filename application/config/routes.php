@@ -542,6 +542,18 @@ $route['(:any)/warranty_receipt_voucher'] = 'lpg/WarrantyManagementController/wa
 $route['(:any)/warranty_receipt_voucher_list'] = 'lpg/WarrantyManagementController/warranty_receipt_voucher_list';
 $route['(:any)/warranty_receipt_voucher_view/(:any)'] = 'lpg/WarrantyManagementController/warranty_receipt_voucher_view/$2';
 
+
+$route['(:any)/purchaseReturnAdd'] = 'lpg/ReturnDagameController/purchaseReturnAdd';
+$route['(:any)/purchaseReturn'] = 'lpg/ReturnDagameController/purchaseReturn';
+$route['(:any)/viewPurchaseReturn/(:any)'] = 'lpg/ReturnDagameController/viewPurchaseReturn/$2';
+
+
+
+$route['(:any)/sales_order'] = 'lpg/SalesOrderController/sales_order_add';
+$route['(:any)/sales_order_list'] = 'lpg/SalesOrderController/sales_order_list';
+$route['(:any)/so_po_view/(:any)'] = 'lpg/SalesOrderController/so_po_view/$2';
+$route['(:any)/sales_order_edit/(:any)'] = 'lpg/SalesOrderController/sales_order_edit/$2';
+
 $route['(:any)/404_override'] = '';
 $route['(:any)/translate_uri_dashes'] = FALSE;
 

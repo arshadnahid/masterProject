@@ -594,7 +594,7 @@ class InvProductController extends CI_Controller
             if (!empty($productList)):
                 $add .= "<option value=''></option>";
                 foreach ($productList as $key => $value):
-                    $add .= "<option  ispackage='0' property_1='" . $value->property_1 . " ' property_2='" . $value->property_2 . " '  categoryName='" . $value->productCat . " '  categoryId='" . $value->category_id . "' productName='". $value->SubCatName . $value->productName . " [" . $value->brandName . "]' value='" . $value->product_id . "' >$value->SubCatName   $value->Model  $value->Color   $value->Size  $value->productName  [" . $value->brandName . "]</option>";
+                    $add .= "<option  ispackage='0' brand_id='" . $value->brand_id . " 'brandName='" . $value->brandName . " ' property_1='" . $value->property_1 . " ' property_2='" . $value->property_2 . " ' property_3='" . $value->property_3 . " ' property_4='" . $value->property_4 . " ' salesPrice='" . $value->salesPrice . " ' property_5='" . $value->property_5 . " ' categoryName='" . $value->productCat . " '  categoryId='" . $value->category_id . "' productName='". $value->SubCatName . $value->productName . "' brandName='" . $value->brandName . "' value='" . $value->product_id . "' >$value->SubCatName   $value->Model  $value->Color   $value->Size  $value->productName  [" . $value->brandName . "]</option>";
                 endforeach;
                 echo $add;
                 DIE;

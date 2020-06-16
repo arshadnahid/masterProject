@@ -110,7 +110,8 @@
     });
 
     function deleteVoucher(voucherType,id){
-
+        $('#delete_'+id).prop('disabled', true);
+        $('#delete_'+id).button('loading');
         swal({
                 title: "Are you sure ?",
                 text: "You won't be able to revert this!",
@@ -145,6 +146,8 @@
                         }
                     });
                 }else{
+                    $('#delete_'+id).prop('disabled', false);
+                    $('#delete_'+id).button('reset');
                     return false;
                 }
             });

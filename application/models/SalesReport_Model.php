@@ -198,6 +198,7 @@ class SalesReport_Model extends CI_Model
         if ($customer_id != 'all') {
             $query .= " AND sales_invoice_info.customer_id=" . $customer_id;
         }
+        $query .= " AND sales_invoice_info.is_active=Y" ;
         if($type !='all'){
             $query .= "  HAVING
                     balance > 0 ";

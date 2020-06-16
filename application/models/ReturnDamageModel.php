@@ -45,6 +45,25 @@ WHERE 1=1
         $reslt = $this->db->query($sql)->row();
         return $reslt;
     }
+    function purchaseReturnInfo($id, $distId)
+    {
+        $sql = "SELECT
+	sri.return_date as return_date,
+	sri.narration as narration,
+	sri.return_invoice_no as voucher_no,
+CONCAT(c.supName,' [ ', c.supID,' ] ') as customerName,
+c.supAddress as address
+
+FROM
+	return_info AS sri
+LEFT JOIN supplier as c ON c.sup_id=sri.sup_cus_id
+
+WHERE 1=1
+ AND  sri.id='$id' ORDER BY sri.return_date asc";
+
+        $reslt = $this->db->query($sql)->row();
+        return $reslt;
+    }
 
     function salesDetailsInfo($id, $distId)
     {
@@ -67,6 +86,32 @@ LEFT JOIN customer AS c ON c.customer_id = sr.customer_id
 LEFT JOIN sales_invoice_info AS g ON g.sales_invoice_id = sr.parent_invoice_id
 WHERE 1=1
  AND sr.form_id = '5' 
+ AND sr.invoice_id = '$id' 
+  ";
+        $reslt = $this->db->query($sql)->result();
+        return $reslt;
+    }
+    function purchaseDetailsInfo($id, $distId)
+    {
+        $sql = "SELECT sr.quantity,
+	sr.price,
+	CONCAT(
+		p.productName,
+		' [ ',
+		b.brandName,
+		' ] '
+	)AS productName,
+	u.unitTtile as unit
+FROM
+	stock AS sr
+
+LEFT JOIN product AS p ON p.product_id = sr.product_id
+LEFT JOIN brand AS b ON b.brandId = p.brand_id
+LEFT JOIN unit as u ON u.unit_id=p.unit_id
+LEFT JOIN supplier AS c ON c.supID = sr.supplier_id
+LEFT JOIN sales_invoice_info AS g ON g.sales_invoice_id = sr.parent_invoice_id
+WHERE 1=1
+ AND sr.form_id = '6' 
  AND sr.invoice_id = '$id' 
   ";
         $reslt = $this->db->query($sql)->result();
@@ -219,6 +264,9 @@ GROUP BY
         if (!empty($this->input->post('customerid'))) {
             $this->db->where('sii.customer_id', $this->input->post('customerid'));
         }
+        if (!empty($this->input->post('BranchAutoId'))) {
+            $this->db->where('sii.branch_id', $this->input->post('BranchAutoId'));
+        }
 
         $this->db->select("sii.sales_invoice_id,
 	sii.invoice_no,
@@ -271,10 +319,100 @@ GROUP BY
             $this->db->order_by(key($order), $order[key($order)]);
         }
     }
+    private function getQueryPurchase()
+    {
+
+
+        //add custom filter here
+        if (!empty($this->input->post('startDate'))) {
+            $this->db->where('pii.invoice_date >=', date('Y-m-d', strtotime($this->input->post('startDate'))));
+        }
+        if (!empty($this->input->post('endDate'))) {
+            $this->db->where('pii.invoice_date', date('Y-m-d', strtotime($this->input->post('endDate'))));
+        }
+        if (!empty($this->input->post('supplierid'))) {
+            $this->db->where('pii.supplier_id', $this->input->post('supplierid'));
+        }
+        if (!empty($this->input->post('BranchAutoId'))) {
+            $this->db->where('pii.branch_id', $this->input->post('BranchAutoId'));
+        }
+
+        $this->db->select("pii.purchase_invoice_id,
+	pii.invoice_no,
+	pii.invoice_date,
+	pii.supplier_id,
+	pii.branch_id,
+	pd.purchase_details_id,
+	pd.product_id,
+	p.productName,
+	p.product_code,
+	p.category_id,
+	pc.title AS productcategory,
+	b.brandName,
+	pd.quantity,
+	pd.unit_price,
+	pd.is_package,
+	pd.product_details,
+	pd.property_1,
+	pd.property_2,
+	pd.property_3,
+	pd.property_4,
+	pd.property_5");
+
+        $this->db->from('purchase_details pd');
+        $this->db->join('purchase_invoice_info pii ', 'pii.purchase_invoice_id = pd.purchase_invoice_id', 'left');
+        $this->db->join('product p ', 'p.product_id = pd.product_id ', 'left');
+        $this->db->join('productcategory pc   ', 'pc.category_id = p.category_id', 'left');
+        $this->db->join('brand b  ', 'b.brandId = p.brand_id', 'left');
+
+        $i = 0;
+
+        foreach ($this->column_search as $item) { // loop column
+            if ($_POST['search']['value']) { // if datatable send POST for search
+                if ($i === 0) { // first loop
+                    $this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
+                    $this->db->like($item, $_POST['search']['value']);
+                } else {
+                    $this->db->or_like($item, $_POST['search']['value']);
+                }
+
+                if (count($this->column_search) - 1 == $i) //last loop
+                    $this->db->group_end(); //close bracket
+            }
+            $i++;
+        }
+
+        if (!empty($_POST['order'])) // here order processing
+        {
+            $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        } else if (!empty($this->order)) {
+            $order = $this->order;
+            $this->db->order_by(key($order), $order[key($order)]);
+        }
+    }
 
     public function get_sales_invoice_details_for_return()
     {
         $this->getQuery();
+        if (!empty($_POST['length']) && $_POST['length'] < 1) {
+            $_POST['length'] = '10';
+        } else {
+            $_POST['length'] = $_POST['length'];
+        }
+
+        if (!empty($_POST['start']) && $_POST['start'] > 1) {
+            $_POST['start'] = $_POST['start'];
+        }
+        $this->db->limit($_POST['length'], $_POST['start']);
+        //print_r($_POST);die;
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+
+    public function get_purchase_invoice_details_for_return()
+    {
+        $this->getQueryPurchase();
         if (!empty($_POST['length']) && $_POST['length'] < 1) {
             $_POST['length'] = '10';
         } else {
@@ -361,7 +499,7 @@ ORDER BY
     function get_product_total_return_qty($condition)
     {
 
-        $this->db->select('sum(quantity) as total_return_qty');
+        $this->db->select('sum(IFNULL(quantity,0)) as total_return_qty');
         $this->db->from("stock");
 
         $this->db->where($condition);

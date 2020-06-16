@@ -155,6 +155,9 @@ class SalesInvoiceEditController extends CI_Controller
 
                 $bankName = $this->input->post('bankName');
                 $this->db->trans_begin();
+                $this->_save_data_to_sales_history_table($invoice_id = $invoiceId, $action = 'edit');
+
+
 
                 $UpdateAccountsMasterCondition = array(
                     'for' => 2,
@@ -192,7 +195,7 @@ class SalesInvoiceEditController extends CI_Controller
                 $this->Common_model->delete_data_with_condition('ac_tb_accounts_voucherdtl', $DeleteCondition_ac_tb_accounts_voucherdtl);
 
 
-                $this->_save_data_to_sales_history_table($invoice_id = $invoiceId, $action = 'edit');
+
                 // $this->db->trans_start();
                 $payType = $this->input->post('paymentType');
                 $branch_id = $this->input->post('branch_id');
@@ -214,8 +217,7 @@ class SalesInvoiceEditController extends CI_Controller
                 $sales_inv['invoice_amount'] = $this->input->post('netTotal');
                 $sales_inv['vat_amount'] = 0;
                 $sales_inv['discount_amount'] = $this->input->post('discount') != '' ? $this->input->post('discount') : 0;
-                $sales_inv['paid_amount'] = $this->input->post('partialPayment') != '' ? $this->input->post('partialPayment') : 0;
-                $sales_inv['delivery_address'] = $this->input->post('shippingAddress');
+                   $sales_inv['delivery_address'] = $this->input->post('shippingAddress');
                 $sales_inv['delivery_date'] = $this->input->post('delivery_date') != '' ? date($this->input->post('delivery_date')) : '';
                 $sales_inv['tran_vehicle_id'] = $this->input->post('transportation') != '' ? $this->input->post('transportation') : 0;
                 $sales_inv['transport_charge'] = $this->input->post('transportationAmount') != '' ? $this->input->post('transportationAmount') : 0;
@@ -244,7 +246,16 @@ class SalesInvoiceEditController extends CI_Controller
                 }
                 $cash_ledger_id = 0;
                 if ($payType == 4) {
+
                     $cash_ledger_id = $this->input->post('accountCrPartial');
+                }
+
+                if($payType == 4){
+                    $sales_inv['paid_amount'] = $this->input->post('partialPayment') != '' ? $this->input->post('partialPayment') : 0;
+                }else if($payType == 3){
+                    $sales_inv['paid_amount'] = $this->input->post('partialPayment') != '' ? $this->input->post('partialPayment') : 0;
+                }else{
+                    $sales_inv['paid_amount'] =0;
                 }
                 $sales_inv['cash_ledger_id'] = $cash_ledger_id;
                 $sales_invUpdateCondition = array(
@@ -1448,6 +1459,21 @@ class SalesInvoiceEditController extends CI_Controller
     public function _save_data_to_sales_history_table($invoice_id, $action = array('edit', 'delete'))
     {
 
+        $query = $this->db->field_exists('parent_invoice_id', 'stock');
+        if ($query != TRUE) {
+            $this->load->dbforge();
+            $fields = array(
+                'parent_invoice_id' => array(
+                    'constraint' => 11,
+                    'unsigned' => TRUE,
+                    'default' => '0',
+                    'null' => TRUE
+                )
+            );
+            $this->dbforge->add_column('stock', $fields);
+        }
+
+
 
 
        // $this->db->trans_begin();
@@ -1463,7 +1489,19 @@ class SalesInvoiceEditController extends CI_Controller
         $sql_moneyreceit_audit = "create table IF NOT EXISTS moneyreceit_audit(invoice_info_history_id int not null ) as select * from moneyreceit where 1=3";
         $this->db->query($sql_moneyreceit_audit);
 
-
+        $query = $this->db->field_exists('parent_invoice_id', 'stock_audit');
+        if ($query != TRUE) {
+            $this->load->dbforge();
+            $fields = array(
+                'parent_invoice_id' => array(
+                    'constraint' => 11,
+                    'unsigned' => TRUE,
+                    'default' => '0',
+                    'null' => TRUE
+                )
+            );
+            $this->dbforge->add_column('stock_audit', $fields);
+        }
 
         $query = $this->db->field_exists('is_active', 'moneyreceit_audit');
         if ($query != TRUE) {
@@ -1796,6 +1834,77 @@ class SalesInvoiceEditController extends CI_Controller
             echo $field->max_length;
             echo $field->primary_key;
         }
+    }
+
+    public function sales_delete(){
+        $invoiceId = $this->input->post('id');
+        $customer_money_revcive = $this->_check_the_invoice_have_bill_to_bill_transction($invoiceId);
+        if(!empty($customer_money_revcive)){
+            $msg = 'Sales Invoice Cannot Delete .This Sales Invoice have accounting transaction  ' ;
+            $this->session->set_flashdata('error', $msg);
+            redirect(site_url($this->project . '/salesInvoiceLpg'));
+        }
+        $this->db->trans_begin();
+        $sales_inv=array();
+        $sales_inv['is_active'] = 'N';
+        $sales_inv['is_delete'] = 'Y';
+        $sales_invUpdateCondition = array(
+            'sales_invoice_id' => $invoiceId,
+            //'invoice_for' => 2,
+        );
+        $this->Common_model->save_and_check('sales_invoice_info', $sales_inv, $sales_invUpdateCondition);
+
+
+        $this->_save_data_to_sales_history_table($invoice_id = $invoiceId, $action ='delete');
+
+
+
+        $UpdateAccountsMasterCondition = array(
+            'for' => 2,
+            'BackReferenceInvoiceNo' => $this->input->post('voucherid'),
+            'BackReferenceInvoiceID' => $invoiceId,
+        );
+
+
+        $checkArray = $this->Common_model->get_single_data_by_many_columns('ac_accounts_vouchermst', $UpdateAccountsMasterCondition);
+
+        $accountingVoucherId = $checkArray->Accounts_VoucherMst_AutoID;
+
+
+        $DeleteCondition_sales_details = array(
+            'sales_invoice_id' => $invoiceId
+        );
+        $this->Common_model->delete_data_with_condition('sales_details', $DeleteCondition_sales_details);
+        $this->Common_model->delete_data_with_condition('sales_return_details', $DeleteCondition_sales_details);
+        $DeleteConditionStock = array(
+            'invoice_id' => $invoiceId,
+            'form_id' => 3
+        );
+        $this->Common_model->delete_data_with_condition('stock', $DeleteConditionStock);
+
+        $DeleteConditionMoneyreceit = array(
+            'invoiceID' => $invoiceId,
+            'receiveType' => 1,
+        );
+        $this->Common_model->delete_data_with_condition('moneyreceit', $DeleteConditionMoneyreceit);
+
+
+        $DeleteCondition_ac_tb_accounts_voucherdtl = array(
+            'Accounts_VoucherMst_AutoID' => $accountingVoucherId
+        );
+        $this->Common_model->delete_data_with_condition('ac_tb_accounts_voucherdtl', $DeleteCondition_ac_tb_accounts_voucherdtl);
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            $msg = 'sales Invoice ' . ' ' . $this->config->item("update_error_message");
+            $this->session->set_flashdata('error', $msg);
+            echo 2;
+        } else {
+            $this->db->trans_commit();
+            $msg = 'sales Invoice ' . ' ' . $this->config->item("update_success_message");
+            $this->session->set_flashdata('success', $msg);
+            echo 1;
+        }
+
     }
 
 }

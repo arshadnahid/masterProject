@@ -420,9 +420,7 @@ if ($property_5 != 'dont_have_this_property') {
                         <i class="ace-icon fa fa-check bigger-110"></i>
                         <?php echo get_phrase('Save') ?>
                     </button>
-                    <span id="errorMsg" style="color:red;display: none;"><i
-                                class="ace-icon fa fa-spinner fa-spin orange bigger-120"></i> &nbsp;&nbsp;Customer Credit Limit over!!</span>
-
+                    
                 </div>
             </div>
 
